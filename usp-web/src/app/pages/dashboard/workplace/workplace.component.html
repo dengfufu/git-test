@@ -1,0 +1,89 @@
+<pro-page-header-wrapper [pageHeaderRender]="pageHeaderRenderTemplate">
+  <div nz-row [nzGutter]="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 8, xxl: 8 }">
+    <!-- 云平台相关信息 -->
+    <div nz-col [nzSpan]="24" *aclIf="{ability: [aclRight.INFORMATION_PLATFORM]}">
+      <app-cloud-info-widget></app-cloud-info-widget>
+    </div>
+    <!-- 待办工单信息 -->
+    <div nz-col [nzSpan]="24" *aclIf="{ability: [aclRight.WORK_TODO]}">
+      <app-work-todo></app-work-todo>
+    </div>
+    <!-- 工单分布地图 -->
+    <div nz-col [nzSpan]="24" *aclIf="{ability: [aclRight.WORK_CITY_CHART]}">
+      <app-work-city-map></app-work-city-map>
+    </div>
+    <!-- 工单按委托商统计 -->
+    <div nz-col [nzSpan]="24" *aclIf="{ability: [aclRight.WORK_ENTRUST_CHART]}">
+      <app-work-demander-bar></app-work-demander-bar>
+    </div>
+    <!-- 工单按服务商统计 -->
+    <div nz-col [nzSpan]="24" *aclIf="{ability: [aclRight.WORK_SERVICE_CHART]}">
+      <app-work-provider-bar></app-work-provider-bar>
+    </div>
+    <!--工单按状态统计 -->
+    <div nz-col [nzSpan]="12" *aclIf="{ability: [aclRight.WORK_STATUS_CHART]}">
+      <app-work-status-pie></app-work-status-pie>
+    </div>
+    <!-- 工单按类型统计 -->
+    <div nz-col [nzSpan]="12" *aclIf="{ability: [aclRight.WORK_TYPE_CHART]}">
+      <app-work-type-pie></app-work-type-pie>
+    </div>
+    <!--设备按类型统计 -->
+    <div nz-col [nzSpan]="24" *aclIf="{ability: [aclRight.DEVICE_TYPE_PIE]}">
+      <app-device-type-pie></app-device-type-pie>
+    </div>
+    <!--委托商工单量趋势 -->
+    <div nz-col [nzSpan]="24" *aclIf="{ability: [aclRight.DEMANDER_TREND_CHART]}">
+      <app-demander-order></app-demander-order>
+    </div>
+  </div>
+</pro-page-header-wrapper>
+
+<ng-template #pageHeaderRenderTemplate>
+  <nz-page-header>
+    <!-- renderPageHeader -->
+    <nz-page-header-content>
+      <div class="ant-pro-page-header-wrap-detail">
+        <div class="ant-pro-page-header-wrap-main">
+          <div class="ant-pro-page-header-wrap-row">
+            <div class="ant-pro-page-header-wrap-content">
+              <ng-container *nzStringTemplateOutlet="pageHeaderContentTemplate"></ng-container>
+            </div>
+            <div class="ant-pro-page-header-wrap-extraContent">
+              <ng-container *nzStringTemplateOutlet="extraContentTemplate"></ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nz-page-header-content>
+  </nz-page-header>
+</ng-template>
+
+<ng-template #pageHeaderContentTemplate>
+  <ng-container *ngIf="!userService.userInfo">
+    <nz-skeleton [nzAvatar]="true"></nz-skeleton>
+  </ng-container>
+  <ng-container *ngIf="userService.userInfo">
+    <div class="pageHeaderContent">
+      <div class="avatar">
+        <nz-avatar nzSize="large" [nzSrc]="userService.userInfo.faceImgUrl"></nz-avatar>
+      </div>
+      <div class="content">
+        <div class="contentTitle">
+          {{getDateState()}}，
+          {{userService.userInfo.userName}}
+          ，祝你开心每一天！
+        </div>
+        <div *ngIf="userService.currentCorp.corpName">
+          {{currentCorpRole}} | {{userService.currentCorp.corpName}}
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</ng-template>
+
+<ng-template #extraContentTemplate>
+  <app-work-new-widget *aclIf="{ability: [aclRight.WORK_NUMBER_CHART]}"></app-work-new-widget>
+</ng-template>
+
+

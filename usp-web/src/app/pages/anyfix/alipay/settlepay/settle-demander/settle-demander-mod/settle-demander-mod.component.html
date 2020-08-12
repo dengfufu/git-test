@@ -1,0 +1,96 @@
+<nz-spin [nzSpinning]="spinning">
+  <form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="form">
+    <div nz-row>
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>委托商名称</nz-form-label>
+          <nz-form-control [nzSm]="16" [nzXs]="24">
+            {{settleDemander.demanderCorpName}}
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24">行政区划</nz-form-label>
+          <nz-form-control [nzSm]="16" [nzXs]="24">
+            {{settleDemander.districtName}}
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzSpan="6">协议合同号</nz-form-label>
+          <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.contNo.errors?.explain">
+            <input nz-input formControlName="contNo" placeholder="请输入协议合同号"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24">备注</nz-form-label>
+          <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.note.errors?.explain">
+          <textarea
+            nz-input
+            placeholder="请输入备注"
+            formControlName="note"
+            [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+          ></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="12" style="border-left: 1px dashed #dad8d8;">
+        <nz-form-item>
+          <nz-form-label nzSpan="6">收款账户信息</nz-form-label>
+          <nz-form-control nzSpan="16">
+            <button nz-button nzType="primary" nzShape="round" nzSize="small"
+                    (click)="selectReceiptAccount()">选择
+            </button>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzSpan="6">收款账户</nz-form-label>
+          <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.accountNumber.errors?.explain">
+            <input nz-input formControlName="accountNumber" placeholder="请输入/选择收款账户"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzSpan="6">户名</nz-form-label>
+          <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.accountName.errors?.explain">
+            <input nz-input formControlName="accountName" placeholder="请输入/选择户名"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzSpan="6">开户行</nz-form-label>
+          <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.accountBank.errors?.explain">
+            <input nz-input formControlName="accountBank" placeholder="请输入/选择开户行"/>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div nz-row>
+      <nz-form-item>
+        <nz-form-label [nzSm]="3" [nzXs]="24">对账单列表</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24">
+          <nz-tag *ngFor="let verify of detailList" nzMode="closeable" [nzColor]="'green'"
+                  (nzOnClose)="deleteVerify(verify)">{{ verify.verifyName }}</nz-tag>
+          <button nz-button nzType="primary" nzShape="round" nzSize="small"
+                  (click)="selectVerifyList()">选择
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="startDate && endDate">
+        <nz-form-label [nzSm]="3" [nzXs]="24">结算周期</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24">
+          {{startDate | date: 'yyyy-MM-dd'}}~{{endDate | date: 'yyyy-MM-dd'}}
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzSpan="3">总金额</nz-form-label>
+        <nz-form-control nzSpan="16">
+          ￥{{settleFee}}
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+</nz-spin>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid"
+          style="margin-left: 20px;">提交
+  </button>
+</div>

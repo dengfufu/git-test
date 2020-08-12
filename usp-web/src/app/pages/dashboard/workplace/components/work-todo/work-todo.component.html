@@ -1,0 +1,58 @@
+<nz-card class="projectList"
+         style="margin-bottom: 0px"
+         [nzBordered]="false"
+         [nzTitle]="'待处理工单'"
+         [nzExtra]="extraTemplate"
+         [nzBodyStyle]="{padding:'6px'}">
+
+  <nz-table #basicTable [nzBordered]="true" [nzData]="workTodoList" [nzShowPagination]="false">
+    <thead>
+    <tr>
+      <th>工单编号</th>
+      <th>工单类型</th>
+      <th>设备类型</th>
+      <th>服务请求</th>
+      <th>委托商简称</th>
+      <th>服务网点</th>
+      <th>详细地址</th>
+      <th>创建时间</th>
+      <th>状态</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of basicTable.data">
+      <td>{{data.workCode}}</td>
+      <td>{{data.workTypeName}}</td>
+      <td>{{data.smallClassName}}</td>
+      <td>
+        <div nz-tooltip [nzTooltipTitle]="data.serviceRequest"
+             style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;max-width: 150px">
+          {{data.serviceRequest}}
+        </div>
+      </td>
+      <td>{{data.demanderCorpName}}</td>
+      <td>{{data.serviceBranchName}}</td>
+      <td>
+        <div nz-tooltip nzTooltipTitle="{{data.provinceName}}-{{data.cityName}}">
+          {{data.address}}
+        </div>
+      </td>
+      <td>{{data.createTime | date: 'yyyy-MM-dd HH:mm'}}</td>
+      <td>
+        <button nz-button
+                nzSize="small"
+                nzShape="round"
+                class="button-status"
+                [ngStyle]="getWorkStatusColor(data.workStatus)"
+                (click)="viewWorkDetail(data.workId)">
+          {{ data.workStatusName}}
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+
+<ng-template #extraTemplate>
+  <a (click)="toWorkList()">全部</a>
+</ng-template>

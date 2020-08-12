@@ -1,0 +1,96 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+      <button nz-button nzType="primary" style="margin-bottom: 16px" (click)="addWareCatalog()">
+        <i nz-icon nzType="plus"></i>
+        <span>新建</span>
+      </button>
+      &nbsp;
+      <button nz-button (click)="queryWareCatalog();">
+        <i nz-icon nzType="reload" nzTheme="outline"></i>
+        <span>刷新</span>
+      </button>
+      <!--<button nz-button nzType="primary" style="margin-bottom: 16px" (click)="openDrawer()">筛选</button>
+      &nbsp;
+      <button nz-button (click)="clearForm();queryWareCatalog();">
+        <i nz-icon nzType="delete" nzTheme="outline"></i>
+        <span>清空筛选</span>
+      </button>-->
+
+      <nz-table #table
+                nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="wareCatalogList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="queryWareCatalog(false)"
+                (nzPageSizeChange)="queryWareCatalog(true)">
+        <thead>
+        <tr>
+          <th>分类名称</th>
+          <th>描述</th>
+          <th>规格参数</th>
+          <th>顺序号</th>
+          <th>是否可用</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let data of table.data">
+          <ng-container *ngFor="let item of mapOfExpandedData[data.id]">
+            <tr *ngIf="(item.parent && item.parent.expand) || !item.parent">
+              <td
+                nzAlign="left"
+                [nzIndentSize]="item.level * 20"
+                [nzShowExpand]="!!item.children"
+                [(nzExpand)]="item.expand"
+                (nzExpandChange)="collapse(mapOfExpandedData[data.id], item, $event)"
+              >{{ item.name }}</td>
+              <td>{{ item.description }}</td>
+              <td>
+                  <div nz-row *ngFor="let specs of item.wareCatalogSpecsList">
+                    <span nz-col>{{specs.attribute}}</span>
+                    <span nz-col>&nbsp;</span>
+                    <span nz-col>{{specs.value}}</span>
+                  </div>
+              </td>
+              <td>{{ item.sortNo }}</td>
+              <td>{{ item.enabled }}</td>
+              <td>
+                <a (click)="editWareCatalog(item)">编辑</a>
+                <nz-divider nzType="vertical"></nz-divider>
+                <a (click)="confirmDelete(item.id)">删除</a>
+              </td>
+            </tr>
+          </ng-container>
+        </ng-container>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">分类筛选</span>
+  </ng-template>
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="360" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form name="form" [formGroup]="searchForm" (ngSubmit)="queryWareCatalog()">
+      <nz-form-item>
+        <nz-form-label nzMd="8" nzXs="24">分类名称</nz-form-label>
+        <nz-form-control nzMd="16" nzXs="24">
+          <input nz-input formControlName="name">
+        </nz-form-control>
+      </nz-form-item>
+      <div>
+        <button nz-button class="ant-btn" (click)="clearForm()">清空筛选</button>
+        &nbsp;
+        <button nz-button nzType="primary">查询</button>
+      </div>
+    </form>
+  </nz-drawer>
+</nz-layout>

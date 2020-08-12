@@ -1,0 +1,21 @@
+<form nz-form [formGroup]="validateForm">
+  <nz-form-item nz-row>
+    <nz-form-label [nzSpan]="4" nzRequired>预警类型</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-select nzAllowClear
+                 style="width: 250px;"
+                 formControlName="remindType"
+                 nzPlaceHolder="请选择预警类型"  (ngModelChange)="setTypeName($event)">
+        <nz-option *ngFor="let remindType of remindTypeOptions"
+                   [nzValue]="remindType.id" [nzLabel]="remindType.name">
+        </nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item nz-row>
+    <nz-form-label [nzSpan]="4" nzRequired>预警条件</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      超过<nz-input-number [nzMin]="1" [nzMax]="6000" [nzPrecision]="0" formControlName="expireTimeMin" placeholder="请输入预警条件" style="width: 100px;"></nz-input-number>（分钟）
+    </nz-form-control>
+  </nz-form-item>
+</form>

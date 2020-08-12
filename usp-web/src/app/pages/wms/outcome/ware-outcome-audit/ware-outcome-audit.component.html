@@ -1,0 +1,33 @@
+<nz-card [nzBordered]="false" style="height: calc(100% - 55px); overflow: auto; padding-bottom: 53px; ">
+  <div nz-row>
+    <div nz-col nzSpan="24">
+      <form [formGroup]="auditForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="5" nzRequired>审核处理</nz-form-label>
+          <nz-form-control nzSpan="19">
+            <nz-select
+              formControlName="nodeEndTypeId"
+              nzAllowClear
+              (ngModelChange)="endTypeChange($event)"
+            >
+              <nz-option nzLabel="通过" nzValue="10"></nz-option>
+              <nz-option nzLabel="不通过，退回上一步" nzValue="20"></nz-option>
+              <nz-option nzLabel="不通过，退回申请" nzValue="30"></nz-option>
+              <nz-option nzLabel="不通过，流程结束" nzValue="40"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzSpan="5">审核意见</nz-form-label>
+          <nz-form-control nzSpan="19">
+            <textarea rows="2" nz-input formControlName="auditNote"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+  </div>
+  <div class="footer">
+    <button nz-button class="ant-btn" style="margin-right: 8px;" (click)="goBack()">返回</button>&nbsp;
+    <button nz-button nzType="primary" [disabled]="!auditForm.valid" (click)="auditSubmit()">提交</button>
+  </div>
+</nz-card>

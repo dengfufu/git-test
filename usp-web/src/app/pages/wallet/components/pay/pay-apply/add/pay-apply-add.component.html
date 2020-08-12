@@ -1,0 +1,102 @@
+<ng-container *ngIf="!payCreateSuccess && !loading">
+  <nz-result nzStatus="error"
+             nzTitle="支付创建失败" [nzSubTitle]="errorMsg">
+    <div nz-result-extra>
+      <button nz-button nzType="primary" (click)="close()">关闭</button>
+    </div>
+  </nz-result>
+</ng-container>
+<ng-container *ngIf="payCreateSuccess">
+  <ng-container *ngIf="!paySuccess">
+    <nz-spin [nzSpinning]="loading" [nzTip]="payProgress">
+      <!--<div nz-row class="item-row">-->
+      <!--<div nz-col nzSpan="6" class="item-label">支付申请号:</div>-->
+      <!--<div nz-col nzSpan="18" class="item-content">{{payApplyInfo.id}}</div>-->
+      <!--</div>-->
+      <!--<div nz-row class="item-row">-->
+      <!--<div nz-col nzSpan="6" class="item-label">订单号:</div>-->
+      <!--<div nz-col nzSpan="18" class="item-content">{{payApplyInfo.orderId}}</div>-->
+      <!--</div>-->
+
+      <div nz-row class="item-row">
+        <div nz-col nzSpan="6" class="item-label">订单名称:</div>
+        <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.orderName}}</div>
+      </div>
+      <div nz-row class="item-row">
+        <div nz-col nzSpan="6" class="item-label">订单金额:</div>
+        <div nz-col nzSpan="18" class="item-content amount">{{payApplyInfo.orderAmount | currency:'CNY'}}</div>
+      </div>
+      <div nz-row class="item-row">
+        <div nz-col nzSpan="6" class="item-label">支付方式:</div>
+        <div nz-col nzSpan="18" class="item-content">支付宝</div>
+      </div>
+      <div nz-row class="item-row">
+        <div nz-col nzSpan="6" class="item-label">收款方:</div>
+        <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.payeeCorpName}}</div>
+      </div>
+      <div nz-row class="item-row">
+        <div nz-col nzSpan="6" class="item-label">付款方:</div>
+        <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.payerCorpName}}</div>
+      </div>
+      <!--    <div nz-row class="item-row">-->
+      <!--      <div nz-col nzSpan="6" class="item-label">付款方id:</div>-->
+      <!--      <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.payerAccountId}}</div>-->
+      <!--    </div>-->
+      <!--    <div nz-row class="item-row">-->
+      <!--      <div nz-col nzSpan="6" class="item-label">收款方id:</div>-->
+      <!--      <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.payeeAccountId}}</div>-->
+      <!--    </div>-->
+      <!--    <div nz-row class="item-row">-->
+      <!--      <div nz-col nzSpan="6" class="item-label">申请人:</div>-->
+      <!--      <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.applyUser}}</div>-->
+      <!--    </div>-->
+      <div nz-row class="item-row">
+        <div nz-col nzSpan="6" class="item-label">申请时间:</div>
+        <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.applyTime | date: 'yyyy-MM-dd HH:mm:ss'}}</div>
+      </div>
+      <div nz-row class="item-row">
+        <div nz-col nzSpan="6" class="item-label">超时时间:</div>
+        <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.expireTime | date: 'yyyy-MM-dd HH:mm:ss'}}</div>
+      </div>
+    </nz-spin>
+    <div class="footer">
+      <button nz-button [disabled]="disabledButton" nzType="default" class="ant-btn" style="margin-right: 8px;"
+              (click)="cancel()">
+        <span>取消支付</span>
+      </button>
+      <button nz-button [disabled]="disabledButton" nzType="primary" (click)="submit()">
+        <span>确认支付</span>
+      </button>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="paySuccess">
+    <nz-result nzStatus="success"
+               nzTitle="支付成功">
+      <div nz-result-content>
+      </div>
+      <div nz-result-extra>
+        <div nz-row class="item-row">
+          <div nz-col nzSpan="6" class="item-label">商品名称:</div>
+          <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.orderName}}</div>
+        </div>
+        <div nz-row class="item-row">
+          <div nz-col nzSpan="6" class="item-label">申请时间:</div>
+          <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.applyTime | date: 'yyyy-MM-dd HH:mm:ss'}}</div>
+        </div>
+        <div nz-row class="item-row" *ngIf="payApplyInfo.finishTime">
+          <div nz-col nzSpan="6" class="item-label">完成时间:</div>
+          <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.finishTime | date: 'yyyy-MM-dd HH:mm:ss'}}</div>
+        </div>
+        <div nz-row class="item-row">
+          <div nz-col nzSpan="6" class="item-label">订单金额:</div>
+          <div nz-col nzSpan="18" class="item-content">{{payApplyInfo.orderAmount | currency:'CNY' }}</div>
+        </div>
+        <button nz-button nzType="primary" (click)="close()">关闭</button>
+      </div>
+    </nz-result>
+  </ng-container>
+</ng-container>
+
+
+
+

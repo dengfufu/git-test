@@ -1,0 +1,13 @@
+<nz-card [nzBordered]="false" style="margin-bottom: 0px">
+  <div class="extraContent">
+    <div class="statItem">
+      <nz-statistic nzTitle="本月工单" [nzValue]="workStatus.newAmount || 0"></nz-statistic>
+    </div>
+    <div class="statItem">
+      <nz-statistic nzTitle="已完成总量" [nzValue]="workStatus.finishedAmount || 0"></nz-statistic>
+    </div>
+    <div class="statItem">
+      <nz-statistic nzTitle="完成比例" [nzValue]="workStatus.finishedPercent || 0"></nz-statistic>
+    </div>
+  </div>
+</nz-card>

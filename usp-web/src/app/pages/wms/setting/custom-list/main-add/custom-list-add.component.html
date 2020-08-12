@@ -1,0 +1,93 @@
+<nz-content>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+    <div nz-row>
+      <nz-card nzBordered>
+        <nz-form-item nz-col>
+          <nz-form-label [nzSpan]="4" nzRequired>列表名称</nz-form-label>
+          <nz-form-control [nzSpan]="8" style="width: 200px;" nzHasFeedback>
+            <input nz-input formControlName="name" placeholder="请输入列表名称">
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item nz-col>
+          <nz-form-label [nzSpan]="4" nzRequired>列表类型</nz-form-label>
+          <nz-form-control [nzSpan]="8" style="width: 200px;">
+            <nz-select
+              nzAllowClear
+              nzPlaceHolder="请选择列表类型"
+              formControlName="listClass"
+            >
+              <nz-option *ngFor="let data of selectOptions.listClassList" [nzLabel]="data.name" [nzValue]="data.id"> </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item nz-col>
+          <nz-form-label [nzSpan]="4">描述</nz-form-label>
+          <nz-form-control [nzSpan]="8" style="width: 200px;">
+            <input nz-input formControlName="description" placeholder="请输入描述" style="width: 200px;"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item nz-col>
+          <nz-form-label [nzSpan]="4">顺序号</nz-form-label>
+          <nz-form-control [nzSpan]="8" style="width: 200px;">
+            <nz-input-number
+              [nzMin]="1"
+              [nzMax]="1000000"
+              [nzStep]="1"
+              formControlName="sortNo"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-card>
+    </div>
+    <div nz-row>
+      <div nz-col style="text-align: right;child-align: middle">
+        <img nz-dropdown src="assets/wms/add-circle.svg" (click)="addCustomDetail()" class="img-filtrate">
+      </div>
+    </div>
+    <div nz-row>
+      <nz-card [nzBordered]="false">
+        <nz-table #rowSelectionTable
+                  nzShowSizeChanger
+                  nzBordered
+                  nzSize="middle"
+                  [nzFrontPagination]="false"
+                  [nzData]="customDetailList">
+          <thead>
+          <tr >
+            <th style="width: 70px">序号</th>
+            <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">列表值名称</th>
+            <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">描述</th>
+            <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">顺序号</th>
+            <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否可用</th>
+            <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of customDetailList;let index = index">
+            <td nzAlign="center">{{ index +1 }}</td>
+            <td nzAlign="center">{{ data.name }}</td>
+
+            <td nzAlign="center">{{ data.description }}</td>
+            <td nzAlign="center">{{ data.sortNo }}</td>
+
+            <td  nzAlign="center"*ngIf="data.enabled === 'Y'">是</td>
+            <td  nzAlign="center"*ngIf="data.enabled === 'N'">否</td>
+            <td nzAlign="center">
+              <img src="assets/config/edit.png" class="img-filtrate" (click)="editCustomDetail(data, index)" >
+              <nz-divider nzType="vertical"></nz-divider>
+              <img src="assets/config/delete.png" class="img-filtrate" (click)="showDeleteCustomDetail(data, index)">
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </div>
+
+    <nz-form-item>
+      <nz-form-control [nzOffset]="10" [nzSpan]="12">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+        <button nz-button type="button" (click)="destroyModal()">取消</button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-content>

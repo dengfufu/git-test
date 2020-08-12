@@ -1,0 +1,76 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>员工姓名</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+        <input nz-input formControlName="userName" maxlength="6" style="width: 400px;" placeholder="请输入员工姓名"/>
+        <ng-template #nameErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors?.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>手机号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="mobileErrorTpl">
+        <input nz-input formControlName="mobile" maxlength="100" style="width: 400px;" placeholder="请输入手机号"/>
+        <ng-template #mobileErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入手机号！
+          </ng-container>
+          <ng-container *ngIf="control.hasError('pattern')">
+            格式不匹配！
+          </ng-container>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过100个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">企业员工账号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="accountErrorTpl">
+        <input nz-input formControlName="account" maxlength="100" style="width: 400px;" placeholder="请输入企业员工账号"/>
+        <ng-template #accountErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过20个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">角色</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select
+          [nzMaxTagCount]="6"
+          [nzMaxTagPlaceholder]="rolePlaceHolder"
+          nzShowSearch
+          nzServerSearch
+          nzAllowClear
+          nzMode="multiple"
+          nzPlaceHolder="请选择角色"
+          formControlName="roleIdList"
+          style="width: 400px"
+          (nzOnSearch)="matchRole($event)">
+          <nz-option *ngFor="let option of roleOptions" [nzLabel]="option.roleName" [nzValue]="option.roleId"></nz-option>
+          <nz-option *ngIf="roleOptionLoading" nzDisabled nzCustomContent>
+            <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+          </nz-option>
+        </nz-select>
+        <ng-template #rolePlaceHolder let-selectedList> 还有 {{ selectedList.length }} 项被选择</ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+  </nz-spin>
+</form>
+
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)"  [disabled]="!validateForm.valid"  class="button-modal-submit" >提交</button>
+</div>
+

@@ -1,0 +1,260 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>批量添加{{ incomeMain.smallClassName }}申请</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzShape="round" nzType="primary" (click)="save()" style="margin-right: 32px; width: 100px;">保存</button>
+    <button nz-button nzShape="round" nzType="primary" (click)="addSubmit()" style="margin-right: 32px; width: 100px;">提交</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+<nz-layout>
+  <div nz-row class="layout-row">
+    <div nz-col class="layout-col" nzSpan="6">
+      <nz-card nzBordered="false">
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">入库类型：</div>
+          <div nz-col nzSpan="14">{{ incomeMain.smallClassName }}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">入库库房：</div>
+          <div nz-col nzSpan="14">{{ incomeMain.depotName }}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">备件产权：</div>
+          <div nz-col nzSpan="14">{{ incomeMain.propertyRightName }}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="incomeMain.smallClassId == 10">
+          <div nz-col class="label-item" nzSpan="10">采购合同号：</div>
+          <div nz-col nzSpan="14">{{ incomeMain.contId }}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="incomeMain.smallClassId == 10">
+          <div nz-col class="label-item" nzSpan="10">采购订单号：</div>
+          <div nz-col nzSpan="14">{{ incomeMain.purchaseDetailId }}</div>
+        </div>
+<!--        <div class="div-row" nz-row *ngIf="incomeMain.smallClassId == 10">-->
+<!--          <div nz-col class="label-item" nzSpan="10">供应商：</div>-->
+<!--          <div nz-col nzSpan="14">{{ incomeMain.supplierName }}</div>-->
+<!--        </div>-->
+        <div class="div-row" nz-row *ngIf="incomeMain.smallClassId == 10">
+          <div nz-col class="label-item" nzSpan="10">是否二手物料：</div>
+          <div nz-col nzSpan="14">{{ incomeMain.secondHand == 'Y' ? '是' : '否' }}</div>
+        </div>
+      </nz-card>
+      <div class="div-row" nz-row style="bottom: 10px;right: 30px;position: absolute;">
+        <button nz-button nzType="primary" nzSize="small" nzShape="round" (click)="editBase()">编辑</button>
+      </div>
+    </div>
+    <div nz-col class="layout-col" nzSpan="18">
+      <nz-card style="border-width: 0 0 0 1px">
+        <div nz-row>
+          <div nz-col nzSpan="12">
+            <form [formGroup]="addDetailForm">
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件分类</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+                  <nz-select
+                    nzShowSearch
+                    nzAllowClear
+                    formControlName="catalog"
+                    nzPlaceHolder="请选择备件分类"
+                    (ngModelChange)="catalogChange($event)"
+                    [nzServerSearch]="true"
+                    (nzOnSearch)="wmsService.queryCatalogList($event)"
+                  >
+                    <nz-option *ngFor="let catalog of wmsService.selectOptions.catalogList" [nzValue]="catalog"
+                               [nzLabel]="catalog.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件品牌</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-select
+                    nzShowSearch
+                    nzAllowClear
+                    formControlName="brand"
+                    nzPlaceHolder="请选择备件品牌"
+                    (ngModelChange)="brandChange($event)"
+                    [nzServerSearch]="true"
+                    (nzOnSearch)="wmsService.queryBrandList($event)"
+                  >
+                    <nz-option *ngFor="let brand of wmsService.selectOptions.brandList" [nzValue]="brand"
+                               [nzLabel]="brand.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件型号</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-select
+                    nzShowSearch
+                    nzAllowClear
+                    formControlName="model"
+                    nzPlaceHolder="请选择备件型号"
+                    [nzServerSearch]="true"
+                    (nzOnSearch)="wmsService.queryModelList($event, addDetailForm.value.catalogId, addDetailForm.value.brandId)"
+                  >
+                    <nz-option *ngFor="let model of wmsService.selectOptions.modelList" [nzValue]="model"
+                               [nzLabel]="model.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>入库数量</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-input-number
+                    [nzMin]="1"
+                    [nzMax]="1000000"
+                    [nzStep]="1"
+                    formControlName="quantity"
+                  ></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件状态</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-select
+                    nzShowSearch
+                    nzAllowClear
+                    formControlName="statusObj"
+                    nzPlaceHolder="请选择备件状态"
+                    [nzServerSearch]="true"
+                    (nzOnSearch)="wmsService.queryStatusList($event)"
+                  >
+                    <nz-option *ngFor="let status of wmsService.selectOptions.statusList" [nzValue]="status"
+                               [nzLabel]="status.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24">厂商序列号</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <input nz-input formControlName="sn" placeHolder="请输入厂商序列号"/>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24">唯一编码</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <input nz-input formControlName="barcode" placeHolder="请输入唯一编码"/>
+                </nz-form-control>
+              </nz-form-item>
+<!--            </div>-->
+<!--            <div nz-col nzSpan="12">-->
+              <nz-form-item *ngIf="incomeMain.smallClassId == 10">
+                <nz-form-label [nzSm]="6" [nzXs]="24">单价</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-input-number
+                    [nzMin]="0"
+                    [nzMax]="100000000"
+                    [nzStep]="1"
+                    formControlName="unitPrice"
+                    [nzFormatter]="formatterRmb"
+                    [nzParser]="parseRmb"
+                  ></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item  *ngIf="incomeMain.smallClassId == 10">
+                <nz-form-label [nzSm]="6" [nzXs]="24">维保到期日</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-date-picker
+                    nzPlaceHolder="请选择维保到期日"
+                    nzFormat="yyyy-MM-dd"
+                    [nzDisabledTime]="true"
+                    formControlName="serviceEndDate"
+                  ></nz-date-picker>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24">描述</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <textarea rows="2" nz-input formControlName="description" placeholder="请输入描述，不超过200字"></textarea>
+                </nz-form-control>
+              </nz-form-item>
+            </form>
+          </div>
+          <div nz-col nzSpan="12">
+            <div *ngIf="wmsService.selectOptions.normList && wmsService.selectOptions.normList.length > 0">
+              <div nz-row nzType="flex" nzAlign="middle" style="height: 40px">
+                <label class="label-sub-title">备件规格：</label>
+              </div>
+              <div nz-row style="height: 40px" nzType="flex" nzAlign="middle" *ngFor="let item of wmsService.selectOptions.normList">
+                <div nz-col nzSpan="6" style="text-align: right">
+                  <label class="label-content">{{item.attribute}}：</label>
+                </div>
+                <div nz-col nzSpan="18" style="text-align: left">
+                  <nz-select
+                    style="width: 200px"
+                    [(ngModel)]="normsValue[item.attribute]"
+                    nzShowSearch nzAllowClear
+                    *ngIf="item.valueList && item.valueList.length > 0"
+                  >
+                    <nz-option *ngFor="let value of item.valueList" [nzValue]="value" [nzLabel]="value"></nz-option>
+                  </nz-select>
+                  <input nz-input [(ngModel)]="normsValue[item.attribute]" style="width: 200px" *ngIf="!item.valueList || item.valueList.length <= 0"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div nz-row class="right-row" nzAlign="bottom">
+          <button nz-button nzType="primary" [disabled]="!incomeMain.smallClassId || !addDetailForm.valid"
+                  style="margin:10px 30px 0 0" nzSize="small" nzShape="round" (click)="saveDetail()">加入列表</button>
+          <button nz-button style="margin:10px 30px 0 0" nzSize="small" nzShape="round" (click)="clearDetailForm()">清空</button>
+        </div>
+      </nz-card>
+    </div>
+  </div>
+  <div nz-row>
+    <nz-card style="border-width: 1px 0 0 0">
+      <p class="p-title">备件批量入库列表</p>
+      <nz-table
+        nzBordered
+        nzHideOnSinglePage
+        nzFrontPagination="true"
+        nzShowSizeChanger
+        [nzPageIndex]="page.pageNum"
+        [nzPageSize]="page.pageSize"
+        [nzData]="incomeDetailList"
+        [nzTotal]="incomeDetailList.length"
+        nzLoadingDelay="100"
+        nzNoResult="无"
+      >
+        <thead>
+          <tr>
+            <th nzWidth="50px">序号</th>
+            <th>备件名称</th>
+            <th>品牌</th>
+            <th>型号</th>
+            <th>规格</th>
+            <th>数量</th>
+            <th>备件状态</th>
+            <th *ngIf="incomeMain.smallClassId == 10">单价</th>
+            <th *ngIf="incomeMain.smallClassId == 10">维保到期日</th>
+            <th>厂商序列号</th>
+            <th>唯一编码</th>
+            <th *ngIf="incomeMain.smallClassId == 50">销账明细</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of incomeDetailList; let index = index">
+            <td nzAlign="center">{{ page.getNo(index) }}</td>
+            <td nzAlign="left">{{ data.catalogName }}</td>
+            <td nzAlign="left">{{ data.brandName }}</td>
+            <td nzAlign="left">{{ data.modelName }}</td>
+            <td nzAlign="left">{{ data.normsValueName }}</td>
+            <td nzAlign="right">{{ data.quantity }}</td>
+            <td nzAlign="center">{{ data.statusName }}</td>
+            <td nzAlign="right" *ngIf="incomeMain.smallClassId == 10">{{ data.unitPrice }}</td>
+            <td nzAlign="center" *ngIf="incomeMain.smallClassId == 10">{{ data.serviceEndDate | date: 'yyyy-MM-dd' }}</td>
+            <td nzAlign="left">{{ data.sn }}</td>
+            <td nzAlign="left">{{ data.barcode }}</td>
+            <td *ngIf="incomeMain.smallClassId == 50"></td>
+            <td nzAlign="center"><img src="/assets/wms/close-circle.svg" (click)="deleteDetail(index)" style="width: 20px;height: 20px;"></td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </div>
+</nz-layout>

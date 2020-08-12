@@ -1,0 +1,70 @@
+<form nz-form [formGroup]="checkForm">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">申请人姓名</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      {{corpApply.userName}}
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">申请人手机号</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      {{corpApply.mobile}}
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">企业员工账号</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      {{corpApply.account}}
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="false">
+    <nz-form-label [nzSpan]="4">服务网点</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-select
+        nzShowSearch
+        nzServerSearch
+        nzAllowClear
+        nzMode="multiple"
+        nzPlaceHolder="请选择服务网点"
+        [nzFilterOption]="nzFilterOption"
+        (nzOnSearch)="matchServiceBranch($event)"
+        formControlName="serviceBranchIdList">
+        <nz-option *ngFor="let branch of serviceBranchList" [nzLabel]="branch.branchName"
+                   [nzValue]="branch.branchId"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="false">
+    <nz-form-label [nzSpan]="4">设备网点</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-select
+        nzShowSearch
+        nzServerSearch
+        nzAllowClear
+        nzMode="multiple"
+        nzPlaceHolder="请选择设备网点"
+        [nzFilterOption]="nzFilterOption"
+        (nzOnSearch)="matchDeviceBranch($event)"
+        formControlName="deviceBranchIdList">
+        <nz-option *ngFor="let branch of deviceBranchList" [nzLabel]="branch.branchName"
+                   [nzValue]="branch.branchId"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">对应角色</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-select
+        nzShowSearch
+        nzServerSearch
+        nzAllowClear
+        nzMode="multiple"
+        nzPlaceHolder="请选择角色"
+        [nzFilterOption]="nzFilterOption"
+        (nzOnSearch)="matchRole($event)"
+        formControlName="roleIdList">
+        <nz-option *ngFor="let role of roleList" [nzLabel]="role.roleName" [nzValue]="role.roleId"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+</form>

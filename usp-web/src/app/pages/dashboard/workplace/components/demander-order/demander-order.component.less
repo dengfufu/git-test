@@ -1,0 +1,37 @@
+.add-td{
+    background: #eaeaea;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: bold;
+}
+.extra-head{
+    display: flex;
+    align-items: center;
+    .op{
+        margin-left: 15px;
+        &.switch{
+            transform: translateY(-2px);
+        }
+        &.tag{
+            color:#FF9F00;
+            cursor: pointer;
+        }
+        &.month-picker{
+            width: 100px;
+        }
+        &.select{
+            min-width: 130px;
+        }
+    }
+}
+
+:host ::ng-deep .ant-table-fixed-header .ant-table-scroll .ant-table-header{
+    overflow: hidden !important;
+}
+
+:host ::ng-deep .content-flex-center {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

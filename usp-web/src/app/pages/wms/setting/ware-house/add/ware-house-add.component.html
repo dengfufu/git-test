@@ -1,0 +1,67 @@
+<nz-content>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>库房名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <input nz-input formControlName="name" placeholder="请输入库房名称">
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>库房类别</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select nz-input formControlName="" nzPlaceHolder="">
+          <nz-option nzLabel="" nzValue=""></nz-option>
+          <nz-option nzLabel="" nzValue=""></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>上级库房名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select nz-input formControlName="parentId" nzPlaceHolder="请选择上级库房名称">
+          <nz-option *ngFor="let data of depotInfoList" [nzLabel]="data.name" [nzValue]="data.id"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>库房负责人</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select nz-input formControlName="users" nzPlaceHolder="请选择库房负责人" nzMode="multiple">
+          <nz-option *ngFor="let data of userInfoList" [nzLabel]="data.userName" [nzValue]="data.userId"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>所属区域</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select nz-input formControlName="areaId" nzPlaceHolder="请选择所属区域">
+          <nz-option *ngFor="let data of areaInfoList" [nzLabel]="data.name" [nzValue]="data.id"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-switch formControlName="enabled" nzCheckedChildren="启用" nzUnCheckedChildren="禁用" [(ngModel)]="enabledValue"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>库房地址</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <input nz-input formControlName="address" placeholder="请输入库房地址">
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>电话</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <input nz-input formControlName="telephone" placeholder="请输入电话">
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzOffset]="10" [nzSpan]="12">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+        <button nz-button type="button" (click)="destroyModal()">取消</button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-content>

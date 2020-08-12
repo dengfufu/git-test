@@ -1,0 +1,170 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="2" >申请单号</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择申请单号"
+          [(ngModel)]="propertySelectedValue"
+          [nzShowArrow]="true"
+          formControlName="modelId"
+        >
+          <nz-option *ngFor="let o of propertySelectOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+
+      <nz-form-label [nzSpan]="2" >申请库房</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择申请库房"
+          [(ngModel)]="normsSelectedValue"
+          [nzShowArrow]="true"
+          formControlName="norms"
+        >
+          <nz-option *ngFor="let o of normsOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+
+      <nz-form-label [nzSpan]="2" >申请人</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择规格"
+          [(ngModel)]="normsSelectedValue"
+          [nzShowArrow]="true"
+          formControlName="norms"
+        >
+          <nz-option *ngFor="let o of normsOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="2" >备件</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择备件"
+          [(ngModel)]="propertySelectedValue"
+          [nzShowArrow]="true"
+          formControlName="modelId"
+        >
+          <nz-option *ngFor="let o of propertySelectOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+
+      <nz-form-label [nzSpan]="2" >品牌</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择品牌"
+          [(ngModel)]="normsSelectedValue"
+          [nzShowArrow]="true"
+          formControlName="norms"
+        >
+          <nz-option *ngFor="let o of normsOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+
+      <nz-form-label [nzSpan]="2" >型号</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择型号"
+          [(ngModel)]="normsSelectedValue"
+          [nzShowArrow]="true"
+          formControlName="norms"
+        >
+          <nz-option *ngFor="let o of normsOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="2" >紧急程度</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择紧急程度"
+          [(ngModel)]="propertySelectedValue"
+          [nzShowArrow]="true"
+          formControlName="modelId"
+        >
+          <nz-option *ngFor="let o of propertySelectOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div style="margin-top: 30px">
+      <nz-table #editRowTable
+                [nzData]="list"
+                [nzPageIndex]="page.pageNum"
+                [nzPageSize]="page.pageSize"
+                [nzTotal]="list.length"
+                (nzPageIndexChange)="queryList(false)"
+                (nzPageSizeChange)="queryList(true)">
+        <thead>
+        <tr>
+          <th
+            nzShowCheckbox
+            [(nzChecked)]="isAllDisplayDataChecked"
+            [nzIndeterminate]="isIndeterminate"
+            (nzCheckedChange)="checkReceiveAll($event)"
+
+          >全选</th>
+          <th>序号</th>
+          <th>申请单号</th>
+          <th>申请库房</th>
+          <th>申请人</th>
+          <th>备件</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>数量</th>
+          <th>紧急程度</th>
+          <th>申请日期</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of list; let index=index" class="editable-row">
+          <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[data.id]"
+              [nzDisabled]="data.disabled"
+              (nzCheckedChange)="refreshStatus()" ></td>
+          <td nzAlign="center">{{ page.getNo(index) }}</td>
+          <td>{{ data.transCode }}</td>
+          <td>{{ data.toDepotName }}</td>
+          <td>{{ data.createByName }}</td>
+          <td>{{ data.catalogName }}</td>
+          <td>{{ data.brandName }}</td>
+          <td>{{ data.modelName }}</td>
+          <td>{{ data.applyQuantity }}</td>
+          <td>{{ data.priorityLevel }}</td>
+          <td>{{ data.applyDate }}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <div style="text-align:right;">
+      <button nz-button style="margin-right: 20px" type="button" (click)="addDelivery()"  >添加</button>
+      <button nz-button style="margin-right: 20px"   type="button" (click)="cancel()"  >取消</button>
+    </div>
+  </nz-spin>
+</form>

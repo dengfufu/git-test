@@ -1,0 +1,223 @@
+<nz-spin [nzSpinning]="spinning">
+  <button nz-button class="edit-button"
+          nzShape="round"
+          style="margin-bottom: 10px;margin-right: 16px;"
+          *ngIf="canServiceModFee()"
+          (click)="editWorkFee()">编辑
+  </button>
+  <button nz-button class="edit-button"
+          nzShape="round"
+          style="margin-bottom: 10px;margin-right: 16px;"
+          *ngIf="canFeeCheck()"
+          (click)="feeCheck()">{{feeCheckBtnName}}</button>
+  <button nz-button class="edit-button"
+          nzShape="round"
+          style="margin-bottom: 10px;margin-right: 16px;"
+          *ngIf="canFeeConfirm()"
+          (click)="feeConfirm()">确认</button>
+  <div class="div-row" *ngIf="feeCheckStatusLabel && feeCheckStatusName">
+    <span class="label-item">{{feeCheckStatusLabel}}：</span><span>{{feeCheckStatusName}}</span>
+    <span *ngIf="feeCheckNote">(备注：{{feeCheckNote}})</span>
+  </div>
+  <nz-table
+    nzBordered="true"
+    nzFrontPagination="false"
+    nzSize="small"
+    [nzData]="[{}]"
+  >
+    <thead>
+    <tr>
+      <th>费用名称</th>
+      <th>金额</th>
+      <th nzWidth="40%">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr [acl]="{ability: [aclRight.WORK_FEE]}" *ngIf="needQuote">
+      <td>费用报价</td>
+      <td nzAlign="right">{{work.workFeeDto.basicServiceFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+<!--    <tr *ngFor="let data of assortFeeList;let i = index" [acl]="{ability: [aclRight.WORK_FEE]}">-->
+<!--      <td><a (click)="viewAssortFeeDetail(data.feeId)">基础维护费</a></td>-->
+<!--      <td nzAlign="right">￥{{data.amount | number: '0.01-2'}}</td>-->
+<!--      <td nzAlign="left">{{data.note}}</td>-->
+<!--    </tr>-->
+    <tr [acl]="{ability: [aclRight.WORK_FEE]}">
+      <td>基础维护费</td>
+      <td nzAlign="right">{{work.workFeeDto.assortBasicFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+    <tr [acl]="{ability: [aclRight.WORK_FEE]}">
+      <td>辅助人员费用</td>
+      <td nzAlign="right">{{work.workFeeDto.assortSupportFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+<!--    <tr *ngFor="let data of implementFeeList;let i = index">-->
+<!--      <td><a (click)="viewImplementFeeDetail(data.feeId)">{{data.feeName}}</a></td>-->
+<!--      <td nzAlign="right">{{data.amount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>-->
+<!--      <td nzAlign="left">{{data.note}}</td>-->
+<!--    </tr>-->
+    <tr>
+      <td>郊区交通费</td>
+      <td nzAlign="right">{{work.workFeeDto.suburbTrafficExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+    <tr>
+      <td>长途交通费</td>
+      <td nzAlign="right">{{work.workFeeDto.longTrafficExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+    <tr>
+      <td>住宿费</td>
+      <td nzAlign="right">{{work.workFeeDto.hotelExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+    <tr>
+      <td>出差补贴</td>
+      <td nzAlign="right">{{work.workFeeDto.travelExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+    <tr>
+      <td>邮寄费</td>
+      <td nzAlign="right">{{work.workFeeDto.postExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+    <tr>
+      <td>备件费</td>
+      <td nzAlign="right">{{work.workFeeDto.wareUseFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left"></td>
+    </tr>
+    <tr>
+      <td>其他费用</td>
+      <td nzAlign="right">{{work.workFeeDto.otherFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left">{{work.workFeeDto.otherFeeNote}}</td>
+    </tr>
+    <tr [acl]="{ability: [aclRight.WORK_FEE]}">
+      <td><span style="font-weight: bolder">总金额</span></td>
+      <td nzAlign="right">
+                  <span style="font-weight: bolder">
+                    {{work.workFeeDto.totalFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+                  </span>
+      </td>
+      <td></td>
+    </tr>
+    <tr [acl]="{ability: [aclRight.WORK_FEE]}" *ngIf="work.settleDemanderStatus > 2">
+      <td><span style="font-weight: bolder">对账后费用</span></td>
+      <td nzAlign="right">
+        {{work.workFeeDto.verifyAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+      </td>
+      <td nzAlign="left">{{work.workFeeDto.verifyNote}}</td>
+    </tr>
+    </tbody>
+  </nz-table>
+  <button nz-button class="edit-button"
+          nzShape="round"
+          (click)="appendAssortFee()"
+          [acl]="{ability: [aclRight.WORK_ASSORT_FEE]}"
+          style="margin-bottom: 10px;margin-right: 16px;">
+    工单收费规则
+    <i nz-icon nzType="caret-up" nzTheme="outline" *ngIf="showAssortFee"></i>
+    <i nz-icon nzType="caret-down" nzTheme="outline" *ngIf="!showAssortFee"></i>
+  </button>
+
+  <nz-table
+    nzShowSizeChanger
+    nzBordered
+    nzFrontPagination="false"
+    [nzData]="[{}]"
+    [nzLoading]="feeRuleLoading"
+    *ngIf="showAssortFee"
+    [acl]="{ability: [aclRight.WORK_ASSORT_FEE]}"
+  >
+    <tbody>
+    <tr>
+      <td  width="15%"  class="label-item" >收费规则描述</td>
+      <td width="85%" nzBreakWord nzAlign="left"><pre>{{contConfigData.feeRuleDescription}}</pre></td>
+    </tr>
+    <tr>
+      <td class="label-item" width="15%">收费规则附件</td>
+      <td width="85%" nzAlign="left" colspan="3">
+        <nz-avatar *ngFor="let fileId of imageList; let i = index"
+                   [nzShape]="'square'" [nzSize]="76" style="margin-right: 16px;"
+                   [nzSrc]="showFileUrl + fileId"
+                   pro-image-viewer
+                   [images]="getImageUrls(imageList)"
+                   [currentImgIndex]="i+1">
+        </nz-avatar>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+
+  <ng-template #totalTemplate let-total>
+    共{{total}}条
+  </ng-template>
+  <nz-table *ngIf="showAssortFee"
+            #headerTable
+            nzShowSizeChanger
+            nzBordered
+            [nzFrontPagination]="false"
+            [nzData]="workFeeAssortList"
+            [nzLoading]="assortFeeLoading"
+            [nzTotal]="assortPage.total"
+            [nzShowTotal]="totalTemplate"
+            [(nzPageIndex)]="assortPage.pageNum"
+            [(nzPageSize)]="assortPage.pageSize"
+            (nzPageIndexChange)="queryAssortFeeList()"
+            (nzPageSizeChange)="queryAssortFeeList(true)"
+            [nzScroll]="{x : '2260px'}"
+  >
+    <thead>
+    <tr>
+      <th nzWidth="50px" nzLeft="0">序号</th>
+      <th nzWidth="250px" nzLeft="50px">费用名称</th>
+      <th nzWidth="80px" nzLeft="300px">费用金额</th>
+      <th nzWidth="100px">用于协同人员</th>
+      <th nzWidth="100px">工单类型</th>
+      <th nzWidth="100px">服务项目</th>
+      <th nzWidth="100px">设备大类</th>
+      <th>设备类型</th>
+      <th>设备规格</th>
+      <th>品牌</th>
+      <th>型号</th>
+      <th nzWidth="100px">客户</th>
+      <th nzWidth="100px">适用起始日期</th>
+      <th nzWidth="100px">适用截止日期</th>
+      <th nzWidth="100px">服务方式</th>
+      <th nzWidth="100px">分布</th>
+      <th>行政区划</th>
+      <th nzWidth="80px">是否可用</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of headerTable.data;let i = index">
+      <td nzLeft="0">{{assortPage.getNo(i)}}</td>
+      <td nzAlign="left" nzLeft="50px">{{data.assortName}}</td>
+      <td nzAlign="right" nzLeft="300px">{{data.amount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+      <td nzAlign="left">{{data.together === 'Y' ? '是' : '否'}}</td>
+      <td nzAlign="left">{{data.workTypeName}}</td>
+      <td nzAlign="left">{{data.serviceItemName}}</td>
+      <td nzAlign="left">{{data.largeClassName}}</td>
+      <td nzAlign="left">{{data.smallClassName}}</td>
+      <td nzAlign="left">{{data.specificationName}}</td>
+      <td nzAlign="left">{{data.brandName}}</td>
+      <td nzAlign="left">{{data.modelName}}</td>
+      <td nzAlign="left">{{data.customCorpName}}</td>
+      <td>{{data.startDate | date:'yyyy-MM-dd'}}</td>
+      <td>{{data.endDate | date:'yyyy-MM-dd'}}</td>
+      <td nzAlign="left">{{data.serviceModeName}}</td>
+      <td nzAlign="left">{{data.zoneName}}</td>
+      <td nzAlign="left">
+        <label *ngIf="data.districtName && data.districtNegate === 'Y'" style="color: red">排除:</label>
+        <label *ngIf="data.districtName && data.districtNegate === 'N'" style="color: red">包含:</label>
+        {{data.districtName}}
+      </td>
+      <td>
+        <span *ngIf="data.enabled === 'Y'">是</span>
+        <span *ngIf="data.enabled === 'N'" style="color: red">否</span>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-spin>

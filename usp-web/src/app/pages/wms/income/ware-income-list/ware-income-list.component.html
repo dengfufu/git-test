@@ -1,0 +1,258 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <div nz-row>
+      <div nz-col nzSpan="12" style="display: table">
+        <a (click)="changeTag(20,0)" [class]="changeColor(20, 0)">已提交({{statusCountMap[10] + statusCountMap[20]}})</a>
+        <nz-divider nzType="vertical"  nzDashed></nz-divider>
+        <a (click)="changeTag(20, 10)" [class]="changeColor(20, 10)">待审批({{statusCountMap[10]}})</a>
+        <nz-divider nzType="vertical" nzDashed></nz-divider>
+        <a (click)="changeTag(20, 20)" [class]="changeColor(20, 20)">已入库({{statusCountMap[20]}})</a>
+        <nz-divider nzType="vertical" nzDashed></nz-divider>
+        <a (click)="changeTag(10, 0)" [class]="changeColor(10, 0)">未提交({{statusCountMap[0]}})</a>
+        <button nz-button nzType="primary" style="margin-left: 50px" nzSize="small" (click)="batchAudit()">批量审批</button>
+      </div>
+      <div nz-col nzSpan="12" style="text-align: right;child-align: middle">
+        <img nz-dropdown src="assets/wms/add-circle.svg" [nzDropdownMenu]="menu" class="img-filtrate">
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu nzSelectable>
+            <li nz-menu-item *ngFor="let smallClass of wmsService.selectOptions.incomeSmallClassList"
+                (click)="addIncome(smallClass.id, smallClass.name)">{{smallClass.name}}</li>
+          </ul>
+        </nz-dropdown-menu>
+        <img *ngIf="saveStatus === 20" src="assets/anyfix/filtrate.svg" class="img-filtrate" (click)="openDrawer()">
+      </div>
+    </div>
+    <nz-table
+      *ngIf="this.saveStatus == 20"
+      nzShowSizeChanger
+      nzBordered
+      style="padding-top: 20px;"
+      [nzFrontPagination]="false"
+      [nzData]="incomeList"
+      [nzLoading]="loading"
+      [nzTotal]="page.total"
+      [(nzPageIndex)]="page.pageNum"
+      [(nzPageSize)]="page.pageSize"
+      [nzLoadingDelay]="300"
+      (nzPageIndexChange)="queryIncomeList(false)"
+      (nzPageSizeChange)="queryIncomeList(true)"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="50">序号</th>
+        <th>审批状态</th>
+        <th>当前节点</th>
+        <th>备件分类</th>
+        <th>品牌</th>
+        <th>型号</th>
+        <th>数量</th>
+        <th>库房</th>
+        <th>入库类别</th>
+        <th>备件状态</th>
+        <th>经办人</th>
+        <th>入库时间</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of incomeList;let index = index">
+        <td nzAlign="center">{{ page.getNo(index) }}</td>
+        <td nzAlign="center">
+          <button nz-button class="button-status" *ngIf="data.incomeStatus === 10"
+                  [ngStyle]="{'background-color': '#1E87F0'}">待审批
+          </button>
+          <button nz-button class="button-status" *ngIf="data.incomeStatus === 20"
+                  [ngStyle]="{'background-color': '#FFBD50'}">已入库
+          </button>
+        </td>
+        <td>
+          <a (click)="audit(data)" *ngIf="data.curNodeTyppe == 10 && isAuditUser(data.auditUserList)">
+            {{ data.curNodeName }}<br>【{{ data.auditUserNames }}】
+          </a>
+          <a (click)="audit(data)" *ngIf="data.incomeStatus == 10 && isAuditUser(data.auditUserList)">
+            {{ data.curNodeName }}<br>【{{ data.auditUserNames }}】
+          </a>
+          <label *ngIf="!isAuditUser(data.auditUserList) && data.incomeStatus == 10">{{ data.curNodeName }}
+            <br>【{{ data.auditUserNames }}】</label>
+        </td>
+        <td>{{ data.catalogName }}</td>
+        <td>{{ data.brandName }}</td>
+        <td>{{ data.modelName }}</td>
+        <td nzAlign="right">{{ data.quantity }}</td>
+        <td>{{ data.depotName }}</td>
+        <td nzAlign="center">{{ data.smallClassName }}</td>
+        <td nzAlign="center">{{ data.statusName }}</td>
+        <td nzAlign="center">{{ data.createNameBy }}</td>
+        <td nzAlign="center">{{ data.incomeDate | date: 'yyyy-MM-dd'}}</td>
+        <td nzAlign="center">
+          <a (click)="viewIncome(data.id)">
+            <i nz-icon type="search"></i>
+          </a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a nz-popconfirm
+             nzPopconfirmTitle="确定删除该入库单?"
+             [nzPopconfirmTrigger]="'click'"
+             (click)="$event.stopPropagation()"
+             (nzOnConfirm)="deleteIncome(data.id);">
+            <i nz-icon type="delete"></i>
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+    <nz-table
+      *ngIf="this.saveStatus == 10"
+      nzBordered
+      style="padding-top: 20px;"
+      nzShowPagination="false"
+      [nzData]="incomeSaveList"
+      [nzLoading]="loading"
+      [nzLoadingDelay]="300"
+    >
+      <thead>
+      <tr>
+        <th nzWidth="70">序号</th>
+        <th>入库类型</th>
+        <th>库房</th>
+        <th>物料产权</th>
+        <th>经办人</th>
+        <th>保存时间</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of incomeSaveList;let index = index">
+        <td>{{ index + 1 }}</td>
+        <td>{{ data.smallClassName }}</td>
+        <td>{{ data.depotName }}</td>
+        <td>{{ data.propertyRightName }}</td>
+        <td>{{ data.createNameBy }}</td>
+        <td>{{ data.createTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+        <td>
+          <a (click)="editIncome(data.id, data.smallClassId)">
+            <i nz-icon type="form"></i>
+          </a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a nz-popconfirm
+             nzPopconfirmTitle="确定删除该入库单?"
+             [nzPopconfirmTrigger]="'click'"
+             (click)="$event.stopPropagation()"
+             (nzOnConfirm)="deleteIncome(data.id);">
+            <i nz-icon type="delete"></i>
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <nz-drawer nzTitle="筛选" (nzOnClose)="closeDrawer()" [nzClosable]="true" [nzVisible]="drawerVisible">
+    <form nz-form name="form" [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label>入库类型</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="smallClassId"
+          >
+            <nz-option *ngFor="let smallClass of wmsService.selectOptions.incomeSmallClassList"
+                       [nzValue]="smallClass.id"
+                       [nzLabel]="smallClass.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>审批状态</nz-form-label>
+        <label class="label-checkbox" nz-checkbox [(ngModel)]="incomeStatusAllChecked"
+               (ngModelChange)="updateAllChecked()" [nzIndeterminate]="indeterminate"
+               [ngModelOptions]="{standalone: true}">全选</label>
+        <nz-form-control>
+          <nz-checkbox-group formControlName="incomeStatuses" nzPlaceHolder="审批状态"
+                             [(ngModel)]="incomeStatusCheckOptions"
+                             (ngModelChange)="updateSingleChecked() "></nz-checkbox-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>入库库房</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="depotId"
+            [nzServerSearch]="true"
+            (nzOnSearch)="wmsService.queryDepotList($event)"
+          >
+            <nz-option *ngFor="let depot of wmsService.selectOptions.depotList" [nzValue]="depot.id"
+                       [nzLabel]="depot.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备件分类</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="catalogId"
+            (ngModelChange)="catalogChange($event)"
+            [nzServerSearch]="true"
+            (nzOnSearch)="wmsService.queryCatalogList($event)"
+          >
+            <nz-option *ngFor="let catalog of wmsService.selectOptions.catalogList" [nzValue]="catalog.id"
+                       [nzLabel]="catalog.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备件品牌</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="brandId"
+            (ngModelChange)="brandChange($event)"
+            [nzServerSearch]="true"
+            (nzOnSearch)="wmsService.queryBrandList($event)"
+          >
+            <nz-option *ngFor="let brand of wmsService.selectOptions.brandList" [nzValue]="brand.id"
+                       [nzLabel]="brand.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>备件型号</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="modelId"
+            [nzServerSearch]="true"
+            (nzOnSearch)="wmsService.queryModelList($event, searchForm.value.catalogId, searchForm.value.brandId)"
+          >
+            <nz-option *ngFor="let model of wmsService.selectOptions.modelList" [nzValue]="model.id"
+                       [nzLabel]="model.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>出厂序列号</nz-form-label>
+        <nz-form-control>
+          <input nz-input placeholder="请输入出厂序列号" formControlName="sn">
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>唯一编号</nz-form-label>
+        <nz-form-control>
+          <input nz-input placeholder="请输入唯一编号" formControlName="barcode">
+        </nz-form-control>
+      </nz-form-item>
+      <div class="footer">
+        <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;"><span>清空筛选</span>
+        </button>&nbsp;
+        <button type="button" (click)="closeDrawer();queryIncomeList(false);" class="ant-btn ant-btn-primary">
+          <span>查询</span>
+        </button>
+      </div>
+    </form>
+  </nz-drawer>
+</my-pro-page-header-wrapper>

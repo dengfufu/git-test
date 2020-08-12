@@ -1,0 +1,145 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-sider [nzWidth]="280">
+      <div nz-row class="match-div">
+        <nz-select
+          style="width: 200px;text-align: left;"
+          nzAllowClear
+          nzShowSearch
+          nzServerSearch
+          nzFilterOption
+          nzPlaceHolder="可输入名称搜索"
+          [nzFilterOption]="nzFilterOption"
+          (nzOnSearch)="matchBranch($event)"
+          [(ngModel)]="serviceBranch"
+          (ngModelChange)="branchChange($event)">
+          <nz-option *ngFor="let o of branchOptionList" [nzLabel]="o.branchName" [nzValue]="o"></nz-option>
+        </nz-select>
+      </div>
+      <div nz-row class="tree-div">
+        <nz-spin [nzSpinning]="spinning">
+          <nz-tree [nzData]="branchTreeNodes"
+                   nzShowLine
+                   [nzSearchValue]="branchName"
+                   [nzExpandedKeys]="expandedKeys"
+                   (nzClick)="clickTreeNode($event)">
+          </nz-tree>
+        </nz-spin>
+      </div>
+    </nz-sider>
+    <nz-layout>
+      <nz-content>
+        <nz-spin [nzSpinning]="branchDetailSpinning">
+          <nz-card *ngIf="branchDetailVisible">
+            <app-corp-service-branch-detail (deleteBranchChange)="changeBranchList($event)"></app-corp-service-branch-detail>
+          </nz-card>
+        </nz-spin>
+        <nz-page-header style="padding: 8px 16px; background-color: white;" [style.padding-bottom.px]="'8'">
+          <nz-page-header-title>
+            <div style="display: inline-block; float: left; background: #FF9F00;
+    height: 20px; width: 5px; margin-right: 10px; margin-top: 6px;"></div>
+            {{headerTitle}}</nz-page-header-title>
+        </nz-page-header>
+        <nz-card [nzBordered]="false" [nzBodyStyle]="{'padding-top':'0'}">
+          <div style="height: 20px; margin-bottom: 16px; text-align: right;">
+            <button nz-button class="icon-add-branch" nzShape="round"
+                    (click)="addBranch()" [acl]="{ability: [aclRight.SERVICE_BRANCH_ADD]}">新建
+            </button>
+            <button nz-button class="img-expand" nzShape="round" *ngIf="expandBtnVisible"
+                    (click)="expandLowerBranchList()">{{expandBtnName}}</button>
+            <button nz-button class="img-filtrate-branch" nzShape="round" (click)="openDrawer()">筛选</button>
+          </div>
+          <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+          <nz-table #headerTable
+                    nzShowSizeChanger
+                    nzBordered
+                    [nzFrontPagination]="false"
+                    [nzData]="branchList"
+                    [nzLoading]="loading"
+                    [nzShowTotal]="totalTemplate"
+                    [nzTotal]="page.total"
+                    [(nzPageIndex)]="page.pageNum"
+                    [(nzPageSize)]="page.pageSize"
+                    (nzPageIndexChange)="queryServiceBranch()"
+                    (nzPageSizeChange)="queryServiceBranch(true)">
+            <thead>
+            <tr>
+              <th nzWidth="50px">序号</th>
+              <th>网点名称</th>
+              <th>所属区域</th>
+              <th>网点电话</th>
+              <th>网点类型</th>
+              <th>是否可用</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of headerTable.data;let index = index" style="cursor: pointer"
+                (click)="showBranchDetail(data.branchId, false);">
+              <td>{{ page.getNo(index) }}</td>
+              <td>{{ data.branchName }}</td>
+              <td>{{ data.region }}</td>
+              <td>{{ data.branchPhone }}</td>
+              <td>{{ data.typeName }}</td>
+              <td>
+                <span *ngIf="data.enabled === 'Y'">是</span>
+                <span *ngIf="data.enabled !== 'Y'">否</span>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-card>
+      </nz-content>
+      <nz-drawer nzTitle="服务网点筛选" [nzVisible]="drawerVisible" nzWidth="300px" (nzOnClose)="closeDrawer()"
+                 [nzClosable]="'true'">
+        <form nz-form [nzLayout]="'inline'" [formGroup]="searchForm">
+          <nz-form-item>
+            <nz-form-label nzFor="name">网点名称</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                style="width: 200px;"
+                nzAllowClear
+                nzShowSearch
+                nzServerSearch
+                nzFilterOption
+                nzPlaceHolder="可输入名称搜索"
+                [nzFilterOption]="nzFilterOption"
+                (nzOnSearch)="matchBranch($event)"
+                formControlName="branchId">
+                <nz-option *ngFor="let o of branchOptionList" [nzLabel]="o.branchName" [nzValue]="o.branchId"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label nzFor="area">行政区划</nz-form-label>
+            <nz-form-control>
+              <nz-cascader
+                style="width: 200px;"
+                nzPlaceHolder="请选择行政区划"
+                nzAllowClear
+                [nzOptions]="areaList" [nzShowSearch]="ZorroUtils.showSearchOptions"
+                [nzShowSearch]="true"
+                [nzChangeOnSelect]="true"
+                formControlName="area">
+              </nz-cascader>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label>是否可用</nz-form-label>
+            <nz-form-control>
+              <nz-select nzAllowClear style="width: 200px;" formControlName="enabled"
+                         nzPlaceHolder="是/否">
+                <nz-option nzLabel="是" nzValue="Y"></nz-option>
+                <nz-option nzLabel="否" nzValue="N"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <div style="text-align: right;margin-top: 40px">
+            <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+            </button>
+            <button nz-button [nzType]="'primary'" (click)="closeDrawer();queryServiceBranch(true)">查询</button>
+          </div>
+        </form>
+      </nz-drawer>
+    </nz-layout>
+  </nz-layout>
+</my-pro-page-header-wrapper>

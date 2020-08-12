@@ -1,0 +1,126 @@
+<nz-content>
+  <nz-card style="width: 100%;height: 100%;border: 0;" [nzBodyStyle]="{'padding':'0'}">
+    <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+      <nz-tab nzTitle="网点信息">
+        <nz-table
+          nzBordered="true"
+          nzShowPagination="false"
+          nzSize="small"
+          [nzData]="[{}]">
+          <tbody>
+          <tr>
+            <td class="label-item" nzAlign="left" colspan="4">
+              <span *ngIf="serviceBranch.upperBranchName">
+                {{serviceBranch.upperBranchName}}---</span>{{ serviceBranch.branchName }}
+              <div style="float: right; height: 20px;">
+                <button nz-button class="icon-edit" nzShape="round"
+                        [acl]="{ability: [aclRight.SERVICE_BRANCH_MOD]}"
+                        (click)="editBranch(serviceBranch.branchId)">编辑
+                </button>
+                <button nz-button class="img-del" nzShape="round"
+                        [acl]="{ability: [aclRight.SERVICE_BRANCH_DEL]}"
+                        (click)="deleteBranch(serviceBranch.branchId)">删除
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="label-item" nzAlign="center" width="15%" nowrap>所属区域</td>
+            <td nzAlign="left" width="35%">{{ serviceBranch.region }}</td>
+            <td class="label-item" nzAlign="center" width="15%" nowrap>联系人</td>
+            <td nzAlign="left" width="35%">{{ serviceBranch.contactName }}</td>
+          </tr>
+          <tr>
+            <td class="label-item" nzAlign="center" width="15%">网点电话</td>
+            <td nzAlign="left" width="35%">{{ serviceBranch.branchPhone }}</td>
+            <td class="label-item" nzAlign="center" width="15%" nowrap>联系电话</td>
+            <td nzAlign="left" width="35%">{{ serviceBranch.contactPhone }}</td>
+          </tr>
+          <tr>
+            <td class="label-item" nzAlign="center" width="15%">详细地址</td>
+            <td nzAlign="left" colspan="3">{{ serviceBranch.address }}</td>
+          </tr>
+          <tr>
+            <td class="label-item" nzAlign="center" width="15%">网点描述</td>
+            <td nzAlign="left" colspan="3">{{ serviceBranch.description }}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-tab>
+      <nz-tab nzTitle="人员信息">
+        <nz-card [nzBordered]="false" [nzBodyStyle]="{'padding':'0'}">
+          <div style="margin-bottom: 16px; height: 20px;">
+            <button nz-button class="icon-add-user" nzShape="round"
+                    [acl]="{ability: [aclRight.SERVICE_BRANCH_USER_ADD]}"
+                    (click)="addBranchUser()">添加
+            </button>
+            <button nz-button class="img-filtrate-user" nzShape="round" (click)="openDrawer()">筛选</button>
+          </div>
+          <nz-table #headerTable
+                    nzShowSizeChanger
+                    nzBordered
+                    [(nzPageIndex)]="page.pageNum"
+                    [(nzPageSize)]="page.pageSize"
+                    [nzTotal]="page.total"
+                    [nzLoading]="loading"
+                    [nzFrontPagination]="false"
+                    [nzData]="branchUserList"
+                    (nzPageIndexChange)="queryBranchUser()"
+                    (nzPageSizeChange)="queryBranchUser(true)">
+            <thead>
+            <tr>
+              <th nzWidth="50px">序号</th>
+              <th>姓名</th>
+              <th>电话</th>
+              <th>角色</th>
+              <th>加入日期</th>
+              <th nzWidth="50px" [acl]="{ability: [aclRight.SERVICE_BRANCH_USER_DEL]}">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of headerTable.data;let index = index">
+              <td>{{ page.getNo(index) }}</td>
+              <td>
+                <username-info [userId]="data.userId" [username]="data.userName"></username-info>
+              </td>
+              <td>{{ data.phone }}</td>
+              <td>{{ data.roleNames }}</td>
+              <td>{{ data.addTime | date: 'yyyy-MM-dd' }}</td>
+              <td [acl]="{ability: [aclRight.SERVICE_BRANCH_USER_DEL]}">
+                <a (click)="deleteBranchUser(data.userId)">删除</a>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-card>
+      </nz-tab>
+    </nz-tabset>
+  </nz-card>
+</nz-content>
+<nz-drawer nzTitle="服务网点筛选" [nzVisible]="drawerVisible" nzWidth="300px" (nzOnClose)="closeDrawer()"
+           [nzClosable]="'true'">
+  <form nz-form [nzLayout]="'inline'" [formGroup]="searchForm">
+    <nz-form-item>
+      <nz-form-label nzFor="name">人员姓名</nz-form-label>
+      <nz-form-control>
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzShowSearch
+          nzServerSearch
+          nzFilterOption
+          nzPlaceHolder="可输入姓名搜索"
+          [nzFilterOption]="nzFilterOption"
+          (nzOnSearch)="matchCorpUser($event)"
+          formControlName="userId">
+          <nz-option *ngFor="let o of corpUserList" [nzLabel]="o.userName" [nzValue]="o.userId"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <div style="text-align: right;margin-top: 40px">
+      <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+      </button>
+      <button nz-button [nzType]="'primary'" (click)="closeDrawer();queryBranchUser(true)">查询</button>
+    </div>
+  </form>
+</nz-drawer>

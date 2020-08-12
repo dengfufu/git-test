@@ -1,0 +1,78 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>是否公共权限</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="isCommonErrorTpl">
+        <nz-switch formControlName="isCommon" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        <ng-template #isCommonErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择是否公共权限！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">请求路径</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="uriErrorTpl">
+        <input nz-input formControlName="uri"   style="width: 400px;" placeholder="请输入请求路径"/>
+        <ng-template #uriErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors?.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">请求方法</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzAllowClear="true"
+          nzPlaceHolder="请选择请求方法"
+          formControlName="pathMethod">
+          <nz-option [nzLabel]="'GET'" [nzValue]="'GET'"></nz-option>
+          <nz-option [nzLabel]="'POST'" [nzValue]="'POST'"></nz-option>
+          <nz-option [nzLabel]="'DELETE'" [nzValue]="'DELETE'"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">权限名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-tree-select
+          style="width: 250px"
+          [nzDropdownStyle]="{'max-height': '400px'}"
+          [nzNodes]="rightTree"
+          nzShowSearch
+          nzPlaceHolder="请选择权限名称"
+          formControlName="rightId">
+        </nz-tree-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">描述</nz-form-label>
+      <nz-form-control nzValidateStatus="false" [nzSpan]="16" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+        <textarea rows="4" placeholder="请输入描述" nz-input formControlName="description" style="width: 400px;"
+                  maxlength="100"></textarea>
+        <ng-template #descriptionErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过100个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <text-area-word-number  currentNumber="{{validateForm.value.description.length}}"
+                           totalCount="100" ></text-area-word-number>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)"  [disabled]="!validateForm.valid"  class="button-modal-submit" >提交</button>
+</div>
+

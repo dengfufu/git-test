@@ -1,0 +1,144 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <div class="edit-button-div">
+      <button nz-button class="icon-add" nzShape="round" [acl]="{ability: [aclRight.CORP_USER_ADD]}" (click)="addModal()">新建</button>
+      <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+    </div>
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+    <nz-table #headerTable
+              nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="list"
+              [nzLoading]="loading"
+              [nzTotal]="page.total" [nzShowTotal]="totalTemplate"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              (nzPageIndexChange)="queryUser()"
+              (nzPageSizeChange)="queryUser(true)">
+      <thead>
+      <tr>
+        <th nzWidth="50px">序号</th>
+        <th>员工姓名</th>
+        <th>手机号</th>
+        <th>角色</th>
+        <th *ngIf="currentCorp.serviceProvider==='Y'">省份</th>
+        <th *ngIf="currentCorp.serviceProvider==='Y'">服务网点</th>
+        <th *ngIf="currentCorp.needAccount">企业账号</th>
+        <th>状态</th>
+        <th nzWidth="180px">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data;let index = index">
+        <td>{{ page.getNo(index) }}</td>
+        <td>
+          <username-info [userId]="data.userId" [username]="data.userName"></username-info>
+        </td>
+        <td>{{ data.mobile }}</td>
+        <td>{{ data.roleNames }}</td>
+        <td *ngIf="currentCorp.serviceProvider==='Y'">{{ data.provinceName }}</td>
+        <td *ngIf="currentCorp.serviceProvider==='Y'">{{ data.serviceBranchNames }}</td>
+        <td *ngIf="currentCorp.needAccount">{{ data.account }}</td>
+        <td>{{ data.type === 1 ? '在职' : '离职'}}</td>
+        <td>
+          <ng-container *ngIf="data.type === 1">
+            <a [acl]="{ability: [aclRight.CORP_USER_RIGHT_SCOPE]}"
+               (click)="userRightScope(data.userId)">范围权限</a>
+            <nz-divider [acl]="{ability: [aclRight.CORP_USER_RIGHT_SCOPE]}" nzType="vertical"></nz-divider>
+            <a [acl]="{ability: [aclRight.CORP_USER_MOD]}" (click)="editModal(data)">编辑</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a [acl]="{ability: [aclRight.CORP_USER_DEL]}" (click)="showDeleteConfirm(data.userId)">删除</a>
+          </ng-container>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <nz-drawer nzTitle="人员筛选" [nzVisible]="drawerVisible" nzWidth="300px" (nzOnClose)="closeDrawer()"
+             [nzClosable]="'true'">
+    <form nz-form [nzLayout]="'inline'" [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label nzFor="userId">用户姓名</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 200px;"
+            nzShowSearch
+            nzServerSearch
+            nzAllowClear
+            nzPlaceHolder="根据姓名、手机号搜索"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchUser($event)"
+            formControlName="userId">
+            <nz-option *ngFor="let o of userOptions" [nzLabel]="o.userName" [nzValue]="o.userId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="currentCorp.serviceProvider==='Y'">
+        <nz-form-item>
+          <nz-form-label nzFor="province">省份</nz-form-label>
+          <br/>
+          <nz-form-control>
+            <nz-select
+              style="width: 200px;"
+              nzAllowClear
+              nzShowSearch
+              formControlName="province"
+              nzPlaceHolder="请选择省份">
+              <nz-option *ngFor="let option of provinceOptions" [nzValue]="option.value"
+                         [nzLabel]="option.label"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-label nzFor="serviceBranch">服务网点</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 200px;"
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzFilterOption
+            nzPlaceHolder="根据网点名称搜索"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchServiceBranch($event)"
+            formControlName="serviceBranch">
+            <nz-option *ngFor="let o of serviceBranchOptions" [nzLabel]="o.branchName"
+                       [nzValue]="o.branchId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzFor="roleId">角色名称</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 200px;"
+            nzShowSearch
+            nzServerSearch
+            nzAllowClear
+            nzPlaceHolder="根据角色名称搜索"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchRole($event)"
+            formControlName="roleId">
+            <nz-option *ngFor="let o of roleOptions" [nzLabel]="o.roleName" [nzValue]="o.roleId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzFor="type">员工状态</nz-form-label>
+        <nz-form-control style="display: block;">
+          <nz-radio-group formControlName="type">
+            <label nz-radio [nzValue]="1">在职</label>
+            <label nz-radio [nzValue]="2">离职</label>
+          </nz-radio-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div style="text-align: right;margin-top: 40px">
+        <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+        </button>
+        <button nz-button [nzType]="'primary'" (click)="useFormValue=true;closeDrawer();queryUser(true)">查询</button>
+      </div>
+    </form>
+  </nz-drawer>
+</my-pro-page-header-wrapper>

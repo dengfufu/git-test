@@ -1,0 +1,120 @@
+<nz-page-header nzBackIcon>
+  <nz-page-header-title>备件出库</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" (click)="goBack()">返回</button>
+    <button nz-button nzType="primary" (click)="save()" *ngIf="!(outcomeId > 0)">保存</button>
+    <button nz-button nzType="primary" (click)="updateSave()" *ngIf="outcomeId > 0">修改</button>
+    <button nz-button nzType="primary" (click)="addSubmit()">提交</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<nz-layout>
+  <nz-card style="border-width: 0 0 0 0px">
+    <form [formGroup]="addDetailForm">
+      <div nz-row>
+        <nz-form-item nz-col nzSpan="8">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>出库地点</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择出库地点" formControlName="depotId" [nzServerSearch]="true"
+                       (nzOnSearch)="wmsService.queryDepotList($event)">
+              <nz-option *ngFor="let option of wmsService.selectOptions.depotList" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item nz-col nzSpan="8" *ngIf="smallClassId == smallClassEnum.SALE_BORROW || smallClassId == smallClassEnum.CORP_SALE">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>协助经办人</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+            <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择协助经办人" formControlName="assistUserId">
+              <nz-option *ngFor="let option of wmsService.selectOptions.userList " [nzValue]="option.userId" (nzOnSearch)="wmsService.queryUserList($event)"
+                         [nzLabel]="option.userName"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item nz-col nzSpan="8" *ngIf="smallClassId == smallClassEnum.RETURN_VENDOR">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>供应商</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+            <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择供应商" formControlName="supplierId">
+              <nz-option *ngFor="let option of wmsService.selectOptions.supplierList" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item nz-col nzSpan="8" *ngIf="smallClassId == smallClassEnum.RETURN_VENDOR">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>工单号</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+            <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择工单号" formControlName="workId">
+              <nz-option *ngFor="let option of wmsService.selectOptions.bookVendorList" [nzValue]="option.id"
+                         (nzOnSearch)="wmsService.queryBookVendorList($event)" [nzLabel]="option.workId"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-row>
+        <nz-form-item nz-col nzSpan="16">
+          <nz-form-label [nzSm]="3" [nzXs]="24">出库描述</nz-form-label>
+          <nz-form-control [nzSm]="19" [nzXs]="24">
+            <textarea rows="2" nz-input placeholder="请输入100字以内的出库描述" formControlName="description"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+
+      </div>
+    </form>
+  </nz-card>
+  <nz-card style="border-width: 1px 0 0 0">
+    <p class="p-title">备件批量出库列表<i nz-icon nzType="wms:add-circle" nzTheme="outline" class="i-add" nz-tooltip
+                                  nzTooltipTitle="添加备件" (click)="addPartList()"></i>
+    </p>
+    <nz-table
+      nzBordered
+      nzShowPagination="false"
+      [nzData]="partList">
+      <thead>
+      <tr>
+        <th nzWidth="50px">序号</th>
+        <th>物料分类</th>
+        <th>物料规格</th>
+        <th>物料型号</th>
+        <th>物料状态</th>
+        <th>存储状态</th>
+        <th>物料品牌</th>
+        <th>唯一编码</th>
+        <th>厂商序列号</th>
+        <th>数量</th>
+        <th>小计</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of partList; let index = index">
+        <td>{{ page.getNo(index) }}</td>
+        <td>{{ data.catalogName }}</td>
+        <td>{{ data.normsValue }}</td>
+        <td>{{ data.modelName }}</td>
+        <td>{{ data.situationName }}</td>
+        <td>{{ data.statusName }}</td>
+        <td>{{ data.brandName }}</td>
+        <td>{{ data.barcode }}</td>
+        <td>{{ data.sn }}</td>
+        <td *ngIf="flag.edit !== page.getNo(index) ">{{ data.quantity }}</td>
+        <td *ngIf="flag.edit === page.getNo(index)">
+          <nz-input-number nzSize="small" [(ngModel)]="data.quantity" [nzMin]="1" [nzMax]="data.actualQty" [nzStep]="1"></nz-input-number>
+          <span class="prompt"><={{data.actualQty}}</span>
+        </td>
+        <td *ngIf="data.all > 0" [rowSpan]="data.rowNum">{{data.all}}</td>
+        <td>
+          <i  *ngIf="flag.edit !== page.getNo(index)" nz-icon nzType="form" nzTheme="outline" nz-tooltip nzTooltipTitle="修改记录" style="color: #FF9F00;font-size: 17px;"
+             (click)="editPart( page.getNo(index))"></i>
+          <i  *ngIf="flag.edit === page.getNo(index)" nz-icon nzType="save" nzTheme="outline" nz-tooltip nzTooltipTitle="保存修改" style="color: #FF9F00;font-size: 17px;"
+              (click)="editPart(0);mergeRow();"></i>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <i nz-icon nzType="wms:close-circle" nzTheme="outline" style="font-size: 17px;" nz-tooltip nzTooltipTitle="删除记录" (click)="deletePart(data.id);mergeRow()" ></i>
+        </td>
+      </tr>
+      <tr *ngIf="total > 0">
+        <td colspan="9">合计</td>
+        <td>{{total}}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</nz-layout>

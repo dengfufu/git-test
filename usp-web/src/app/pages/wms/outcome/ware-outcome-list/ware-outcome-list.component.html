@@ -1,0 +1,262 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <nz-content>
+      <div nz-row style="height: 40px">
+        <div nz-col nzSpan="12">
+          <a (click)="changeList(1)" [ngStyle]="changeColor(1)">已提交({{this.statusCountMap[10] + this.statusCountMap[20] + this.statusCountMap[30] + this.statusCountMap[40] + this.statusCountMap[50] + this.statusCountMap[60] + this.statusCountMap[1]}})</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="changeList(30)" [ngStyle]="changeColor(30)">未审批({{this.statusCountMap[20] + this.statusCountMap[30] + this.statusCountMap[60]}})</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="changeList(40)" [ngStyle]="changeColor(40)">未发货({{this.statusCountMap[40]}})</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="changeList(50)" [ngStyle]="changeColor(50)">未收货({{this.statusCountMap[50]}})</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="changeList(outcomeStatusEnum.HAD_OUTCOME)" [ngStyle]="changeColor(outcomeStatusEnum.HAD_OUTCOME)">已出库({{this.statusCountMap[1]}})</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="changeList(outcomeStatusEnum.NOT_SUBMIT)" [ngStyle]="changeColor(outcomeStatusEnum.NOT_SUBMIT)">未提交({{this.statusCountMap[outcomeStatusEnum.NOT_SUBMIT]}})</a>
+          <button nz-button class="button-status" style="margin-left: 20px;background-color: #FF9F00;" *ngIf="status === 30" (click)="auditWareOutcome()" >批量审批</button>
+        </div>
+       <div nz-col nzSpan="12" style="text-align: right;child-align: middle" >
+         <i nz-icon nzType="wms:add-circle" style="font-size: 17px; margin-right: 40px;" nz-dropdown [nzDropdownMenu]="menu"></i>
+           <nz-dropdown-menu #menu="nzDropdownMenu">
+             <ul nz-menu nzSelectable>
+               <li nz-menu-item *ngFor="let option of wmsService.selectOptions.outcomeSmallClassList" (click)="addWareOutcome(option.id)">{{option.name}}</li>
+             </ul>
+           </nz-dropdown-menu>
+         <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" style="font-size: 17px;" *ngIf="status !== 0" (click)="openDrawer()" nz-tooltip nzTooltipTitle="筛选"></i>
+       </div>
+      </div>
+      <nz-table nzShowSizeChanger
+                nzBordered
+                *ngIf="this.status !== outcomeStatusEnum.NOT_SUBMIT"
+                [nzFrontPagination]="false"
+                [nzData]="woreOutComeList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                [nzLoadingDelay]="100"
+                (nzPageIndexChange)="queryWoreOutComeList(false)"
+                (nzPageSizeChange)="queryWoreOutComeList(true)">
+        <thead>
+        <tr>
+          <th>序号</th>
+          <th>审批状态</th>
+          <th>当前节点</th>
+          <th>备件分类</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>数量</th>
+          <th>库房</th>
+          <th>出库类别</th>
+          <th>备件状态</th>
+          <th>经办人</th>
+          <th>出库时间</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of woreOutComeList;let i = index;">
+          <td (click)="wareOutcomeDetail(data.id,data.flowNodeType)">{{page.getNo(i)}}</td>
+          <td>
+            <button nz-button class="button-status" [ngStyle]="getButtonColor(data.flowNodeType)"
+              *ngIf="outcomeStatusEnum.HAD_OUTCOME !== data.outcomeStatus" (click)="data.flowNodeType !== 40 ? wareOutcomeDetail(data.id,data.flowNodeType) : consignWareOutcome(data.depotId)">
+              {{wmsService.mapOptions.statusMap[data.flowNodeType]}}
+            </button>
+            <button nz-button class="button-status" style="background-color: #FFBD50"
+                    *ngIf="outcomeStatusEnum.HAD_OUTCOME === data.outcomeStatus"  (click)="wareOutcomeDetail(data.id,data.flowNodeType)"> 已出库</button>
+          </td>
+          <td>
+            <label *ngIf="outcomeStatusEnum.NO_OUTCOME === data.outcomeStatus">{{ data.curNodeName }}<br>【{{ data.auditUserNames }}】</label>
+          </td>
+          <td>{{ data.catalogName }}</td>
+          <td>{{ data.brandName }}</td>
+          <td>{{ data.modelName }}</td>
+          <td nzAlign="right">{{ data.quantity }}</td>
+          <td>{{ data.depotName }}</td>
+          <td nzAlign="center">{{ data.smallClassName }}</td>
+          <td nzAlign="center">{{ data.statusName }}</td>
+          <td nzAlign="center">{{ data.updateNameBy }}</td>
+          <td *ngIf="outcomeStatusEnum.NO_OUTCOME === data.outcomeStatus"></td>
+          <td *ngIf="outcomeStatusEnum.HAD_OUTCOME === data.outcomeStatus">{{data.updateTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+          <td>
+            <a (click)="wareOutcomeDetail(data.id,data.flowNodeType)" style="color:#FFBD50">
+            <i nz-icon type="search" ></i>&nbsp;查看
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+      <nz-table
+        *ngIf="this.status === outcomeStatusEnum.NOT_SUBMIT"
+        nzBordered
+        style="padding-top: 20px;"
+        nzShowPagination="false"
+        [nzData]="outcomeSaveList"
+        [nzLoading]="loading"
+        [nzLoadingDelay]="100"
+      >
+        <thead>
+        <tr>
+          <th nzWidth="70">序号</th>
+          <th>出库类型</th>
+          <th>库房</th>
+          <th>经办人</th>
+          <th>出库时间</th>
+          <th>描述</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of outcomeSaveList;let index = index">
+          <td>{{ index + 1 }}</td>
+          <td>{{ data.smallClassName }}</td>
+          <td>{{ data.depotName }}</td>
+          <td>{{ data.updateByName }}</td>
+          <td>{{ data.updateTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+          <td>{{ data.description }}</td>
+          <td>
+            <a>
+              <i nz-icon type="form" style="color:#FFBD50" (click)="editSavedOutCome(data.id)"></i>
+            </a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a nz-popconfirm
+               nzPopconfirmTitle="确定删除该出库单?"
+               style="color:#FFBD50"
+               [nzPopconfirmTrigger]="'click'"
+               (click)="$event.stopPropagation()"
+               (nzOnConfirm)="deleteSaveOutcome(data.id);">
+              <i nz-icon type="delete" ></i>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-content>
+
+    <ng-template #filterTitle>
+      <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+      <span style="font-size: 16px;font-weight: bold;">出库筛选</span>
+    </ng-template>
+    <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="360" [nzClosable]="true" (nzOnClose)="closeDrawer()" [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form [formGroup]="searchForm">
+        <nz-form-item>
+          <nz-form-label>库房</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="depotId" nzShowSearch nzPlaceHolder="请选择库房" [nzServerSearch]="true"
+                       (nzOnSearch)="wmsService.queryDepotList($event)">
+              <nz-option *ngFor="let option of wmsService.selectOptions.depotList " [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>出库类别</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="smallClassId" nzShowSearch nzPlaceHolder="请选择出库类别">
+              <nz-option *ngFor="let option of wmsService.selectOptions.outcomeSmallClassList " [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>厂商序列号</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="serial" placeholder="请输入厂商序列号"/>
+          </nz-form-control>
+        </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>唯一编码</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="barcode" placeholder="请输入唯一编码"/>
+        </nz-form-control>
+      </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>备件分类</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="catalogId" nzShowSearch nzPlaceHolder="请选择备件名称" [nzServerSearch]="true"
+                       (nzOnSearch)="wmsService.queryCatalogList($event)">
+              <nz-option *ngFor="let option of wmsService.selectOptions.catalogList " [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>备件型号</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="modelId" nzShowSearch nzPlaceHolder="请选择备件型号" [nzServerSearch]="true"
+                       (nzOnSearch)="wmsService.queryModelList($event, searchForm.value.catalogId, searchForm.value.brandId)">
+              <nz-option *ngFor="let option of wmsService.selectOptions.modelList " [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>备件品牌</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="brandId"
+            nzPlaceHolder="请选择备件品牌"
+            [nzServerSearch]="true"
+            (nzOnSearch)="wmsService.queryBrandList($event)"
+          >
+            <nz-option *ngFor="let brand of wmsService.selectOptions.brandList" [nzValue]="brand.id"
+                       [nzLabel]="brand.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>备件状态</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="status" nzShowSearch nzPlaceHolder="请选择备件状态">
+              <nz-option *ngFor="let option of wmsService.selectOptions.statusList " [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>领用人</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="createBy" nzShowSearch nzPlaceHolder="请选择领用人">
+              <nz-option *ngFor="let option of wmsService.selectOptions.userList " [nzValue]="option.userId" (nzOnSearch)="wmsService.queryUserList($event)"
+                         [nzLabel]="option.userName"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>经办人</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="assistUserId" nzShowSearch nzPlaceHolder="请选择经办人">
+              <nz-option *ngFor="let option of wmsService.selectOptions.userList " [nzValue]="option.userId"
+                         [nzLabel]="option.userName"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>出库日期</nz-form-label>
+          <nz-form-control>
+            <nz-range-picker formControlName="createTimeList" nzFormat="yyyy-MM-dd"></nz-range-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+      <div class="footer">
+        <button nz-button (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;">清空筛选
+        </button>&nbsp;
+        <button (click)="closeDrawer();queryWoreOutComeList(true);getWoreOutComeCount();"
+                nz-button nzType="primary">提交</button>
+      </div>
+    </nz-drawer>
+  </nz-card>
+</my-pro-page-header-wrapper>

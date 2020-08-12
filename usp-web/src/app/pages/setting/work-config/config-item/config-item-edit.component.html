@@ -1,0 +1,28 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+  <nz-spin [nzSpinning]="spinning">
+
+    <nz-form-item *ngIf="!data.isForInput">
+      <nz-form-label [nzSpan]="14">{{data.description}}</nz-form-label>
+      <nz-form-control [nzSpan]="10" >
+        <nz-switch formControlName="{{data.itemName}}" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="data.isForInput">
+      <nz-form-label [nzSpan]="10">{{data.description}}</nz-form-label>
+      <nz-form-control [nzSpan]="14" >
+        <input nz-input formControlName="{{data.itemName}}"  maxlength="50" style="width: 300px" />
+      </nz-form-control>
+      <div style="margin-bottom: 10px" *ngIf="data.itemId == 10">说明：
+        <br/>可使用<b> {{variable}}</b> 代表当天日期。
+        <br/>（YYYY-四位年份，YY-两位年份，MM-月份，DD-日期）<br/>
+        <span>例如：
+          <br/>模板设置为 AA{{variable}}，委托单号的前缀将为 AA{{curDate}}</span>
+      </div>
+    </nz-form-item>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm()" [disabled]="!validateForm.valid" class="button-modal-submit" >提交</button>
+</div>

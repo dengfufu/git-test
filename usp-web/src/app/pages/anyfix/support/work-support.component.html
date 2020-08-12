@@ -1,0 +1,54 @@
+<form style="width: 500px" [formGroup]="form">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>严重程度</nz-form-label>
+    <nz-form-control [nzSpan]="16" [nzErrorTip]="form.controls.severity.errors?.explain">
+      <nz-select nzShowSearch
+                 nzAllowClear
+                 nzServerSearch
+                 nzFilterOption
+                 formControlName="severity"
+                 [nzFilterOption]="nzFilterOption"
+                 nzPlaceHolder="请输入严重程度">
+        <nz-option *ngFor="let data of Options.severity"
+                   [nzValue]="data.value" [nzLabel]="data.text"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6">支持人员</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback>
+      <nz-select  nzShowSearch
+                  nzAllowClear
+                  nzServerSearch
+                  nzFilterOption
+                  formControlName="handler"
+                  [nzFilterOption]="nzFilterOption"
+                  nzPlaceHolder="请输入支持人员">
+        <nz-option *ngFor="let data of contactUserList"
+                   [nzValue]="data.value" [nzLabel]="data.text"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>问题说明</nz-form-label>
+    <nz-form-control [nzSpan]="16" [nzErrorTip]="keyErrorTpl">
+      <textarea rows="4" placeholder="200个字以内" nz-input formControlName="description" style="width: 400px;" maxlength="200"></textarea>
+      <ng-template #keyErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('maxlength')">
+          不能超过200个字符！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid">
+    提交
+  </button>
+</div>
+

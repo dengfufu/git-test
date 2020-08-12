@@ -1,0 +1,51 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>委托商</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        {{faultType.demanderCorpName}}
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>故障名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+        <input nz-input formControlName="name" style="width: 400px;" placeholder="请输入故障名称"/>
+        <ng-template #nameErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors?.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">详细描述</nz-form-label>
+      <nz-form-control nzValidateStatus="false" [nzSpan]="16" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+        <textarea rows="4" placeholder="请输入详细描述" nz-input formControlName="description" style="width: 400px;"
+                  maxlength="200"></textarea>
+        <ng-template #descriptionErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过200个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <text-area-word-number currentNumber="{{validateForm.value.description.length}}"
+                           totalCount="200"></text-area-word-number>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submitForm(validateForm.value)" [disabled]="!validateForm.valid"
+          class="button-modal-submit">提交
+  </button>
+</div>
+

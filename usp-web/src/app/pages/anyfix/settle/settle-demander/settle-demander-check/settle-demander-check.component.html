@@ -1,0 +1,43 @@
+<form [formGroup]="form">
+  <nz-form-item>
+    <nz-form-label nzSpan="6">确认结果</nz-form-label>
+    <nz-form-control nzSpan="16" [nzErrorTip]="checkResultErrorTip">
+      <nz-radio-group formControlName="checkResult" (ngModelChange)="checkResultChange($event)">
+        <label nz-radio nzValue="Y">通过</label>
+        <label nz-radio nzValue="N">不通过</label>
+      </nz-radio-group>
+      <ng-template #checkResultErrorTip let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请选择确认结果！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6">说明</nz-form-label>
+    <nz-form-control nzSpan="16" nzHasFeedback [nzErrorTip]="noteErrorTip">
+      <textarea
+        nz-input
+        placeholder="请输入备注(不超过400字)"
+        formControlName="checkNote"
+        [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+        maxlength="400"
+      ></textarea>
+      <ng-template #noteErrorTip let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          确认不通过时必填！
+        </ng-container>
+        <ng-container *ngIf="control.hasError('maslength')">
+          长度不能超过400！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid"
+          style="margin-left: 20px;">提交
+  </button>
+</div>

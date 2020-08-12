@@ -1,0 +1,57 @@
+<div nz-row>
+  <label class="label-header" nz-col>请点击表格服务网点</label>
+  <span nz-col class="span-search">
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
+      <input type="text" nz-input placeholder="输入服务网点" [(ngModel)]="searchName"/>
+    </nz-input-group>
+    <ng-template #suffixIconButton>
+      <button nz-button nzType="primary" (click)="selectBranchList(true)" nzSearch><i nz-icon nzType="search"></i></button>
+    </ng-template>
+  </span>
+</div>
+<nz-card [nzBordered]="false" style="padding: 0">
+  <nz-table  #rowSelectionTable
+             nzShowSizeChanger
+             nzBordered
+             nzSize="middle"
+             style="padding-top: 20px;"
+             [nzFrontPagination]="false"
+             [nzData]="branchList"
+             [nzLoading]="loading"
+             [nzTotal]="total"
+             [(nzPageIndex)]="pageNum"
+             [(nzPageSize)]="pageSize"
+             (nzPageIndexChange)="selectBranchList()">
+    <thead>
+    <tr>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;" *ngIf="isRadio"></th>
+      <th
+        *ngIf="isRadio !== true"
+        nzShowCheckbox
+        [(nzChecked)]="isAllChecked"
+        [nzIndeterminate]="isIndeterminate"
+        (nzCheckedChange)="checkAll($event)"
+      ></th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">网点名称</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">类型</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">联系人</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">联系电话</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">详细地址</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of branchList">
+      <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[data.branchId]" (nzCheckedChange)="refreshStatus(data.branchId)"></td>
+      <td width="150px">{{ data.branchName }}</td>
+      <td width="100px">{{ data.typeName }}</td>
+      <td width="100px">{{ data.contactName}}</td>
+      <td width="200px">{{ data.branchPhone}}</td>
+      <td width="450px">{{ data.address}}</td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+<div class="footer">
+  <button nz-button (click)="destroyModal()">取消</button>&nbsp;
+  <button nz-button nzType="primary" (click)="submitForm()" [disabled]="disable">提交</button>&nbsp;
+</div>

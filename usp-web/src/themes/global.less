@@ -1,0 +1,224 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.colorWeak {
+  filter: invert(80%);
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+// 状态（流程）按钮
+.button-status {
+  font-size: 11px;
+  height: 22px;
+  border-radius: 15px;
+  border-width: 0;
+  color: white;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  border-top: 1px solid rgb(232, 232, 232);
+  padding: 10px 16px;
+  text-align: right;
+  left: 0px;
+  background: #fff;
+  z-index: 99999;
+}
+
+// 表单属性
+nz-form-item {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+// 表单标签
+nz-form-label {
+  font-weight: bold;
+}
+
+canvas {
+  display: block;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+@media (max-width: @screen-xs) {
+  .ant-table {
+    width: 100%;
+    overflow-x: auto;
+
+    &-thead > tr,
+    &-tbody > tr {
+      > th,
+      > td {
+        white-space: pre;
+
+        > span {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+/* 百度地图搜索自动提示框不被遮挡 */
+.tangram-suggestion-main {
+  z-index: 999999 !important;
+}
+
+/* 滚动槽 */
+::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 权限控制 */
+.acl__hide {
+  display: none !important;
+}
+
+.img-filtrate {
+  font-size: 17px;
+  position: absolute;
+  right: 50px;
+}
+
+.icon-add {
+  position: absolute;
+  right: 100px;
+  color: #FF9F00;
+  font-size: 18px;
+}
+
+.edit-button-div {
+  height: 20px;
+  margin-bottom: 24px;
+
+  .img-filtrate {
+    font-size: 10px;
+    margin-right: 15px;
+    border-color: #FFA349;
+    width: 60px;
+    height: 20px;
+    color: #FFA349;
+    right: 50px;
+  }
+}
+
+.edit-button {
+  font-size: 10px;
+  margin-right: 15px;
+  border-color: #FFA349;
+  min-width: 60px;
+  height: 20px;
+  color: #FFA349;
+}
+
+.submit-button {
+  font-size: 10px;
+  margin-right: 15px;
+  width: 60px;
+  height: 20px;
+  color: #FFFFFF;
+}
+
+.work-attention {
+  width: 60px;
+  height: 20px;
+}
+
+.button {
+  font-size: 10px;
+  width: 60px;
+  height: 20px;
+}
+
+.edit-menu {
+  margin-right: 10px;
+  border: none;
+  padding: 0;
+  width: 23px;
+  height: 23px;
+}
+
+.menu-img {
+  height: 23px;
+  width: 23px;
+}
+
+.detail-edit-div {
+  margin-top: 30px;
+  float: right;
+}
+
+.button-modal-cancel {
+  width: 80px;
+}
+
+.button-modal-submit {
+  width: 80px;
+  margin-left: 30px !important;
+}
+
+.ant-modal-title {
+  height: 20px;
+  border-left: 4px solid #FF9F00;
+  padding-left: 10px;
+}
+
+.detail-div {
+  //margin: -24px;
+}
+
+// 暂时简单处理
+.ant-modal .cdk-drag {
+  cursor: move;
+}
+
+// workplace使用
+.indication {
+  padding-left: 10px;
+  border-left: 5px solid #FF9F00;
+}
+
+.ant-select-tree {
+  max-height: 350px;
+}
+
+nz-content.ant-pro-basicLayout-content.ant-layout-content {
+  height: 100%;
+}

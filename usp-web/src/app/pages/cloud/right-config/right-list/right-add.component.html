@@ -1,0 +1,159 @@
+<form nz-form [formGroup]="validateForm">
+  <nz-spin [nzSpinning]="spinning">
+
+    <nz-form-item *ngIf="sysRight">
+      <nz-form-label [nzSpan]="4">应用名称</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-form-text>{{appName}}</nz-form-text>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="sysRight">
+      <nz-form-label [nzSpan]="4">上级权限</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-form-text>{{sysRight.title}}({{sysRight.key}})</nz-form-text>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="!sysRight">
+      <nz-form-label [nzSpan]="4" nzRequired>所属应用</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.appId.errors?.explain">
+        <nz-select nzAllowClear style="width: 200px;" formControlName="appId"
+                   nzPlaceHolder="请选择所属应用">
+          <nz-option *ngFor="let app of appList" [nzLabel]="app.name" [nzValue]="app.id"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>权限编号</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.rightId.errors?.explain">
+        <nz-input-number formControlName="rightId" [nzMin]="1" [nzMax]="9999" [nzStep]="1"
+                         style="width: 200px;" placeholder="请输入权限编号"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>权限名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.rightName.errors?.explain">
+        <input nz-input formControlName="rightName" style="width: 200px;" placeholder="请输入权限名称"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">权限码</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.rightCode.errors?.explain">
+        <input nz-input formControlName="rightCode" style="width: 200px;" placeholder="请输入权限码"/>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>范围权限</nz-form-label>
+      <nz-form-control [nzSpan]="2">
+        <nz-switch formControlName="hasScope" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+      <ng-container *ngIf="validateForm.controls.hasScope.value === true">
+        <nz-form-label [nzSpan]="4" nzRequired>范围类型</nz-form-label>
+        <nz-form-control [nzSpan]="4" [nzErrorTip]="validateForm.controls.scopeTypeList.errors?.explain">
+          <nz-select nzAllowClear
+                     style="width: 300px;"
+                     formControlName="scopeTypeList"
+                     nzMode="multiple"
+                     nzPlaceHolder="请选择范围类型">
+            <nz-option *ngFor="let o of rightScopeList" [nzLabel]="o.name" [nzValue]="o.code"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </ng-container>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>委托商</nz-form-label>
+      <nz-form-control [nzSpan]="2">
+        <nz-switch formControlName="serviceDemander" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+      <ng-container *ngIf="validateForm.controls.serviceDemander.value === true">
+        <nz-form-label [nzSpan]="4" nzRequired>公共权限</nz-form-label>
+        <nz-form-control [nzSpan]="4">
+          <nz-switch formControlName="serviceDemanderCommon" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        </nz-form-control>
+      </ng-container>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>服务提供商</nz-form-label>
+      <nz-form-control [nzSpan]="2">
+        <nz-switch formControlName="serviceProvider" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+      <ng-container *ngIf="validateForm.controls.serviceProvider.value === true">
+        <nz-form-label [nzSpan]="4" nzRequired>公共权限</nz-form-label>
+        <nz-form-control [nzSpan]="4">
+          <nz-switch formControlName="serviceProviderCommon" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        </nz-form-control>
+      </ng-container>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>设备使用商</nz-form-label>
+      <nz-form-control [nzSpan]="2">
+        <nz-switch formControlName="deviceUser" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+      <ng-container *ngIf="validateForm.controls.deviceUser.value === true">
+        <nz-form-label [nzSpan]="4" nzRequired>公共权限</nz-form-label>
+        <nz-form-control [nzSpan]="4">
+          <nz-switch formControlName="deviceUserCommon" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        </nz-form-control>
+      </ng-container>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>平台管理</nz-form-label>
+      <nz-form-control [nzSpan]="2">
+        <nz-switch formControlName="cloudManager" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+      <ng-container *ngIf="validateForm.controls.cloudManager.value === true">
+        <nz-form-label [nzSpan]="4" nzRequired>公共权限</nz-form-label>
+        <nz-form-control [nzSpan]="4">
+          <nz-switch formControlName="cloudManagerCommon" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        </nz-form-control>
+      </ng-container>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>包含额外企业</nz-form-label>
+      <nz-form-control [nzSpan]="4">
+        <nz-switch formControlName="hasExtraCorp" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+        <button *ngIf="validateForm.controls.hasExtraCorp.value === true" nz-button nzType="primary" nzType="link"
+                (click)="addExtraCorp()" style="margin-left: 10px; ">
+          添加
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+    <!-- 额外企业 -->
+    <div formArrayName="extraCorpList">
+      <div *ngFor="let extraCorp of extraCorpListForm.controls;let i = index">
+        <nz-form-item [formGroupName]="i">
+          <nz-form-label [nzSpan]="4" nzRequired>额外企业</nz-form-label>
+          {{extraCorp.errors?.explain}}
+          <nz-form-control [nzSpan]="4" [nzErrorTip]="extraCorp.errors?.explain">
+            <nz-select nzAllowClear
+                       formControlName="corpId"
+                       nzMode="default"
+                       nzPlaceHolder="请选择">
+              <nz-option *ngFor="let corp of corpList" [nzLabel]="corp.corpName" [nzValue]="corp.corpId"></nz-option>
+            </nz-select>
+          </nz-form-control>
+          <nz-form-label [nzSpan]="4" nzRequired>公共权限</nz-form-label>
+          <nz-form-control [nzSpan]="4" [nzErrorTip]="extraCorp.errors?.explain">
+            <nz-switch formControlName="common" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+            <button nz-button nzType="primary" nzType="link" (click)="removeExtraCorp(i)" style="margin-left: 10px; ">
+              删除
+            </button>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </nz-spin>
+</form>
+
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submitForm(validateForm.value)" [disabled]="!validateForm.valid"
+          class="button-modal-submit">提交
+  </button>
+</div>
+

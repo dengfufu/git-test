@@ -1,0 +1,384 @@
+<div class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon" style="border-bottom: 0">
+    <nz-page-header-title style="margin-left: -10px;font-size: 18px">设备详情
+    </nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button nzShape="round" (click)="goBack()"
+              class="edit-button">返回
+      </button>
+      <button nz-button nzShape="round" (click)="showDeleteConfirm(deviceId)"
+              [acl]="{ability: [aclRight.DEVICE_INFO_DEL]}"
+              *ngIf="curCorpId == deviceInfo.demanderCorp || curCorpId == deviceInfo.serviceCorp"
+              class="edit-button" style="width: 80px">删除
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img style=" height: 20px;width: 30px;margin-top: -5px;padding-right: 20px" src="assets/go-back.svg">
+  </ng-template>
+  <nz-card style="width: 100%;" nzBordered="false">
+    <nz-card-tab>
+      <nz-tabset [(nzSelectedIndex)]="selectedIndex" nzTabPosition="top" [nzTabBarStyle]="{'border-bottom': '0px'}">
+        <nz-tab nzTitle="设备信息">
+        </nz-tab>
+        <nz-tab nzTitle="位置信息">
+        </nz-tab>
+        <nz-tab nzTitle="服务信息">
+        </nz-tab>
+        <nz-tab nzTitle="工单信息">
+        </nz-tab>
+      </nz-tabset>
+    </nz-card-tab>
+    <!--  第一个标签页内容 -->
+    <div *ngIf="selectedIndex == 0">
+      <button nz-button style="margin-bottom: 16px"
+              class="edit-button" nzShape="round"
+              [acl]="{ability: [aclRight.DEVICE_INFO_MOD]}"
+              *ngIf="curCorpId == deviceInfo.demanderCorp || curCorpId == deviceInfo.serviceCorp"
+              (click)="editDeviceInfo()">
+        <span>编辑</span>
+      </button>
+      <nz-card nzBordered="true" style="width: 80%">
+        <div class="ant-descriptions-view">
+          <table>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">出厂序列号</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.serial}}</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">设备分类</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span
+                  class="ant-descriptions-item-content">{{deviceInfo.largeClassName}} {{deviceInfo.smallClassName}}</span>
+              </td>
+            </tr>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">设备规格</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span
+                  class="ant-descriptions-item-content">{{deviceInfo.specificationName}}</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">品牌型号</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span
+                  class="ant-descriptions-item-content">{{deviceInfo.brandName}} {{deviceInfo.modelName}}</span>
+              </td>
+            </tr>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">委托商</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.demanderCorpName}}</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">服务商</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.serviceCorpName}}</span>
+              </td>
+            </tr>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">客户</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.customCorpName}}</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">客户联系人</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.contactName}}</span>
+              </td>
+            </tr>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">联系方式</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.contactPhone}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </nz-card>
+      <nz-card nzBordered="true" style="margin-top: 20px;width: 80%">
+        <div class="ant-descriptions-view">
+          <table>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">出厂日期</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.factoryDate | date: 'yyyy-MM-dd'}}</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">购买日期</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.purchaseDate | date: 'yyyy-MM-dd'}}</span>
+              </td>
+            </tr>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">维保方式</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content" *ngIf="deviceInfo.warrantyMode !== 0">
+                  {{deviceInfo.warrantyMode === 10 ? '整机保' : '单次保'}}
+                </span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">维保合同号</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.contNo}}</span>
+              </td>
+            </tr>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">保修日期</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.warrantyStartDate | date: 'yyyy-MM-dd'}}
+                  ~{{deviceInfo.warrantyEndDate | date: 'yyyy-MM-dd'}}</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">保修状态</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left">
+                <span class="ant-descriptions-item-content">{{deviceInfo.warrantyStatusName}}</span>
+              </td>
+            </tr>
+            <tr class="ant-descriptions-row">
+              <td class="ant-descriptions-item" nzAlign="right">
+                <span class="ant-descriptions-item-label ant-descriptions-item-colon">保修说明</span>
+              </td>
+              <td class="ant-descriptions-item" nzAlign="left" colspan="3">
+                <span class="ant-descriptions-item-content">{{deviceInfo.warrantyNote}}</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </nz-card>
+      <!--自定义字段数据customFieldDataList-->
+      <nz-card nzBordered="true" style="margin-top: 20px;width: 80%" *ngIf="customFieldDataList.length > 0">
+        <nz-row class="ant-descriptions-row">
+          <div *ngFor="let customField of customFieldDataList">
+            <nz-col class="ant-descriptions-item" [nzSm]="6" [nzXs]="24" style="text-align: right">
+              <span class="ant-descriptions-item-label ant-descriptions-item-colon">{{customField.fieldName}}</span>
+            </nz-col>
+            <nz-col class="ant-descriptions-item" [nzSm]="6" [nzXs]="24" nzAlign="left">
+              <span class="ant-descriptions-item-content">{{customField.fieldValue}}</span>
+            </nz-col>
+          </div>
+        </nz-row>
+      </nz-card>
+    </div>
+    <!--  第2个标签页内容 -->
+    <div *ngIf="selectedIndex == 1">
+      <nz-spin [nzSpinning]="locateSpinning">
+        <button nz-button style="margin-bottom: 16px;margin-right: 10px;"
+                class="edit-button" nzShape="round"
+                [acl]="{ability: [aclRight.DEVICE_INFO_LOCATE_MOD]}"
+                *ngIf="curCorpId == deviceInfo.customCorp || curCorpId == deviceInfo.demanderCorp || curCorpId == deviceInfo.serviceCorp"
+                (click)="editDeviceLocate()">
+          <span>编辑</span>
+        </button>
+        <button nz-button [acl]="{ability: [aclRight.DEVICE_INFO_LOCATE_DEL]}"
+                *ngIf="curCorpId == deviceInfo.customCorp || curCorpId == deviceInfo.demanderCorp || curCorpId == deviceInfo.serviceCorp"
+                class="edit-button" style="margin-bottom: 16px;" nzShape="round" (click)="deleteLocate()">
+          <span>清除</span>
+        </button>
+        <nz-card nzBordered="true" style="width: 80%">
+          <div class="ant-descriptions-view">
+            <table>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">自定义设备编号</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.deviceCode}}</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">设备网点</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.branchName}}</span>
+                </td>
+              </tr>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">行政区划</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.districtName}}</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">市郊</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content" *ngIf="deviceInfo.zone !== 0">
+                    {{deviceInfo.zone === 1 ? '市区' : '郊县'}}
+                  </span>
+                </td>
+              </tr>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">详细地址</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left" colspan="3">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.address}}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </nz-card>
+        <nz-card nzBordered="true" style="width: 80%;margin-top: 20px">
+          <div class="ant-descriptions-view">
+            <table>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">设备状态</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.statusName}}</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">安装日期</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.installDate | date: 'yyyy-MM-dd'}}</span>
+                </td>
+              </tr>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">设备说明</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left" colspan="3">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.description}}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </nz-card>
+      </nz-spin>
+    </div>
+    <!--  第3个标签页内容 -->
+    <div *ngIf="selectedIndex == 2">
+      <nz-spin [nzSpinning]="serviceSpinning">
+        <button nz-button style="margin-bottom: 16px;margin-right: 10px;"
+                class="edit-button" nzShape="round"
+                [acl]="{ability: [aclRight.DEVICE_INFO_SERVICE_MOD]}"
+                *ngIf="curCorpId == deviceInfo.serviceCorp || curCorpId == deviceInfo.demanderCorp"
+                (click)="editDeviceService()">
+          <span>编辑</span>
+        </button>
+        <button nz-button style="margin-bottom: 16px" [acl]="{ability: [aclRight.DEVICE_INFO_SERVICE_DEL]}"
+                *ngIf="curCorpId == deviceInfo.serviceCorp || curCorpId == deviceInfo.demanderCorp"
+                class="edit-button" nzShape="round" (click)="deleteService()">
+          <span>清除</span>
+        </button>
+        <nz-card nzBordered="true" style="width: 80%">
+          <div class="ant-descriptions-view">
+            <table>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">服务商</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.serviceCorpName}}</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">服务网点</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.serviceBranchName}}</span>
+                </td>
+              </tr>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">服务主管</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">
+                    <username-info [userId]="deviceInfo.workManager" [username]="deviceInfo.workManagerName"></username-info>
+                  </span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">服务工程师</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left">
+                  <span class="ant-descriptions-item-content">
+                    <username-info [userId]="deviceInfo.engineer" [username]="deviceInfo.engineerName"></username-info>
+                  </span>
+                </td>
+              </tr>
+              <tr class="ant-descriptions-row">
+                <td class="ant-descriptions-item" nzAlign="right">
+                  <span class="ant-descriptions-item-label ant-descriptions-item-colon">服务说明</span>
+                </td>
+                <td class="ant-descriptions-item" nzAlign="left" colspan="3">
+                  <span class="ant-descriptions-item-content">{{deviceInfo.serviceNote}}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </nz-card>
+      </nz-spin>
+    </div>
+    <!--  第4个标签页内容 -->
+    <div *ngIf="selectedIndex == 3">
+      <nz-table #headerTable
+                nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="workList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="queryWorkList()"
+                (nzPageSizeChange)="queryWorkList(true)">
+        <thead>
+        <tr>
+          <th nzWidth="50px">序号</th>
+          <th>工单编号</th>
+          <th>工单状态</th>
+          <th>工单类型</th>
+          <th>创建时间</th>
+          <th>保修状态</th>
+          <th>服务方式</th>
+          <th>故障现象</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of headerTable.data,let index = index" style="cursor: pointer"
+            (click)="viewWorkDetail(data.workId)">
+          <td>{{ page.getNo(index) }}</td>
+          <td>{{ data.workCode }}</td>
+          <td>{{ data.workStatusName }}</td>
+          <td>{{ data.workTypeName }}</td>
+          <td>{{ data.createTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+          <td>{{ data.warrantyName }}</td>
+          <td>{{ data.serviceModeName }}</td>
+          <td>{{ data.faultTypeName }}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <ng-template #extraTemplate>
+      <img style=" height: 20px;width: 30px;margin-top: -5px;padding-right: 20px" src="assets/go-back.svg">
+    </ng-template>
+  </nz-card>
+</div>

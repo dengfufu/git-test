@@ -1,0 +1,324 @@
+<nz-spin [nzSpinning]="loading" class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;font-size: 18px">{{work.workTypeName}}工单&nbsp; <span
+      style="font-size: 16px;font-weight: bold;">{{work.caseId}}</span>
+    </nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button nzShape="round" (click)="goBack()" class="edit-button">返回</button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img style=" height: 20px;width: 30px;margin-top: -5px;padding-right: 20px" src="assets/go-back.svg">
+  </ng-template>
+
+  <nz-layout>
+    <nz-sider [nzWidth]="320">
+      <nz-card style="width:320px;" [nzBordered]="false">
+        <div nz-row>
+          <div nz-col nzSpan="16" style="font-weight: bold;">{{work.dispatchTime | date:'yyyy-MM-dd HH:mm'}}</div>
+          <div nz-col class="work-status" style="margin-top: 2px ">{{work.workStatusName}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">委托商名称：</div>
+          <div nz-col nzSpan="16">{{work.demanderCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">客户名称：</div>
+          <div nz-col nzSpan="16">{{work.customCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">设备网点：</div>
+          <div nz-col nzSpan="16">{{work.deviceBranchName}}</div>
+        </div>
+        <div class="div-row" class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">创建人：</div>
+          <div nz-col nzSpan="16">
+            <username-info [userId]="work.creator" [username]="work.creatorName"></username-info>
+          </div>
+        </div>
+        <div class="div-row" class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">联系人：</div>
+          <div nz-col nzSpan="16">{{work.contactName}} &nbsp;<b>{{work.contactPhone}}</b></div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">详细地址：</div>
+          <div nz-col nzSpan="16">{{work.districtName}}{{work.address}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">设备类型：</div>
+          <div nz-col nzSpan="16">{{work.smallClassName}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="false">
+          <div nz-col class="label-item" nzSpan="8">设备规格：</div>
+          <div nz-col nzSpan="16">{{work.specificationName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">品牌型号：</div>
+          <div nz-col nzSpan="16">{{work.brandName}} {{work.modelName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">出厂序列号：</div>
+          <div nz-col nzSpan="16">{{work.serial}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">故障时间：</div>
+          <div nz-col nzSpan="16">{{work.faultTime | date:'yyyy-MM-dd HH:mm'}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">故障代码：</div>
+          <div nz-col nzSpan="16">{{work.faultCode}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">维保方式：</div>
+          <div nz-col nzSpan="16" style="color: red">{{work.warrantyModeName}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">服务请求：</div>
+          <div nz-col nzSpan="16">{{work.serviceRequest}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">预约时间：</div>
+          <div nz-col nzSpan="16" *ngIf="work.bookTime != null">
+            {{work.bookTime | date:'yyyy-MM-dd HH:mm'}}
+          </div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">工单来源：</div>
+          <div nz-col nzSpan="16">{{work.sourceName}}</div>
+        </div>
+        <br>
+        <nz-modal
+          [nzVisible]="previewVisible"
+          [nzContent]="modalContent"
+          [nzFooter]="null"
+          (nzOnCancel)="previewVisible = false"
+        >
+          <ng-template #modalContent>
+            <img [src]="previewImage" [ngStyle]="{ width: '100%' }"/>
+          </ng-template>
+        </nz-modal>
+      </nz-card>
+
+    </nz-sider>
+    <nz-content>
+      <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;">
+        <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+          <nz-tab nzTitle="处理过程">
+            <nz-timeline>
+              <div *ngFor="let operation of work.workOperateList,let pIndex=index">
+                <nz-timeline-item *ngIf="pIndex == 0" nzColor="green" [nzDot]="dotTemplate">
+                  <strong>{{operation.operateTypeName}}</strong><br>{{operation.summary}}
+                  <br>{{operation.operateTime | date:'yyyy-MM-dd HH:mm:ss'}}
+                </nz-timeline-item>
+                <nz-timeline-item *ngIf="pIndex > 0" nzColor="gray" [nzDot]="dotTemplate">
+                  <strong>{{operation.operateTypeName}}</strong><br>{{operation.summary}}
+                  <br>{{operation.operateTime | date:'yyyy-MM-dd HH:mm:ss'}}
+                </nz-timeline-item>
+                <ng-template #dotTemplate><i nz-icon style="font-size: 16px;" nzType="wms:gray-round"></i></ng-template>
+              </div>
+            </nz-timeline>
+          </nz-tab>
+          <nz-tab nzTitle="服务信息">
+            <div>
+              <nz-table
+                nzTitle="服务内容"
+                nzBordered="true"
+                nzFrontPagination="false"
+                nzSize="small"
+                [nzData]="[{}]"
+              >
+                <tbody>
+                <tr>
+                  <td class="label-item" nzAlign="center" width="15%" nowrap>品牌型号</td>
+                  <td nzAlign="left" width="35%">{{ work.brandName }} {{ work.modelName }}</td>
+                  <td class="label-item" nzAlign="center" width="15%" nowrap>出厂序列号</td>
+                  <td nzAlign="left" width="35%">{{ work.serial }}</td>
+                </tr>
+                <tr>
+                  <td class="label-item" nzAlign="center">服务请求</td>
+                  <td nzAlign="left" colspan="3">{{ work.serviceRequest }}</td>
+                </tr>
+                <tr>
+                  <td class="label-item" nzAlign="center">分配网点</td>
+                  <td nzAlign="left" colspan="3">{{ work.serviceBranchName }}</td>
+                </tr>
+                <tr>
+                  <td class="label-item" nzAlign="center">交通工具</td>
+                  <td nzAlign="left">{{work.trafficName}}</td>
+                  <td class="label-item" nzAlign="center">交通说明</td>
+                  <td nzAlign="left">{{work.trafficNote}}</td>
+                </tr>
+                <tr>
+                  <td class="label-item" nzAlign="center">处理人员</td>
+                  <td nzAlign="left">
+                    {{work.engineerName}}
+                  </td>
+                  <td class="label-item" nzAlign="center">处理时间</td>
+                  <td nzAlign="left">{{work.finishTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                </tr>
+                <tr>
+                  <td class="label-item" nzAlign="center">协同工程师</td>
+                  <td nzAlign="left" colspan="3">
+                    {{work.togetherEngineers}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="label-item" nzAlign="center">服务项目</td>
+                  <td nzAlign="left">{{work.serviceItemName}}</td>
+                  <td class="label-item" nzAlign="center">服务方式</td>
+                  <td nzAlign="left">{{work.serviceModeName}}</td>
+                </tr>
+                <tr>
+                  <td class="label-item" nzAlign="center">服务描述</td>
+                  <td nzAlign="left" colspan="3">{{work.finishDescription}}</td>
+                </tr>
+                </tbody>
+              </nz-table>
+              <nz-table
+                [nzTitle]="wareUsedTitle"
+                *ngIf="work.usedPartList && work.usedPartList.length > 0"
+                [nzData]="work.usedPartList && work.usedPartList.length > 0 ? work.usedPartList : [{}]"
+                nzBordered="true"
+                nzFrontPagination="false"
+                nzSize="small"
+                nzNoResult="无"
+              >
+                <ng-template #wareUsedTitle>
+                  <label>使用部件</label>
+                </ng-template>
+                <thead>
+                <tr>
+                  <th style="width: 50px">序号</th>
+                  <th>分类</th>
+                  <th>品牌</th>
+                  <th>型号</th>
+                  <th>序列号</th>
+                  <th>单价</th>
+                  <th>数量</th>
+                  <th>税率</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of work.usedPartList;let index = index">
+                  <td nzAlign="center">{{ index + 1 }}</td>
+                  <td nzAlign="left">{{data.catalogName}}</td>
+                  <td nzAlign="left">{{data.brandName}}</td>
+                  <td nzAlign="left">{{data.modelName}}</td>
+                  <td nzAlign="left">{{data.wareSerial}}</td>
+                  <td nzAlign="right">{{data.unitPrice | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                  <td nzAlign="right">{{data.quantity}}</td>
+                  <td nzAlign="right">{{data.taxRate}}</td>
+                </tr>
+                </tbody>
+              </nz-table>
+              <nz-table
+                [nzTitle]="wareRecycleTitle"
+                *ngIf="work.usedPartList && work.usedPartList.length > 0"
+                [nzData]="work.usedPartList && work.usedPartList.length > 0 ? work.usedPartList : [{}]"
+                nzBordered="true"
+                nzFrontPagination="false"
+                nzSize="small"
+                nzNoResult="无"
+              >
+                <ng-template #wareRecycleTitle>
+                  <label>回收部件</label>
+                </ng-template>
+                <thead>
+                <tr>
+                  <th style="width: 50px">序号</th>
+                  <th>分类</th>
+                  <th>品牌</th>
+                  <th>型号</th>
+                  <th>序列号</th>
+                  <th>数量</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of work.faultPartList;let index = index">
+                  <td>{{ index + 1 }}</td>
+                  <td nzAlign="left">{{data.catalogName}}</td>
+                  <td nzAlign="left">{{data.brandName}}</td>
+                  <td nzAlign="left">{{data.modelName}}</td>
+                  <td nzAlign="left">{{data.wareSerial}}</td>
+                  <td nzAlign="right">{{data.quantity}}</td>
+                </tr>
+                </tbody>
+              </nz-table>
+              <nz-table
+                [nzTitle]="warePostTitle"
+                *ngIf="work.workPostDtoList && work.workPostDtoList.length > 0"
+                [nzData]="work.workPostDtoList && work.workPostDtoList.length > 0 ? work.workPostDtoList : [{}]"
+                nzBordered="true"
+                nzFrontPagination="false"
+                nzSize="small"
+                nzNoResult="无"
+              >
+                <ng-template #warePostTitle>
+                  <label>回收备件邮寄单</label>
+                </ng-template>
+                <thead>
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th>邮寄方式</th>
+                  <th>快递公司</th>
+                  <th>快递单号</th>
+                  <th>邮寄费</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of work.workPostDtoList;let index = index">
+                  <td nzAlign="center">{{index + 1}}</td>
+                  <td nzAlign="left">{{data.postWayName}}</td>
+                  <td nzAlign="left">{{data.postCorpName}}</td>
+                  <td nzAlign="left">{{data.postNumber}}</td>
+                  <td nzAlign="right">{{data.postage | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+          <nz-tab nzTitle="工单费用" *ngIf="work.workFeeDto">
+            <nz-table
+              nzTitle="工单费用"
+              nzBordered="true"
+              nzFrontPagination="false"
+              nzSize="small"
+              [nzData]="[{}]"
+            >
+              <thead>
+              <tr>
+                <th nzWidth="15">基础服务费</th>
+                <th nzWidth="15">服务项目费用</th>
+                <th nzWidth="15">差旅费</th>
+                <th nzWidth="15">换上备件费用</th>
+                <th nzWidth="15">换下备件邮寄费</th>
+                <th nzWidth="15">其他费用</th>
+                <th nzWidth="15">其他费用说明</th>
+                <th nzWidth="15">费用总计</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td nzAlign="right">{{ work.workFeeDto.basicServiceFee | currency: 'CNY': 'symbol-narrow': '1.0-2' }}</td>
+                <td nzAlign="right">{{ work.workFeeDto.serviceItemFee  | currency: 'CNY': 'symbol-narrow': '1.0-2' }}</td>
+                <td nzAlign="right">{{ work.workFeeDto.travelFee  | currency: 'CNY': 'symbol-narrow': '1.0-2' }}</td>
+                <td nzAlign="right">{{ work.workFeeDto.wareUseFee  | currency: 'CNY': 'symbol-narrow': '1.0-2' }}</td>
+                <td nzAlign="right">{{ work.workFeeDto.warePostFee  | currency: 'CNY': 'symbol-narrow': '1.0-2' }}</td>
+                <td nzAlign="right">{{ work.workFeeDto.otherFee  | currency: 'CNY': 'symbol-narrow': '1.0-2' }}</td>
+                <td nzAlign="left">{{ work.workFeeDto.otherFeeNote }}</td>
+                <td nzAlign="right">
+                  {{ work.workFeeDto.basicServiceFee + work.workFeeDto.serviceItemFee + work.workFeeDto.travelFee
+                + work.workFeeDto.wareUseFee + work.workFeeDto.warePostFee + work.workFeeDto.otherFee  | currency: 'CNY': 'symbol-narrow': '1.0-2' }}</td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+        </nz-tabset>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</nz-spin>

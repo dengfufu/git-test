@@ -1,0 +1,45 @@
+<!--常规工具栏-->
+<div class="st-pro-toolbar" [ngClass]="{'st-pro-toolbar-hide': isBatchOperate}">
+  <!--快捷查询-->
+  <div class="st-pro-toolbar-quick-filter">
+    <ng-container *stringTemplateOutlet="quickFilter"></ng-container>
+  </div>
+  <div class="st-pro-toolbar-button-group">
+    <!--列选择器-->
+    <col-selector class="col-selector toolbar-button" *ngIf="showColumnSelector"
+                  [columns]="settingColumns"
+                  (onOk)="onColumnSelect($event)"></col-selector>
+
+    <!--常规按钮-->
+    <div class="toolbar-extra-buttons">
+      <ng-container *stringTemplateOutlet="defaultButtons"></ng-container>
+    </div>
+  </div>
+</div>
+<!--批量操作工具栏-->
+<div class="st-pro-batch-toolbar" [ngClass]="{'st-pro-batch-toolbar-hide' : !isBatchOperate}">
+  <span class="batch-info">已选择 <em>{{batchRows}}</em> 条</span>
+  <ng-container class="st-pro-quick-filter" *stringTemplateOutlet="batchButtons"></ng-container>
+</div>
+<st #st
+    class="st-pro-table"
+    [data]="data"
+    [req]="req"
+    [res]="res"
+    [columns]="columns"
+    [page]="page"
+    [total]="total"
+    [ps]="pageSize"
+    [pi]="pageNum"
+    [rowClickTime]="200"
+    size="small"
+    [bordered]="true"
+    [widthMode]="widthMode"
+    [scroll]="{x:scrollX, y: scrollY}"
+    [virtualScroll]="virtualScroll"
+    [virtualItemSize]="virtualItemSize"
+    [virtualMinBufferPx]="350"
+    [virtualMaxBufferPx]="350"
+    (change)="tableChange($event)"
+    >
+</st>

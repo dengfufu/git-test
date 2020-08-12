@@ -1,0 +1,37 @@
+<form nz-form [formGroup]="detailForm">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8" nzRequired>列表值名称</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <input nz-input formControlName="name" placeholder="请输入列表值名称" style="width: 200px;"/>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="8"nzRequired>是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="10">
+        <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否" (ngModelChange)="switch($event)"
+        [ngModel]="this.enabled"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="8">顺序号</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <nz-input-number
+          [nzMin]="1"
+          [nzMax]="1000000"
+          [nzStep]="1"
+          formControlName="sortNo"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8">描述</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <input nz-input formControlName="description" placeholder="请输入描述" style="width: 200px;"/>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>

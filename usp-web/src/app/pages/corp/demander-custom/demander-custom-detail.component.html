@@ -1,0 +1,149 @@
+<div class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">客户详情</nz-page-header-title>
+
+    <nz-page-header-extra>
+      <button nz-button  nzShape="round"  (click)="goBack()"  class="edit-button">返回</button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+  <nz-spin [nzSpinning]="spinning">
+    <nz-layout>
+      <nz-sider [nzWidth]="320">
+        <nz-card style="width:320px;" [nzBordered]="false">
+          <br>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">客户名称：</div>
+            <div nz-col nzSpan="16">{{detail.customCorpName}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">联系人：</div>
+            <div nz-col nzSpan="16">{{detail.areaName}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">联系电话：</div>
+            <div nz-col nzSpan="16">{{detail.telephone}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">邮箱：</div>
+            <div nz-col nzSpan="16">{{detail.branchPhone}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">客户标签：</div>
+            <div nz-col nzSpan="16">{{detail.contactName}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">详细地址：</div>
+            <div nz-col nzSpan="16">{{address}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">是否可用：</div>
+            <div nz-col nzSpan="16" *ngIf="detail.enabled=='Y'">是</div>
+            <div nz-col nzSpan="16" *ngIf="detail.enabled=='N'">否</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">描述：</div>
+            <div nz-col nzSpan="16" style='word-wrap:break-word; white-space:normal;'>{{detail.description}}</div>
+          </div>
+          <div class="detail-edit-div"  [acl]="{ability: [aclRight.CUSTOM_ARCHIVE_MOD, aclRight.CUSTOM_ARCHIVE_DEL]}">
+            <button nz-button  nzShape="round" [acl]="{ability: [aclRight.CUSTOM_ARCHIVE_DEL]}"   (click)="showDeleteConfirm()"  class="edit-button">删除</button>
+            <button nz-button  nzShape="round"[acl]="{ability: [aclRight.CUSTOM_ARCHIVE_MOD]}" (click)="editModal()"    class="edit-button">编辑</button>
+          </div>
+        </nz-card>
+
+      </nz-sider>
+      <nz-content>
+        <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;">
+          <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+            <nz-tab nzTitle="设备清单">
+              <div>
+                <nz-table
+                          nzShowSizeChanger
+                          nzBordered
+                          [(nzPageIndex)]="devicePage.pageNum"
+                          [(nzPageSize)]="devicePage.pageSize"
+                          [nzTotal]="devicePage.total"
+                          [nzLoading]="deviceLoading"
+                          [nzFrontPagination]="false"
+                          [nzData]="deviceList"
+                          (nzPageIndexChange)="queryDeviceList()"
+                          (nzPageSizeChange)="queryDeviceList()">
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>设备类型</th>
+                    <th>品牌</th>
+                    <th>型号</th>
+                    <th>产品序列号</th>
+                    <th>购买日期</th>
+                    <th>在保状态</th>
+                    <th>保修截止</th>
+
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of deviceList;let index = index">
+                    <td>{{ devicePage.getNo(index) }}</td>
+                    <td>{{ data.smallClassName }}</td>
+                    <td>{{ data.brandName }}</td>
+                    <td>{{ data.modelName }}</td>
+                    <td>{{ data.serial  }}</td>
+                    <td>{{ data.purchaseDate |  date: 'yyyy-MM-dd' }}</td>
+                    <td>{{ data.warrantyStatusName  }}</td>
+                    <td>{{data.warrantyEndDate |  date: 'yyyy-MM-dd'}}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+            <nz-tab nzTitle="服务记录">
+              <div>
+                <nz-table
+                          nzShowSizeChanger
+                          nzBordered
+                          [(nzPageIndex)]="workPage.pageNum"
+                          [(nzPageSize)]="workPage.pageSize"
+                          [nzTotal]="workPage.total"
+                          [nzLoading]="workLoading"
+                          [nzFrontPagination]="false"
+                          [nzData]="workList"
+                          (nzPageIndexChange)="queryWorkList()"
+                          (nzPageSizeChange)="queryWorkList()">
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>工单编号</th>
+                    <th>工单状态</th>
+                    <th>工单类型</th>
+                    <th>创建时间</th>
+                    <th>保修状态</th>
+                    <th>服务方式</th>
+                    <th>故障现象</th>
+
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of workList;let index = index">
+                    <td>{{ workPage.getNo(index) }}</td>
+                    <td>{{ data.workCode }}</td>
+                    <td>{{ data.workStatusName}}</td>
+                    <td>{{ data.workTypeName }}</td>
+                    <td>{{ data.createTime |  date: 'yyyy-MM-dd' }}</td>
+                    <td>{{ data.warrantyName }}</td>
+                    <td>{{ data.serviceModeName  }}</td>
+                    <td>{{ data.faultType  }}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+          </nz-tabset>
+        </nz-card>
+      </nz-content>
+    </nz-layout>
+  </nz-spin>
+</div>

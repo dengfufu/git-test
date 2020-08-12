@@ -1,0 +1,39 @@
+<form [formGroup]="form">
+  <div nz-row >
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>注册人</nz-form-label>
+      <nz-form-control [nzSpan]="20" nzHasFeedback [nzErrorTip]="contactErrorTpl">
+        <nz-select
+          nzShowSearch
+          nzServerSearch
+          nzAllowClear
+          nzPlaceHolder="请选择注册人"
+          (nzOnSearch)="matchRegUser($event)"
+          formControlName="regUser"
+          (ngModelChange)="changeRegUser($event)">
+          <nz-option *ngFor="let o of regUserOptionList" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+        </nz-select>
+        <ng-template #contactErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择注册人！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+
+  <div nz-row >
+    <div nz-col>
+      <div nzSpan="24" style="color: red;margin-left: 30px;">提示信息:</div>
+      <div nzSpan="24" style="color: red;margin-left: 50px;font-size: 12px;">1、只能根据手机号查询注册人。</div>
+    </div>
+  </div>
+
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid">
+    提交
+  </button>
+</div>

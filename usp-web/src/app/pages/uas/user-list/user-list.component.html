@@ -1,0 +1,94 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="searchForm" (ngSubmit)="queryUser(true)">
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="6" nzFor="userName">姓名</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="6" nzFor="sex">性别</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-select id="sex" [nzAllowClear]="true" formControlName="sex" nzPlaceHolder="性别">
+            <nz-option nzValue="1" nzLabel="男"></nz-option>
+            <nz-option nzValue="2" nzLabel="女"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nz-col nzSpan="8" [hidden]="!showMore">
+        <nz-form-label [nzSpan]="6" nzFor="email">E-mail</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input name="email" type="email">
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nz-col nzSpan="8" [hidden]="!showMore">
+        <nz-form-label [nzSpan]="6" nzFor="mobile">手机号</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input id="mobile" formControlName="mobile" placeholder="手机号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8" [hidden]="!showMore">
+        <nz-form-label [nzSpan]="6" nzFor="regDate">注册日期</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-date-picker id="regDate" formControlName="regDate" nzPlaceHolder="注册日期"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-control>
+          <div nz-col style="overflow:hidden;">
+            <div style="float: right;margin-bottom: 24px">
+              <button type="submit" nz-button [nzType]="'primary'">查询</button>
+              <button style="margin-left: 8px" nz-button (click)="resetForm()">重置</button>
+              <a style="margin-left: 8px" class="collapse" (click)="showMore = !showMore">
+                展开
+                <i nz-icon [nzType]="showMore ? 'up' : 'down'"></i>
+              </a>
+            </div>
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+
+    <button nz-button [nzType]="'primary'" style="margin-bottom: 16px">
+      <i nz-icon nzType="plus"></i>
+      <span>新建</span>
+    </button>
+
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="userList"
+              [nzLoading]="loading"
+              [nzTotal]="total"
+              [(nzPageIndex)]="pageNum"
+              [(nzPageSize)]="pageSize"
+              (nzPageIndexChange)="queryUser()"
+              [nzPageSize]="10">
+      <thead>
+      <tr>
+        <th nzWidth="200px">用户ID</th>
+        <th nzWidth="200px">手机号</th>
+        <th>性别</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data">
+        <td>{{ data.userId }}</td>
+        <td>{{ data.mobile }}</td>
+        <td>{{ data.sex === '1' ? '男' : data.sex === '2' ? '女' : '未知' }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</my-pro-page-header-wrapper>
+
+
+
+
+

@@ -1,0 +1,193 @@
+<nz-page-header nzBackIcon>
+  <nz-page-header-title>备件入库</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button (click)="goBack()">返回</button>
+    <button nz-button nzType="primary" (click)="saveDetail()"[disabled]="!addForm.valid">保存</button>
+    <button nz-button nzType="primary" (click)="addSubmit()" [disabled]="!addForm.valid"  >提交</button>
+  </nz-page-header-extra>
+</nz-page-header>
+
+<nz-layout>
+
+  <div nz-row class="layout-row">
+    <div nz-col class="layout-col" nzSpan="10">
+      <nz-card [nzBordered]="false">
+        <form [formGroup]="addForm">
+          <div class="div-row" nz-row>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>申请人</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="applicantErrorTip">
+                <nz-select nzShowSearch nzAllowClear formControlName="applicant" nzPlaceHolder="请选择申请人" >
+                  <nz-option *ngFor="let item of selectOptions.applicantOptions" [nzValue]="item.id"
+                             [nzLabel]="item.name"></nz-option>
+                </nz-select>
+                <ng-template #applicantErrorTip let-control>
+                  <ng-container *ngIf="control.hasError('required')">
+                    请选择设备分类！
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div class="div-row" nz-row>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>申请库房</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+                <nz-select nzShowSearch nzAllowClear formControlName="applyDepotId" nzPlaceHolder="请选择申请库房">
+                  <nz-option *ngFor="let item of selectOptions.depotOptions" [nzValue]="item.id"
+                             [nzLabel]="item.name"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div class="div-row" nz-row>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>申请日期</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+                <nz-date-picker formControlName="applyDate"  [nzFormat]="'yyyy-MM-dd'"
+                ></nz-date-picker>
+
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div class="div-row" nz-row>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>紧急程度</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+                <nz-select nzShowSearch nzAllowClear formControlName="priorityLevel" nzPlaceHolder="请选择紧急程度">
+                  <nz-option *ngFor="let item of selectOptions.priorityOptions" [nzValue]="item.id"
+                             [nzLabel]="item.name"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div class="div-row" nz-row>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>申请原因</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+             <textarea
+               nz-input
+               placeholder="请输入原因"
+               formControlName="applyNote"
+               [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+             ></textarea>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </form>
+      </nz-card>
+    </div>
+
+    <div nz-col class="layout-col" nzSpan="14">
+      <nz-card style="border-width: 0 0 0 1px">
+        <form [formGroup]="addDetailForm">
+          <div nz-row>
+            <div nz-col nzSpan="12">
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>物料名称</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+                  <nz-select nzShowSearch nzAllowClear formControlName="ware" nzPlaceHolder="请选择物料名称">
+                    <nz-option *ngFor="let item of selectOptions.wareOptions" [nzValue]="item"
+                               [nzLabel]="item.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>型号</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-select nzShowSearch nzAllowClear formControlName="model" nzPlaceHolder="请选择型号">
+                    <nz-option *ngFor="let item of selectOptions.modelOptions" [nzValue]="item"
+                               [nzLabel]="item.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>数量</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-input-number
+                    [nzMin]="1"
+                    [nzMax]="1000000"
+                    [nzStep]="1"
+                    formControlName="num"
+                  ></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+
+            </div>
+            <div nz-col nzSpan="12">
+              <div *ngIf="selectOptions.normsList.length > 0">
+                <div nz-row nzType="flex" nzAlign="middle" style="height: 40px">
+                  <label style="font-size: 14px;font-weight: bolder;color: rgba(0, 0, 0, 0.85)">备件规格</label>
+                </div>
+                <div nz-row style="height: 40px" nzType="flex" nzAlign="middle" *ngFor="let item of selectOptions.normsList">
+                  <div nz-col nzSpan="6" style="text-align: right">
+                    <label  style="font-size: 13px;font-weight: bolder;color: rgba(0, 0, 0, 0.85)">{{item.attribute}}：</label>
+                  </div>
+                  <div nz-col nzSpan="18" style="text-align: left">
+                    <nz-select   [ngModelOptions]="{standalone: true}"  style="width: 200px"  [(ngModel)]="normsValue[item.attribute]" nzShowSearch nzAllowClear *ngIf="item.value.length > 0">
+                      <nz-option  *ngFor="let value of item.value" [nzValue]="value"
+                                  [nzLabel]="value"></nz-option>
+                    </nz-select>
+                    <input nz-input [(ngModel)]="normsValue[item.attribute]" [ngModelOptions]="{standalone: true}"  style="width: 200px" *ngIf="item.value.length <= 0"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div nz-row class="div-row" nzAlign="bottom">
+            <button nz-button nzType="primary"
+                    [disabled]="!addDetailForm.valid"
+                    style="margin:10px 30px 0 0" nzSize="small" nzShape="round" (click)="addDetail()">加入列表</button>
+            <button nz-button style="margin:10px 30px 0 0" nzSize="small" nzShape="round" (click)="clearDetailForm()">清空</button>
+          </div>
+        </form>
+      </nz-card>
+    </div>
+  </div>
+
+
+  <div nz-row>
+    <nz-card style="border-width: 1px 0 0 0">
+      <p class="p-title">调度添加明细</p>
+      <nz-table
+        nzBordered
+        nzHideOnSinglePage
+        nzFrontPagination="true"
+        nzShowSizeChanger
+        [nzPageIndex]="page.pageNum"
+        [nzPageSize]="page.pageSize"
+        [nzData]="showList"
+        [nzTotal]="showList.length"
+        nzLoadingDelay="1000"
+        nzNoResult="无"
+      >
+        <thead>
+        <tr>
+          <th nzWidth="50px">序号</th>
+          <th>物料名称</th>
+          <th>规格</th>
+          <th>型号</th>
+          <th>数量</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of showList; let index = index">
+          <td nzAlign="center">{{ page.getNo(index) }}</td>
+          <td nzAlign="left">{{ data.wareName }}</td>
+          <td nzAlign="left">{{ data.normsName }}</td>
+          <td nzAlign="left">{{ data.modelName }}</td>
+          <td nzAlign="left">{{ data.num }}</td>
+          <td nzAlign="center"><img src="/assets/wms/close-circle.svg" (click)="deleteDetail(index)" style="width: 20px;height: 20px;"></td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </div>
+
+</nz-layout>
+

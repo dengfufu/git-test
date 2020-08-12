@@ -1,0 +1,38 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+
+      <nz-table #headerTable
+                nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="configList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                >
+        <thead>
+        <tr>
+          <th nzWidth="50px">序号</th>
+          <th>配置描述</th>
+          <th>默认配置</th>
+          <th>当前配置</th>
+          <th nzWidth="100px" [acl]="{ability: [aclRight.DATA_CONFIG_ADD]}">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of headerTable.data;let index = index">
+          <td>{{ page.getNo(index) }}</td>
+          <td>{{ data.description }}</td>
+          <td >{{ data.showDefaultValue}}</td>
+          <td >{{data.showItemValue}}</td>
+          <td [acl]="{ability: [aclRight.DATA_CONFIG_ADD]}">
+            <a  (click)="editModal(data)">配置</a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+</nz-layout>

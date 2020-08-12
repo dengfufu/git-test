@@ -1,0 +1,147 @@
+<nz-page-header [nzBackIcon]="backIcon" style="border-bottom:1px dashed #CCCCCC; ">
+  <nz-page-header-title>批量审核</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzShape="round" nzType="primary" (click)="goBack()" style="margin-right: 32px; width: 100px;">返回</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+<nz-card [nzBordered]="false">
+  <form nz-form [formGroup]="searchForm">
+    <div nz-row nzType="flex" nzAlign="middle" style="height: 70px;text-align: center;padding-top: 20px;">
+      <div nz-col nzSpan="7">
+        <nz-form-item>
+          <nz-form-label [nzSpan]="8">所属库房</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-select [nzAllowClear]="true" formControlName="depotId" nzShowSearch nzAllowClear nzPlaceHolder="请选择所属库房"
+              [nzServerSearch]="true" (nzOnSearch)="wmsService.queryDepotList($event)"
+            >
+              <nz-option *ngFor="let option of wmsService.selectOptions.depotList" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="7">
+        <nz-form-item>
+          <nz-form-label [nzSpan]="8">出库类型</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-select
+              [nzAllowClear]="true"
+              formControlName="smallClassId"
+              nzShowSearch
+              nzAllowClear
+              nzPlaceHolder="请选择出库类型"
+            >
+              <nz-option *ngFor="let option of wmsService.selectOptions.outcomeSmallClassList" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="7">
+        <nz-form-item>
+          <nz-form-label [nzSpan]="8">备件产权</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-select
+              [nzAllowClear]="true"
+              formControlName="propertyRight"
+              nzShowSearch
+              nzAllowClear
+              nzPlaceHolder="请选择备件产权"
+              [nzServerSearch]="true"
+              (nzOnSearch)="wmsService.queryPropertyRightList($event)"
+            >
+              <nz-option *ngFor="let option of wmsService.selectOptions.propertyRightList" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="3">
+        <button nz-button nzShape="round" nzSize="small" nzType="primary" (click)="queryWareIncomeList(false)">查询</button>
+      </div>
+    </div>
+  </form>
+
+  <nz-table nzShowSizeChanger
+            nzShowPagination
+            nzBordered
+            style="padding-top: 20px;"
+            [nzFrontPagination]="false"
+            [nzData]="wareOutComeList"
+            [nzLoading]="loading"
+            [nzTotal]="page.total"
+            [(nzPageIndex)]="page.pageNum"
+            [(nzPageSize)]="page.pageSize"
+            [nzLoadingDelay]="300"
+            (nzPageIndexChange)="queryWareIncomeList(false)"
+            (nzPageSizeChange)="queryWareIncomeList(true)">
+    <thead>
+    <tr>
+      <th nzShowCheckbox
+          [(nzChecked)]="checkBox.isAllChecked"
+          [nzIndeterminate]="checkBox.isIndeterminate"
+          (nzCheckedChange)="checkBox.checkAll($event)"></th>
+      <th>序号</th>
+      <th>备件名称</th>
+      <th>品牌</th>
+      <th>型号</th>
+      <th>规格</th>
+      <th>数量</th>
+      <th>库房</th>
+      <th>出库类别</th>
+      <th>备件状态</th>
+      <th>经办人</th>
+      <th>出库时间</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of wareOutComeList;let i = index;">
+      <td nzShowCheckbox [(nzChecked)]="checkBox.mapOfCheckedId[data.id]"
+          (nzCheckedChange)="checkBox.refreshStatus()"></td>
+      <td>{{page.getNo(i)}}</td>
+      <td>{{data.catalogName}}</td>
+      <td>{{data.brandName}}</td>
+      <td>{{data.modelName}}</td>
+      <td>{{data.normsValueName}}</td>
+      <td>{{data.quantity}}</td>
+      <td>{{data.depotName}}</td>
+      <td>{{data.smallClassName}}</td>
+      <td>{{data.statusName}}</td>
+      <td>{{data.createNameBy}}</td>
+      <td>{{data.updateTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+<div style="height: 6px;"></div>
+<nz-card [nzBordered]="false">
+  <div nz-row>
+    <div nz-col nzSpan="18">
+      <form [formGroup]="auditForm">
+        <nz-form-item>
+          <nz-form-label nzSpan="4">审核处理</nz-form-label>
+          <nz-form-control nzSpan="8">
+            <nz-select
+              formControlName="nodeEndTypeId"
+              nzAllowClear
+              (ngModelChange)="endTypeChange($event)"
+            >
+              <nz-option *ngFor="let option of wmsService.selectOptions.auditDealList" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzSpan="4">审核意见</nz-form-label>
+          <nz-form-control nzSpan="14">
+            <textarea rows="2" nz-input formControlName="auditNote"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+    <button nz-button nzType="primary" [disabled]="!auditForm.valid || checkBox.getCheckedDataList().length <= 0" (click)="auditSubmit()" style="position: absolute;bottom: 20px;right:100px;">提交</button>
+  </div>
+</nz-card>

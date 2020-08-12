@@ -1,0 +1,78 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>服务商</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serviceCorpErrorTpl">
+        <nz-select
+          style="width: 400px;"
+          nzShowSearch
+          nzAllowClear
+          nzFilterOption
+          nzPlaceHolder="选择服务商"
+          [nzFilterOption]="nzFilterOption"
+          (ngModelChange)="serviceCorpChange($event)"
+          (nzOnSearch)="matchServiceCorp($event)"
+          formControlName="serviceCorp">
+          <nz-option *ngFor="let item of serviceCorpOptions" [nzValue]="item.corpId"
+                     [nzLabel]="item.corpName"></nz-option>
+          <nz-option *ngIf="serviceCorpOptionLoading" nzDisabled nzCustomContent>
+            <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+          </nz-option>
+        </nz-select>
+        <ng-template #serviceCorpErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择服务商！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div *ngIf="validateForm.controls.serviceCorp.value">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4" >注册地区</nz-form-label>
+        <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serviceCorpErrorTpl">
+          {{detail.region}}
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4" >详细地址</nz-form-label>
+        <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serviceCorpErrorTpl">
+            {{detail.address}}
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4" >联系电话</nz-form-label>
+        <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serviceCorpErrorTpl">
+          {{detail.telephone}}
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">详细描述</nz-form-label>
+      <nz-form-control nzValidateStatus="false" [nzSpan]="16" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+        <textarea rows="4" placeholder="请输入详细描述" nz-input formControlName="serviceDescription" style="width: 400px;"
+                  maxlength="200"></textarea>
+        <ng-template #descriptionErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过200个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <text-area-word-number currentNumber="{{validateForm.value.serviceDescription.length}}"
+                           totalCount="200" ></text-area-word-number>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)" [disabled]="!validateForm.valid" class="button-modal-submit" >提交</button>
+</div>

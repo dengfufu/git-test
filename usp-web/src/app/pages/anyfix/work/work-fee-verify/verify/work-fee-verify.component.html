@@ -1,0 +1,125 @@
+<nz-spin [nzSpinning]="loading" class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">
+      对账 {{workFeeVerify.verifyName}}
+    </nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button nzShape="round" (click)="goBack()" class="edit-button">返回</button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+  <nz-layout>
+    <nz-card nzBordered="false">
+      <ng-template #totalTemplate let-total>
+        共{{total}}条
+      </ng-template>
+      <nz-table
+        nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+        nzBordered
+        [nzFrontPagination]="false"
+        [nzData]="detailList"
+        [nzTotal]="page.total"
+        [nzShowTotal]="totalTemplate"
+        [(nzPageIndex)]="page.pageNum"
+        [(nzPageSize)]="page.pageSize"
+        (nzPageIndexChange)="queryDetail(false)"
+        (nzPageSizeChange)="queryDetail(true)"
+        [nzScroll]="{x : '2900px'}">
+        <thead>
+        <tr>
+          <th nzWidth="50px">序号</th>
+          <th nzWidth="120px">工单编号</th>
+          <th nzWidth="80px">确认</th>
+          <th nzWidth="100px">基础维护费</th>
+          <th nzWidth="100px">辅助人员费</th>
+          <th nzWidth="100px">郊区交通费</th>
+          <th nzWidth="100px">长途交通费</th>
+          <th nzWidth="100px">住宿费</th>
+          <th nzWidth="100px">出差补助</th>
+          <th nzWidth="100px">邮寄费</th>
+          <th nzWidth="100px">其他费用</th>
+          <th nzWidth="80px">省</th>
+          <th nzWidth="80px">市</th>
+          <th nzWidth="150px">客户</th>
+          <th nzWidth="150px">设备类型</th>
+          <th nzWidth="100px">品牌</th>
+          <th nzWidth="150px">型号</th>
+          <th nzWidth="80px">规格</th>
+          <th nzWidth="100px">工单类型</th>
+          <th nzWidth="100px">建单人</th>
+          <th nzWidth="150px">建单时间</th>
+          <th nzWidth="80px" nzRight="440px">工单费用</th>
+          <th nzWidth="120px" nzRight="320px">对账后费用</th>
+          <th nzWidth="200px" nzRight="120px">对账说明</th>
+          <th nzWidth="120px" nzRight="0">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of detailList;let index = index">
+          <td>{{index + 1}}</td>
+          <td>{{data.workCode}}</td>
+          <td>{{data.feeConfirmStatusName}}</td>
+          <td nzAlign="right">{{data.workFeeDto.assortBasicFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="right">{{data.workFeeDto.assortSupportFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="right">{{data.workFeeDto.suburbTrafficExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="right">{{data.workFeeDto.longTrafficExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="right">{{data.workFeeDto.hotelExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="right">{{data.workFeeDto.travelExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="right">{{data.workFeeDto.postExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="right">{{data.workFeeDto.otherFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="left">{{data.provinceName}}</td>
+          <td nzAlign="left">{{data.cityName}}</td>
+          <td nzAlign="left">{{data.customCorpName}}</td>
+          <td nzAlign="left">{{data.smallClassName}}</td>
+          <td nzAlign="left">{{data.brandName}}</td>
+          <td nzAlign="left">{{data.modelName}}</td>
+          <td nzAlign="left">{{data.specificationName}}</td>
+          <td nzAlign="left">{{data.workTypeName}}</td>
+          <td nzAlign="left">{{data.creatorName}}</td>
+          <td>{{data.createTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzAlign="right" nzRight="440px">{{data.totalFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <ng-container *ngIf="!editCache[data.detailId].edit; else editTemplate">
+            <td nzRight="320px">
+              <span *ngIf="data.verifyAmount !== data.totalFee" style="font-weight: bolder;color: red">{{data.verifyAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</span>
+              <span *ngIf="data.verifyAmount === data.totalFee">{{data.verifyAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</span>
+            </td>
+            <td nzRight="120px">{{data.note}}</td>
+            <td nzRight="0"><a (click)="startEdit(data.detailId)">编辑</a></td>
+          </ng-container>
+          <ng-template #editTemplate>
+            <td nzRight="320px">￥
+              <nz-input-number
+                style="width: 80px"
+                [(ngModel)]="editCache[data.detailId].data.verifyAmount"
+                nzPrecision="2"
+                nzStep="10"
+                nzMin="0"
+                nzMax="99999999"
+              ></nz-input-number>
+            </td>
+            <td nzRight="120px">
+              <input type="text" nz-input [(ngModel)]="editCache[data.detailId].data.note"/>
+            </td>
+            <td nzRight="0">
+              <a (click)="saveEdit(data.detailId, index)">保存</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="cancelEdit(data.detailId, index)">取消</a>
+            </td>
+          </ng-template>
+        </tr>
+        </tbody>
+      </nz-table>
+
+  <!--    <div *nzModalFooter>-->
+      <nz-button-group style="width: 100%;text-align: center">
+        <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+        <button nz-button nzType="primary" (click)="submit()" [nzLoading]="submitLoading"
+                style="margin-left: 20px;">提交
+        </button>
+      </nz-button-group>
+    </nz-card>
+<!--    </div>-->
+  </nz-layout>
+</nz-spin>

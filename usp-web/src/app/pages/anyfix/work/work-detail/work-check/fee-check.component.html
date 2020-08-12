@@ -1,0 +1,26 @@
+<nz-spin [nzSpinning]="spinning">
+  <form nz-form [formGroup]="checkForm" style="width: 600px">
+    <nz-form-item>
+      <nz-form-label nzSpan="6">审核结果</nz-form-label>
+      <nz-form-control nzSpan="16">
+        <nz-radio-group formControlName="feeCheckStatus" (ngModelChange)="feeCheckChange($event)">
+          <label nz-radio [nzValue]="2">通过</label>
+          <label nz-radio [nzValue]="3">不通过</label>
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzSpan="6">审核备注</nz-form-label>
+      <nz-form-control nzSpan="16">
+      <textarea [nzAutosize]="{ minRows: 2, maxRows: 6 }" maxlength="400" nz-input formControlName="feeCheckNote"
+                placeholder="请输入备注，400字以内"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-spin>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="checkSubmit()" [nzLoading]="loading" [disabled]="!checkForm.valid"
+          style="margin-left: 20px;">提交
+  </button>
+</div>

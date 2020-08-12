@@ -1,0 +1,117 @@
+<form nz-form [formGroup]="searchForm">
+  <div nz-row nzType="flex" nzAlign="middle" style="height: 70px;text-align: center;padding-top: 20px;">
+    <div nz-col nzSpan="7">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">物料分类</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            [nzAllowClear]="true"
+            formControlName="catalogId"
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择备件分类"
+            (ngModelChange)="catalogChange($event)"
+            (nzOnSearch)="wmsService.queryCatalogList($event)"
+          >
+            <nz-option *ngFor="let option of wmsService.selectOptions.catalogList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="7">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">物料品牌</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            [nzAllowClear]="true"
+            formControlName="brandId"
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择物料品牌"
+            (ngModelChange)="brandChange($event)"
+            (nzOnSearch)="wmsService.queryBrandList($event)"
+          >
+            <nz-option *ngFor="let option of wmsService.selectOptions.brandList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="7">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">物料型号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            [nzAllowClear]="true"
+            formControlName="modelId"
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择物料型号"
+            (nzOnSearch)="wmsService.queryModelList($event, searchForm.value.catalogId, searchForm.value.brandId)"
+          >
+            <nz-option *ngFor="let option of wmsService.selectOptions.modelList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="3">
+      <button nz-button nzShape="round" nzSize="small" nzType="primary" (click)="queryBookSaleBorrow(false)">查询</button>
+    </div>
+  </div>
+</form>
+
+<nz-table nzShowSizeChanger
+          nzShowPagination
+          nzBordered
+          style="padding-top: 20px;"
+          [nzFrontPagination]="false"
+          [nzData]="bookSaleBorrowList"
+          [nzLoading]="loading"
+          [nzTotal]="page.total"
+          [(nzPageIndex)]="page.pageNum"
+          [(nzPageSize)]="page.pageSize"
+          [nzLoadingDelay]="300"
+          (nzPageIndexChange)="queryBookSaleBorrow(false)"
+          (nzPageSizeChange)="queryBookSaleBorrow(true)">
+  <thead>
+  <tr>
+    <th nzShowCheckbox
+        [(nzChecked)]="checkbox.isAllChecked"
+        [nzIndeterminate]="checkbox.isIndeterminate"
+        (nzCheckedChange)="checkbox.checkAll($event)"></th>
+    <th>序号</th>
+    <th>备件名称</th>
+    <th>品牌</th>
+    <th>型号</th>
+    <th>规格</th>
+    <th>备件状态</th>
+    <th>序列号</th>
+    <th>条形码</th>
+    <th>备件产权</th>
+    <th>出库数量</th>
+    <th>经办人</th>
+    <th>出库时间</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of bookSaleBorrowList;let i = index;">
+    <td nzShowCheckbox [(nzChecked)]="checkbox.mapOfCheckedId[data.id]"
+        (nzCheckedChange)="checkbox.refreshStatus()"></td>
+    <td nzAlign="center">{{page.getNo(i)}}</td>
+    <td>{{data.catalogName}}</td>
+    <td>{{data.brandName}}</td>
+    <td>{{data.modelName}}</td>
+    <td>{{data.normsValueName}}</td>
+    <td>{{data.statusName}}</td>
+    <td>{{data.sn}}</td>
+    <td>{{data.barcode}}</td>
+    <td>{{data.propertyRightName}}</td>
+    <td>{{data.saleQty}}</td>
+    <td>{{data.createByName}}</td>
+    <td>{{data.createTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+  </tr>
+  </tbody>
+</nz-table>
+

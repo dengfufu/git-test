@@ -1,0 +1,35 @@
+<nz-table
+  [nzSize] = "'small'"
+  #rowSelectionTable
+  nzShowSizeChanger
+  nzBordered="true"
+  [nzData]="staffList"
+>
+  <thead>
+  <tr>
+    <th
+      nzShowCheckbox
+      [nzChecked]="isAllChecked"
+      [nzIndeterminate]="isIndeterminate"
+      (nzCheckedChange)="checkAll($event)"
+    ></th>
+    <th>姓名</th>
+    <th>手机号</th>
+    <th>所在网点</th>
+    <th>角色</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of rowSelectionTable.data">
+    <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[data.userId]" (nzCheckedChange)="refreshStatus()"></td>
+    <td>{{ data.userName }}</td>
+    <td>{{ data.mobile }}</td>
+    <td>{{ data.serviceBranchNames }}</td>
+    <td>{{ data.roleNames }}</td>
+  </tr>
+  </tbody>
+</nz-table>
+<nz-row style="text-align: center">
+  <button nz-button style="margin-right: 20px" (click)="closeModal()">取消</button>
+  <button nz-button [nzType]="'primary'" (click)="chooseSubmit()">选择</button>
+</nz-row>

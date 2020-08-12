@@ -1,0 +1,71 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+
+
+    <div nz-row style="margin-bottom: 10px">
+       <div nz-col nzSpan="2" class="title">出库地点</div>
+        <div nz-col  nzSpan="2" class="description">南京库房</div>
+    </div>
+
+    <div nz-row>
+      <div nz-col nzSpan="2" class="title">备件名称</div>
+      <div nz-col  nzSpan="2" class="description">南京库房</div>
+    </div>
+
+    <div style="margin-top: 30px">
+      <nz-table #editRowTable
+                nzBordered
+                [nzData]="list"
+                [nzPageIndex]="page.pageNum"
+                [nzPageSize]="page.pageSize"
+                [nzData]="list"
+                [nzTotal]="list.length">
+        <thead>
+        <tr>
+          <th>序号</th>
+          <th>此单分箱号</th>
+          <th>数量</th>
+          <th>备件名称</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>规格</th>
+          <th>备件状态</th>
+          <th>单价(元)</th>
+          <th>在保状态</th>
+          <th>维保到期日</th>
+          <th>厂商序列号</th>
+          <th>唯一编码</th>
+          <th>入库日期</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of list;let index=index" class="editable-row">
+         <td >{{ page.getNo(index) }}</td>
+          <td> <nz-input-number [(ngModel)]="data.subBoxNum" [nzMin]="1"  [nzStep]="1" [ngModelOptions]="{standalone: true}"></nz-input-number>  </td>
+          <td> <nz-input-number [(ngModel)]="data.quantity" [nzMin]="1"  [nzStep]="1" [ngModelOptions]="{standalone: true}"></nz-input-number>  </td>
+          <td>{{ data.catalogName }}</td>
+          <td>{{ data.brandName }}</td>
+          <td>{{ data.modelName }}</td>
+          <td>{{ data.normsValue }}</td>
+          <td>{{ data.statusName }}</td>
+          <td>{{ data.unitPrice }}</td>
+          <td>{{ data.insuranceStatusName }}</td>
+          <td>{{ data.serviceEndDate }}</td>
+          <td>{{ data.barcode }}</td>
+          <td>{{ data.sn }}</td>
+          <td>{{ data.createTime | date:'yyyy-MM-dd'}}</td>
+          <td><img src="/assets/wms/close-circle.svg" (click)="deleteDetail(index)" style="width: 20px;height: 15px;"></td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <div style="text-align:right;">
+      <button nz-button style="margin-right: 20px" type="button" (click)="addDelivery()"  >完成</button>
+      <button nz-button style="margin-right: 20px"   type="button" (click)="cancel()"  >取消</button>
+    </div>
+
+  </nz-spin>
+</form>

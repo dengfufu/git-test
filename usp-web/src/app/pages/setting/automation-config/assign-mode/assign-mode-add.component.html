@@ -1,0 +1,276 @@
+
+<nz-card [nzBordered]="false">
+  <form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+    <div nz-row>
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24">服务商</nz-form-label>
+          <nz-form-control [nzSm]="18" [nzXs]="24">{{serviceName}}
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div nz-row>
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>委托商</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="appErrorTpl">
+            <nz-select
+              formControlName="demanderCorp"
+              style="width: 250px;"
+              nzShowSearch
+              nzAllowClear
+              (ngModelChange)="demanderCorpChange()"
+              nzPlaceHolder="请选择委托商"
+              (nzFocus)="searchDemanderCorp()">
+              <nz-option *ngFor="let o of demanderCorpOption" [nzLabel]="o.demanderCorpName" [nzValue]="o.demanderCorp"> </nz-option>
+              <nz-option *ngIf="demanderCorpOptionLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+            <ng-template #appErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择委托商！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>自动派单模式</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="appErrorTpl">
+            <nz-select formControlName="autoMode" style="width: 250px;" nzPlaceHolder="请选择自动派单模式">
+              <nz-option [nzLabel]="'派给设备负责工程师'" [nzValue]="20"></nz-option>
+              <nz-option [nzLabel]="'派给小组'" [nzValue]="30"></nz-option>
+              <nz-option [nzLabel]="'距离优先'" [nzValue]="40"></nz-option>
+              <nz-option [nzLabel]="'派给网点所有人'" [nzValue]="50"></nz-option>
+            </nz-select>
+            <ng-template #appErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择自动派单模式！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="validateForm.value.autoMode == 30">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>请选择小组成员</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="appErrorTpl">
+            <nz-select
+              formControlName="userList"
+              style="width: 250px;"
+              nzMode="multiple"
+              nzShowSearch
+              nzPlaceHolder="当自动派单模式设置为派给小组时必须选择小组成员"
+              (nzFocus)="searchEngineer()">
+              <nz-option *ngFor="let o of engineerOption" [nzLabel]="o.userName" [nzValue]="o.userId"></nz-option>
+            </nz-select>
+            <ng-template #appErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择小组成员！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="validateForm.value.autoMode == 40">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>请输入最大半径(米)</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="appErrorTpl">
+            <nz-input-number formControlName="distance" style="width: 250px;"
+                             nzPlaceHolder="当自动派单模式设置为距离优先时必须设置最大半径"></nz-input-number>
+            <ng-template #appErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请输入最大半径！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="validateForm.value.autoMode == 50">
+          <nz-form-label [nzSm]="6" [nzXs]="24">匹配工程师技能</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24">
+            <nz-select id="skilled" style="width: 250px;" formControlName="skilled" nzPlaceHolder="是/否">
+              <nz-option nzLabel="是" nzValue="Y"></nz-option>
+              <nz-option nzLabel="否" nzValue="N"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>人工派单模式</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="appErrorTpl">
+            <nz-select
+              formControlName="manualMode"
+              style="width: 250px;"
+              nzPlaceHolder="请选择人工派单模式">
+              <nz-option [nzLabel]="'公司客服派单'" [nzValue]="1"></nz-option>
+              <nz-option [nzLabel]="'设备服务主管派单'" [nzValue]="2"></nz-option>
+              <nz-option [nzLabel]="'服务网点客服派单'" [nzValue]="3"></nz-option>
+            </nz-select>
+            <ng-template #appErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择人工派单模式！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24">工单类型</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="valueErrorTpl">
+
+
+            <nz-select
+              formControlName="workType"
+              style="width: 250px;"
+              nzShowSearch
+              nzServerSearch
+              nzPlaceHolder="请选择工单类型"
+              (nzFocus)="searchWorkType()">
+              <nz-option *ngFor="let o of workTypeOption" [nzLabel]="o.name" [nzValue]="o.id.toString()"> </nz-option>
+              <nz-option *ngIf="workTypeOptionLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+
+            <ng-template #valueErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择工单类型！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24">设备大类</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="valueErrorTpl">
+            <nz-select
+              formControlName="largeClassId"
+              style="width: 250px;"
+              nzShowSearch
+              nzAllowClear
+              nzPlaceHolder="请选择设备大类"
+              (nzFocus)="searchLargeClass()"
+              (ngModelChange)="largeClassChange()">
+              <nz-option *ngFor="let o of largeClassOption" [nzLabel]="o.name" [nzValue]="o.id"> </nz-option>
+              <nz-option *ngIf="largeClassOptionLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+
+            <ng-template #valueErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择设备大类！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+      </div>
+      <div nz-col nzSpan="12" style="border-left: 1px dashed #dad8d8;">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" >设备类型</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="valueErrorTpl">
+            <nz-select
+              nzMode="multiple"
+              nzPlaceHolder="请选择设备类型"
+              formControlName="smallClassId"
+              style="width: 250px;"
+              nzShowSearch
+              nzAllowClear
+              (nzFocus)="searchSmallClass(validateForm.value.largeClassId)">
+              <nz-option *ngFor="let o of smallClassOption" [nzLabel]="o.name" [nzValue]="o.id"> </nz-option>
+              <nz-option *ngIf="smallClassOptionLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" >设备品牌</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="valueErrorTpl">
+
+            <nz-select
+              nzMode="multiple"
+              nzPlaceHolder="请选择设备品牌"
+              formControlName="brandId"
+              style="width: 250px;"
+              nzShowSearch
+              nzAllowClear
+              (nzFocus)="searchBrand()">
+
+              <nz-option *ngFor="let o of brandOption" [nzLabel]="o.name" [nzValue]="o.id"> </nz-option>
+              <nz-option *ngIf="brandOptionLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" >设备型号</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="valueErrorTpl">
+            <nz-select
+              nzMode="multiple"
+              nzPlaceHolder="请选择设备型号"
+              formControlName="modelId"
+              style="width: 250px;"
+              nzShowSearch
+              nzAllowClear
+              (nzFocus)="searchModel()">
+
+              <nz-option *ngFor="let o of modelOption" [nzLabel]="o.name" [nzValue]="o.id"> </nz-option>
+              <nz-option *ngIf="modelOptionLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" >行政区划</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback >
+              <nz-cascader
+                style="width: 250px;"
+                nzPlaceHolder="请选择行政区划"
+                (ngModelChange)="areaChange($event)"
+                nzAllowClear
+                [nzOptions]="districts" [nzShowSearch]="ZorroUtils.showSearchOptions"
+                [nzChangeOnSelect]="true"
+                formControlName="district">
+              </nz-cascader>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" >设备网点</nz-form-label>
+          <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="valueErrorTpl">
+
+            <nz-select
+              nzMode="multiple"
+              nzPlaceHolder="请选择设备网点"
+              formControlName="deviceBranch"
+              style="width: 250px;"
+              nzShowSearch
+              nzAllowClear
+              (nzFocus)="searchDeviceBranch()">
+              <nz-option *ngFor="let o of deviceBranchOption" [nzLabel]="o.branchName" [nzValue]="o.branchId"> </nz-option>
+              <nz-option *ngIf="deviceBranchOptionLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+
+          </nz-form-control>
+        </nz-form-item>
+
+      </div>
+    </div>
+
+    <br>
+    <br>
+    <nz-form-item>
+      <nz-form-control [nzOffset]="10" [nzSpan]="12">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid" [nzLoading]="isSubmit">提交</button>&nbsp;
+        <button nz-button type="button" (click)="destroyModal()">取消</button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-card>

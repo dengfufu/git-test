@@ -1,0 +1,36 @@
+  <form nz-form [formGroup]="form" role="form">
+    <nz-card [nzBordered]="false">
+      <div style="height: 100vh;text-align: center">
+        <ng-container *ngIf="role === 're-sign'">
+          <nz-result nzStatus="warning" nzTitle="协议有更新，请重新查阅并继续">
+            <div nz-result-extra>
+              <div class="form-footer">
+                <nz-form-item>
+                  <nz-form-control>
+                    <label nz-checkbox nzRequired formControlName="agreement"></label>
+                    <span class="agreement-desc">同意<a class="link-item" [href]="protocol?.url" target="_blank">{{protocol?.name}}</a></span>
+                  </nz-form-control>
+                </nz-form-item>
+                <button nz-button [nzLoading]="submitLoading" (click)="reSignProtocol()" [disabled]="!form.valid" nzType="primary">同意并继续</button>
+              </div>
+            </div>
+          </nz-result>
+        </ng-container>
+        <ng-container *ngIf="role === 'create-account'">
+          <nz-result nzStatus="warning" nzTitle="是否启用在线支付？">
+            <div nz-result-extra>
+              <div class="form-footer">
+                <nz-form-item>
+                  <nz-form-control>
+                    <label nz-checkbox nzRequired formControlName="agreement"></label>
+                    <span class="agreement-desc">同意<a class="link-item" [href]="protocol?.url" target="_blank">{{protocol?.name}}</a></span>
+                  </nz-form-control>
+                </nz-form-item>
+                <button nz-button [nzLoading]="submitLoading" (click)="createCorpAccount()" [disabled]="!form.valid" nzType="primary">确认启用</button>
+              </div>
+            </div>
+          </nz-result>
+        </ng-container>
+      </div>
+    </nz-card>
+  </form>

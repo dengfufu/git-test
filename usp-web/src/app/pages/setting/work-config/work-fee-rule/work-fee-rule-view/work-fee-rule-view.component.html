@@ -1,0 +1,153 @@
+<nz-spin [nzSpinning]="spinning">
+  <nz-card [nzBordered]="false" style="margin: -24px;">
+    <form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }">
+      <div nz-row>
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">委托商</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              {{assortFee.demanderCorpName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">费用名称</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.assortName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="modEnabled !== 'Y'">
+            <nz-form-label nzSpan="8">是否可用</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.enabled === 'Y' ? '是' : '否'}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="modEnabled === 'Y'">
+            <nz-form-label nzSpan="6" nzRequired>是否可用</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <nz-switch [(ngModel)]="enabled" [ngModelOptions]="{standalone: true}"
+                         [nzCheckedChildren]="'是'" [nzUnCheckedChildren]="'否'"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">费用金额</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.amount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">费用说明</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.note}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">适用时间</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.startDate | date: 'yyyy-MM-dd'}}~{{assortFee.endDate | date: 'yyyy-MM-dd'}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">客户</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              {{assortFee.customName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">工单类型</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.workTypeName}}
+            </nz-form-control>
+          </nz-form-item>
+
+        </div>
+        <div nz-col nzSpan="12" style="border-left: 1px dashed #dad8d8;">
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">服务方式</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.serviceModeName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">服务项目</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.serviceItemName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">用于协同人员</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.together === 'Y' ? '是' : '否'}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">设备大类</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              {{assortFee.largeClassName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">设备类型</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              {{assortFee.smallClassName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">设备规格</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              {{assortFee.specificationName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">设备品牌</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              {{assortFee.brandName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">设备型号</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              {{assortFee.modelName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzSpan="8">分布</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{assortFee.zoneName}}
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="8">行政区划</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <label *ngIf="assortFee.districtNegate === 'Y'" style="color: red">排除：</label>{{assortFee.districtName}}
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+</nz-spin>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="destroyModal()" class="button-modal-cancel">关闭</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="submitLoading" *ngIf="modEnabled === 'Y'"
+          [disabled]="(enabled && assortFee.enabled === 'Y') || (!enabled && assortFee.enabled !== 'Y')"
+          class="button-modal-submit">提交</button>
+</div>
+

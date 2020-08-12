@@ -1,0 +1,49 @@
+@import '~ng-zorro-antd/style/themes/default.less';
+
+// 表单属性
+nz-form-item {
+  padding-bottom: 8px !important;
+  margin-bottom: 5px !important;
+}
+
+// 表单标签
+nz-form-label {
+  font-weight: bold;
+}
+
+
+.baseView {
+  display: flex;
+  padding-top: 12px;
+
+  .left {
+    min-width: 224px;
+    max-width: 448px;
+  }
+  .right {
+    flex: 1;
+    padding-left: 104px;
+    .avatar_title {
+      height: 22px;
+      margin-bottom: 8px;
+      color: @heading-color;
+      font-size: @font-size-base;
+      line-height: 22px;
+    }
+    .avatar {
+      width: 144px;
+      height: 144px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      border-radius: 50%;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .button_view {
+      width: 144px;
+      text-align: center;
+    }
+  }
+}

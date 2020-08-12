@@ -1,0 +1,237 @@
+    <nz-card [nzBordered]="false">
+      <!-----------------------------------工单列表-------------------------------------------------->
+      <!--<div>-->
+        <!--<a (click)="changeTag(all)"  [ngStyle]="changeColor(all)">全部</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a  (click)="changeTag(attention)" [acl]="{ability: [aclRight.WORK_ATTENTION]}" [ngStyle]="changeColor(attention)">已关注</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed [acl]="{ability: [aclRight.WORK_ATTENTION]}"></nz-divider>-->
+        <!--<a  (click)="changeTag(support)" [acl]="{ability: [aclRight.WORK_SUPPORT]}"-->
+            <!--[ngStyle]="changeColor(support)">技术支持</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed [acl]="{ability: [aclRight.WORK_SUPPORT]}"></nz-divider>-->
+        <!--<a  (click)="changeTag(handle)" [ngStyle]="changeColor(handle)">处理中</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(todayCreated)" [ngStyle]="changeColor(todayCreated)">今日建单</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(todayDispatched)" [ngStyle]="changeColor(todayDispatched)">今日提单</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(todayFinished)" [ngStyle]="changeColor(todayFinished)">今日完成</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(yesterdayFinished)" [ngStyle]="changeColor(yesterdayFinished)">昨日完成</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(currentMonthFinished)" [ngStyle]="changeColor(currentMonthFinished )">本月完成</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(anyfixService.RETURNED)" [ngStyle]="changeColor(anyfixService.RETURNED )">已退单</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(anyfixService.CANCELED)" [ngStyle]="changeColor(anyfixService.CANCELED )">已撤单</a>-->
+        <!--<nz-divider nzType="vertical" nzDashed></nz-divider>-->
+        <!--<a (click)="changeTag(anyfixService.CLOSED)" [ngStyle]="changeColor(anyfixService.CLOSED )">已完成</a>-->
+        <!--&lt;!&ndash; <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip nzTooltipTitle="筛选"></i>&ndash;&gt;-->
+        <!--<button nz-button  class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>-->
+        <!--<button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"-->
+                <!--class="more-button">-->
+          <!--<img class="menu-img" src="assets/drop-menu-theme.svg" style="margin-top: -2px; margin-left: -8px;">-->
+        <!--</button>-->
+        <!--<nz-dropdown-menu #menu="nzDropdownMenu">-->
+          <!--<ul nz-menu>-->
+            <!--<li nz-menu-item (click)="openCustomList()" >自定义列</li>-->
+            <!--<li> <button nz-menu-item-->
+                         <!--style="border: none;outline: none"-->
+                         <!--pro-down-file-->
+                         <!--[acl]="{ability: [aclRight.WORK_EXPORT]}"-->
+                         <!--httpMethod="post"-->
+                         <!--[httpUrl]="'/api/anyfix/work-excel/export'"-->
+                         <!--[msg] ="'正在导出工单...'"-->
+                         <!--[fileNum] ="this.workNum"-->
+                         <!--[httpBody]="getParams()" >导出工单</button></li>-->
+
+          <!--</ul>-->
+        <!--</nz-dropdown-menu>-->
+      <!--</div>-->
+      <!-- <ng-template #totalTemplate let-total>共{{ total }} 条</ng-template> -->
+      <!-- <nz-table nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+                nzBordered
+                style="padding-top: 20px;"
+                [nzFrontPagination]="false"
+                [nzData]="workList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [nzShowTotal]="totalTemplate"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="queryWork()"
+                (nzPageSizeChange)="queryWork(true)"
+                [nzScroll]="{ x : totalWidth + 'px'}">
+        <thead>
+        <tr>
+          <th nzWidth="50px" nzLeft="0px">序号</th>
+          <th nzWidth="100px" nzLeft="50px">工单状态</th>
+          <th nzWidth="150px" nzLeft="150px">工单编号</th>
+          <th nzWidth="100px">服务审核</th>
+          <th nzWidth="100px">费用审核</th>
+          <th nzWidth="150px">委托单号</th>
+          <ng-container *ngFor="let item of customTileList">
+            <th  *ngIf="item.checked" [nzWidth]="item.width + 'px'">{{item.title}}</th>
+          </ng-container>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of workList;let i = index;" (dblclick)="toWorkDetail(data.workId)"
+            (click)="clickRow(data.workId)" [ngStyle]="rowColor(data.workId)">
+          <td nzLeft="0px" [ngStyle]="rowColor(data.workId)">{{page.getNo(i)}}</td>
+          <td nzLeft="50px" (click)="toWorkDetail(data.workId)" [ngStyle]="rowColor(data.workId)">
+            <button nz-button class="button-status" [ngStyle]="data.buttonColor"
+                    (click)="toWorkDetail(data.workId)">{{ data.workStatusName}}</button>
+          </td>
+          <td nzLeft="150px" [ngStyle]="rowColor(data.workId)"><a (click)="toWorkDetail(data.workId)">{{data.workCode}}</a></td>
+          <td nzBreakWord>{{ data.finishStatusName }}</td>
+          <td nzBreakWord>{{ data.feeStatusName }}</td>
+          <td nzBreakWord>{{ data.checkWorkCode }}</td>
+          <td nzBreakWord *ngIf="showRowData.provinceName">{{data.provinceName}}</td>
+          <td nzBreakWord *ngIf="showRowData.cityName">{{data.cityName}}</td>
+          <td nzBreakWord *ngIf="showRowData.districtName">{{data.districtName}}</td>
+          <td nzBreakWord *ngIf="showRowData.customCorpName" >{{ data.customCorpName }}</td>
+          <td nzBreakWord *ngIf="showRowData.smallClassName">{{data.smallClassName}}</td>
+          <td nzBreakWord *ngIf="showRowData.serial">{{data.serial}}</td>
+          <td nzBreakWord *ngIf="showRowData.brandName">{{data.brandName}}</td>
+          <td nzBreakWord *ngIf="showRowData.modelName">{{data.modelName}}</td>
+          <td nzBreakWord *ngIf="showRowData.specificationName ">{{data.specificationName}}</td>
+          <td nzBreakWord *ngIf="showRowData.sourceName">{{ data.sourceName }}</td>
+          <td nzBreakWord *ngIf="showRowData.workTypeName">{{ data.workTypeName }}</td>
+          <td nzBreakWord *ngIf="showRowData.creatorName ">{{data.creatorName}}</td>
+          <td nzBreakWord *ngIf="showRowData.createTime">{{ data.createTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzBreakWord *ngIf="showRowData.demanderCorpName">{{data.demanderCorpName}}</td>
+          <td nzBreakWord *ngIf="showRowData.deviceBranchName">{{data.deviceBranchName}}</td>
+          <td nzBreakWord *ngIf="showRowData.serviceCorpName">{{data.serviceCorpName}}</td>
+          <td nzBreakWord *ngIf="showRowData.serviceBranchName">{{data.serviceBranchName}}</td>
+          <td nzBreakWord *ngIf="showRowData.engineerName ">{{data.engineerName}}</td>
+          <td nzBreakWord *ngIf="showRowData.togetherEngineers ">{{data.togetherEngineers}}</td>
+          <td nzBreakWord *ngIf="showRowData.helpNames ">{{data.helpNames}}</td>
+          <td nzBreakWord *ngIf="showRowData.bookTimeEnd">{{data.bookTimeEnd | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzBreakWord *ngIf="showRowData.dispatchTime">{{ data.dispatchTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzBreakWord *ngIf="showRowData.finishTime">{{data.finishTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzBreakWord *ngIf="showRowData.serviceModeName">{{data.serviceModeName}}</td>
+          <td nzBreakWord *ngIf="showRowData.serviceRequest">{{data.serviceRequest}}</td>
+          <td nzBreakWord *ngIf="showRowData.contactName ">{{data.contactName}}</td>
+          <td nzBreakWord *ngIf="showRowData.contactPhone ">{{data.contactPhone}}</td>
+          <td nzBreakWord *ngIf="showRowData.address ">{{data.address}}</td>
+          <td nzBreakWord *ngIf="showRowData.warrantyModeName ">{{data.warrantyModeName}}</td>
+          <td nzBreakWord *ngIf="showRowData.faultTypeName ">{{data.faultTypeName}}</td>
+          <td nzBreakWord *ngIf="showRowData.acceptTime">{{data.acceptTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzBreakWord *ngIf="showRowData.goTime">{{data.goTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          <td nzBreakWord *ngIf="showRowData.signTime">{{data.signTime | date:'yyyy-MM-dd HH:mm'}}</td>
+        </tr>
+        </tbody>
+      </nz-table> -->
+      <nz-spin [nzSpinning]="loading">
+        <div class="item-box">
+          <div class="item" *ngFor="let data of workList;let i = index;" (dblclick)="toWorkDetail(data.workId)">
+            <div class="header">
+              <div>
+                <span class="time">{{ data.createTime | date:'yyyy-MM-dd HH:mm'}}</span>
+              </div>
+              <div>
+                <span>
+                  <span style="font-weight: bold;">工单编号：</span>
+                  <span style="cursor: pointer;color: #48B8FF" (click)="toWorkDetail(data.workId)">{{data.workCode}}</span>
+                </span>
+              </div>
+            </div>
+            <div class="con-ul">
+              <div class="con-li" *ngIf="data.finishStatusName">
+                <div class="tit">服务审核：</div>
+                <div class="txt">{{ data.finishStatusName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.feeStatusName">
+                <div class="tit">费用审核：</div>
+                <div class="txt">{{ data.feeStatusName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.checkWorkCode">
+                <div class="tit">委托单号</div>
+                <div class="txt">{{ data.checkWorkCode }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.provinceName&&data.cityName&&data.districtName">
+                <div class="tit">行政区划：</div>
+                <div class="txt">{{data.provinceName}}{{data.cityName}}{{data.districtName}}</div>
+              </div>
+              <div class="con-li" *ngIf="data.customCorpName">
+                <div class="tit">客户名称：</div>
+                <div class="txt">{{ data.customCorpName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.smallClassName">
+                <div class="tit">设备类型：</div>
+                <div class="txt">{{ data.smallClassName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.serial">
+                <div class="tit">出厂序列号：</div>
+                <div class="txt">{{ data.serial }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.brandName">
+                <div class="tit">品牌：</div>
+                <div class="txt">{{ data.brandName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.modelName">
+                <div class="tit">型号：</div>
+                <div class="txt">{{ data.modelName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.specificationName">
+                <div class="tit">设备规格：</div>
+                <div class="txt">{{ data.specificationName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.sourceName">
+                <div class="tit">工单来源：</div>
+                <div class="txt">{{ data.sourceName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.workTypeName">
+                <div class="tit">工单类型：</div>
+                <div class="txt">{{ data.workTypeName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.workStatusName">
+                <div class="tit">工单状态：</div>
+                <div class="txt">{{ data.workStatusName }}</div>
+              </div>
+              <div class="con-li" *ngIf="data.creatorName">
+                <div class="tit">创建人：</div>
+                <div class="txt">{{ data.creatorName }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--<ng-template #totalTemplate let-total>共{{ total }} 条</ng-template>-->
+        <!--<div class="pager-box">-->
+          <!--<nz-pagination-->
+            <!--[(nzPageIndex)]="page.pageNum"-->
+            <!--[nzTotal]="page.total"-->
+            <!--[nzSize]="'small'"-->
+            <!--nzShowSizeChanger-->
+            <!--[nzShowTotal]="totalTemplate"-->
+            <!--[(nzPageSize)]="page.pageSize"-->
+            <!--(nzPageIndexChange)="queryWork()"-->
+            <!--(nzPageSizeChange)="queryWork(true)">-->
+          <!--</nz-pagination>-->
+        <!--</div>-->
+        <nz-empty *ngIf="!loading&&workList.length==0"></nz-empty>
+      </nz-spin>
+    </nz-card>
+    <!-----------------------------------工单列表查询条件抽屉-------------------------------------------------->
+    <!-- <ng-template #filterTitle>
+      <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+      <span style="font-size: 16px;font-weight: bold;">工单筛选</span>
+    </ng-template>
+
+    <nz-drawer [nzTitle]="filterTitle" [nzVisible]="visible" [nzWidth]="900" [nzClosable]="false"
+               (nzOnClose)="closeDrawer()" [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+      <work-order-filter [allChecked]="allChecked"
+                           [checkOptionsOne]="checkOptionsOne"
+                           [checkStatusList]="checkStatusList"
+                           [workStatusNow]="workStatusNow"
+                           [yesterdayFinished]="yesterdayFinished"
+                           [todayFinished]="todayFinished"
+                           [params]="params"
+                           [searchForm]="searchForm"
+                           (searchFormData)="searchFormDataChange($event)"></work-order-filter>
+      <div class="footer">
+        <button nz-button (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;">清空筛选
+        </button>&nbsp;
+        <button (click)="closeDrawer();queryWork(true);" nz-button nzType="primary">提交</button>
+      </div>
+    </nz-drawer> -->

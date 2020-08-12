@@ -1,0 +1,97 @@
+<nz-card nzTitle="委托商工单量趋势"
+         [nzBordered]="false"
+         [nzExtra]="extraTemplate"
+         style="margin-bottom: 0px;"
+         [nzBodyStyle]="{padding:'6px',height: '600px',overflow: 'auto'}">
+  <nz-spin [nzSpinning]="isLoading" style="position: absolute;top: 55%;left: 50%;"></nz-spin>
+
+  <div class="content-flex-center" *ngIf="isEmptyData">
+    <nz-embed-empty nzComponentName="normal"></nz-embed-empty>
+  </div>
+
+  <ng-container *ngIf="!isEmptyData">
+    <div *ngIf="showChart" echarts [options]="chartOption" style="width:100%;height:100%" [theme]="'usp'"></div>
+    <ng-container *ngIf="!showChart">
+      <nz-table #basicTable [nzData]="datasettable" [nzFrontPagination]="false" [nzScroll]="scrollValue">
+        <thead>
+        <tr>
+          <ng-container *ngFor="let data of basicTable.data;let i = index">
+            <ng-container *ngIf="i == 0">
+              <ng-container *ngFor="let d of data;let j = index">
+                <th style="min-width: 100px;" *ngIf="j == 0" nzLeft="0">{{d}}</th>
+                <th style="min-width: 100px;" *ngIf="j > 0">{{d}}</th>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of basicTable.data;let i = index">
+          <ng-container *ngIf="i > 0 && i < basicTable.data.length-1">
+            <ng-container *ngFor="let d of data;let j = index">
+              <td style="min-width: 100px;" *ngIf="j == 0" nzLeft="0">{{d}}</td>
+              <td style="min-width: 100px;" *ngIf="j > 0">{{d}}</td>
+            </ng-container>
+          </ng-container>
+        </tr>
+        <tr *ngFor="let data of basicTable.data;let i = index">
+          <ng-container *ngIf="i == basicTable.data.length-1">
+            <ng-container *ngFor="let d of data;let j = index">
+              <td style="min-width: 100px;" *ngIf="j == 0" nzLeft="0" class="add-td">{{d}}</td>
+              <td style="min-width: 100px;" *ngIf="j > 0" class="add-td">{{d}}</td>
+            </ng-container>
+          </ng-container>
+        </tr>
+        </tbody>
+      </nz-table>
+    </ng-container>
+  </ng-container>
+
+</nz-card>
+
+<ng-template #extraTemplate>
+  <div class="extra-head">
+    <nz-switch class="op switch"
+               [(ngModel)]="showChart"
+               nzSize="small"
+               nzCheckedChildren="图"
+               nzUnCheckedChildren="表">
+    </nz-switch>
+
+    <div class="op tag"
+         *ngFor="let item of rangeDates"
+         (click)="shortcutRangeFun(item.rangeDate)">
+      {{item.label}}
+    </div>
+
+    <nz-month-picker class="op month-picker"
+                     nzSize="small"
+                     [(ngModel)]="rangeDate[0]"
+                     [nzDisabledDate]="disabledStartMonth"
+                     (ngModelChange)="monthChange($event)"
+                     nzPlaceHolder="开始月份">
+    </nz-month-picker>
+    <nz-month-picker class="op month-picker"
+                     nzSize="small"
+                     [(ngModel)]="rangeDate[1]"
+                     [nzDisabledDate]="disabledEndMonth"
+                     (ngModelChange)="monthChange($event)"
+                     nzPlaceHolder="结束月份">
+    </nz-month-picker>
+
+    <nz-select class="op select"
+               [nzMaxMultipleCount]="5"
+               nzMode="multiple"
+               nzPlaceHolder="请选择委托商"
+               (ngModelChange)="demanderValChange($event)"
+               [(ngModel)]="selectDemanderVal"
+               nzSize="small"
+               [nzMaxTagCount]="1"
+               [nzMaxTagPlaceholder]="tagPlaceHolder"
+               *ngIf="showChart">
+      <nz-option *ngFor="let item of selectDemanderOption" [nzLabel]="item" [nzValue]="item"></nz-option>
+    </nz-select>
+  </div>
+</ng-template>
+
+<ng-template #tagPlaceHolder let-selectedList>...</ng-template>

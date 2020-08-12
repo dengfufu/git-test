@@ -1,0 +1,108 @@
+<form style="width: 700px" [formGroup]="form">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" >交通工具</nz-form-label>
+    <nz-form-control [nzSpan]="5" [nzErrorTip]="form.controls.traffic.errors?.explain" style="width: 140px;">
+      <nz-select nzShowSearch
+                 nzAllowClear
+                 nzServerSearch
+                 nzFilterOption
+                 formControlName="traffic"
+                 [nzFilterOption]="nzFilterOption"
+                 nzPlaceHolder="请选择">
+        <nz-option *ngFor="let data of Options.trafficMap"
+                   [nzValue]="data.value" [nzLabel]="data.text"></nz-option>
+      </nz-select>
+    </nz-form-control>
+    <nz-form-control [nzSpan]="13" style="width: 370px; margin-left: 10px;">
+      <input nz-input formControlName="trafficNote"
+             placeholder="请输入交通说明"/>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" >出发时间</nz-form-label>
+    <nz-form-control [nzSpan]="18" [nzErrorTip]="form.controls.goTime.errors?.explain">
+      <nz-date-picker [(ngModel)]="goDate" [nzFormat]="'yyyy-MM-dd'" nzPlaceHolder="日期" style="width: 140px;"
+                      [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      &nbsp;
+      <nz-time-picker [(ngModel)]="goTime"
+                      [ngModelOptions]="{standalone: true}"
+                      nzPlaceHolder="时间"
+                      nzFormat="HH:mm"
+                      style="width: 100px;"></nz-time-picker>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" >到达时间</nz-form-label>
+    <nz-form-control [nzSpan]="18" [nzErrorTip]="form.controls.signTime.errors?.explain">
+      <nz-date-picker [(ngModel)]="signDate" [nzFormat]="'yyyy-MM-dd'" nzPlaceHolder="日期" style="width: 140px;"
+                      [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      &nbsp;
+      <nz-time-picker [(ngModel)]="signTime"
+                      [ngModelOptions]="{standalone: true}"
+                      nzPlaceHolder="时间"
+                      nzFormat="HH:mm"
+                      style="width: 100px;"></nz-time-picker>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="finished">
+    <nz-form-label [nzSpan]="6" >服务开始时间</nz-form-label>
+    <nz-form-control [nzSpan]="18" [nzErrorTip]="form.controls.startTime.errors?.explain">
+      <nz-date-picker [(ngModel)]="startDate" [nzFormat]="'yyyy-MM-dd'" nzPlaceHolder="日期" style="width: 140px;"
+                      [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      &nbsp;
+      <nz-time-picker [(ngModel)]="startTime"
+                      [ngModelOptions]="{standalone: true}"
+                      nzPlaceHolder="时间"
+                      nzFormat="HH:mm"
+                      style="width: 100px;"></nz-time-picker>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="finished">
+    <nz-form-label [nzSpan]="6" >服务完成时间</nz-form-label>
+    <nz-form-control [nzSpan]="18" [nzErrorTip]="form.controls.endTime.errors?.explain">
+      <nz-date-picker [(ngModel)]="endDate" [nzFormat]="'yyyy-MM-dd'" nzPlaceHolder="日期" style="width: 140px;"
+                      [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      &nbsp;
+      <nz-time-picker [(ngModel)]="endTime"
+                      [ngModelOptions]="{standalone: true}"
+                      nzPlaceHolder="时间"
+                      nzFormat="HH:mm"
+                      style="width: 100px;"></nz-time-picker>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="finished">
+    <nz-form-label [nzSpan]="6" >协同工程师</nz-form-label>
+    <nz-form-control [nzSpan]="18">
+      <input nz-input formControlName="engineerName"
+             maxlength="100" placeholder="请点击协同工程师" (click)="selectEngineer()" readonly/>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="finished">
+    <nz-form-label [nzSpan]="6" >外部协同人员</nz-form-label>
+    <nz-form-control [nzSpan]="18">
+      <input nz-input formControlName="helpNames"
+             placeholder="请输入外部协同人员"/>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="finished">
+    <nz-form-label [nzSpan]="6" >完成情况</nz-form-label>
+    <nz-form-control [nzSpan]="18">
+      <textarea rows="3" nz-input formControlName="finishDescription" placeholder="请输入请输入完成情况。500字以内"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid">
+    提交
+  </button>
+</div>

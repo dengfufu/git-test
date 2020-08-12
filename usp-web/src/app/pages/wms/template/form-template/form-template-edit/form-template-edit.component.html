@@ -1,0 +1,61 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" nzRequired>表单模板名称</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+      <input nz-input formControlName="name" maxlength="100" style="width: 400px;" placeholder="请输入表单模板名称" />
+      <ng-template #nameErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请输入表单模板名称！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback >
+        <nz-radio-group formControlName="enabled">
+          <label nz-radio nzValue="Y">是</label>
+          <label nz-radio nzValue="N">否</label>
+        </nz-radio-group>
+      </nz-form-control>
+  </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>顺序号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="sortNoErrorTpl">
+        <input nz-input formControlName="sortNo" maxlength="100" style="width: 400px;" placeholder="请输入顺序号" />
+        <ng-template #sortNoErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入顺序号！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" nzRequired>描述</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="keyErrorTpl">
+      <input nz-input formControlName="description" maxlength="100" style="width: 400px;" placeholder="请输入描述" />
+      <ng-template #keyErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请输入描述！
+        </ng-container>
+        <ng-container *ngIf="control.hasError('maxlength')">
+          不能超过100个字符！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-control [nzOffset]="10" [nzSpan]="12">
+      <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+      <button nz-button type="button" (click)="destroyModal()">取消</button>
+    </nz-form-control>
+  </nz-form-item>
+
+  </nz-spin>
+</form>

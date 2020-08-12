@@ -1,0 +1,94 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+      <div class="edit-button-div">
+        <!--<i  nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addDeviceBrand()" nz-tooltip
+            nzTooltipTitle="新建" [acl]="{ability: [aclRight.DEVICE_BRAND_ADD]}"></i>
+        <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+           nzTooltipTitle="筛选"></i>-->
+        <button nz-button  class="icon-add" nzShape="round"  (click)="addDeviceBrand()" [acl]="{ability: [aclRight.DEVICE_BRAND_ADD]}">新建</button>
+        <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+      </div>
+
+      <nz-table #headerTable
+                nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="deviceBrandList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="queryDeviceBrand()"
+                (nzPageSizeChange)="queryDeviceBrand(true)">
+        <thead>
+        <tr>
+          <th nzWidth="50px">序号</th>
+          <th>委托商</th>
+          <th>品牌LOGO</th>
+          <th>品牌名称</th>
+          <th>品牌简称</th>
+          <th>网址</th>
+          <th>描述</th>
+          <th nzWidth="100px">是否可用</th>
+          <th nzWidth="100px" [acl]="{ability: [aclRight.DEVICE_BRAND_MOD, aclRight.DEVICE_BRAND_DEL]}">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of headerTable.data;let index = index">
+          <td>{{ page.getNo(index) }}</td>
+          <td>{{ data.corpName }}</td>
+          <td><img src="{{ baseFileUrl + data.logo }}" *ngIf="data.logo && data.logo !== '0'"
+                   style="width: 50px;height: 50px;"></td>
+          <td>{{ data.name }}</td>
+          <td>{{ data.shortName }}</td>
+          <td>{{ data.website }}</td>
+          <td>{{ data.description }}</td>
+          <td *ngIf="data.enabled === 'Y'">是</td>
+          <td *ngIf="data.enabled !== 'Y'"><span style="color: red">否</span></td>
+          <td [acl]="{ability: [aclRight.DEVICE_BRAND_MOD, aclRight.DEVICE_BRAND_DEL]}">
+            <a [acl]="{ability: [aclRight.DEVICE_BRAND_MOD]}" (click)="editDeviceBrand(data)">编辑</a>
+            <nz-divider [acl]="{ability: [aclRight.DEVICE_BRAND_MOD, aclRight.DEVICE_BRAND_DEL], mode: 'allOf'}"
+                        nzType="vertical"></nz-divider>
+            <a [acl]="{ability: [aclRight.DEVICE_BRAND_DEL]}" (click)="showDeleteConfirm(data.id)">删除</a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+  <nz-drawer nzTitle="品牌筛选" [nzVisible]="drawerVisible" nzWidth="350px" (nzOnClose)="closeDrawer()"
+             [nzClosable]="'true'">
+    <form nz-form [nzLayout]="'inline'" [formGroup]="validateForm">
+      <nz-form-item>
+        <nz-form-label>委托商</nz-form-label>
+        <nz-form-control>
+          <nz-select nzShowSearch nzAllowClear formControlName="corp" nzPlaceHolder="请选择委托商" style="width: 250px;">
+            <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.demanderCorp"
+                       [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>品牌名称</nz-form-label>
+        <nz-form-control>
+          <input nz-input style="width: 250px;" maxlength="20" formControlName="name" placeholder="请输入品牌名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>是否可用</nz-form-label>
+        <nz-form-control>
+          <nz-select nzAllowClear="true" style="width: 250px;" formControlName="enabled"
+                     nzPlaceHolder="是/否">
+            <nz-option nzLabel="是" nzValue="Y"></nz-option>
+            <nz-option nzLabel="否" nzValue="N"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <div style="text-align: right;margin-top: 40px">
+        <button class="ant-btn" style="margin-right: 10px" nz-button (click)="clearDrawer();"><span>清空筛选</span></button>
+        <button nz-button [nzType]="'primary'" (click)="useFormValue = true;closeDrawer();queryDeviceBrand(true)">查询</button>
+      </div>
+    </form>
+  </nz-drawer>
+</nz-layout>

@@ -1,0 +1,49 @@
+<nz-card [nzBordered]="false">
+  <div nz-row>
+    <div nz-col style="text-align: right;child-align: middle">
+      <img nz-dropdown src="assets/wms/add-circle.svg" (click)="addHandler()" class="img-filtrate">
+    </div>
+  </div>
+  <nz-table #rowSelectionTable
+            nzShowSizeChanger
+            nzBordered
+            nzSize="middle"
+            style="padding-top: 20px;"
+            [nzFrontPagination]="false"
+            [nzData]="this.handlerList"
+            [nzLoading]="loading">
+    <thead>
+    <tr >
+      <th style="width: 70px">序号</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">处理人类型</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">指定角色</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">指定用户</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否主处理人</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of this.handlerList;let index = index">
+      <td nzAlign="center">{{ index +1 }}</td>
+
+      <td nzAlign="center" *ngIf="data.handlerTypeId === 10"> 发起人</td>
+      <td nzAlign="center" *ngIf="data.handlerTypeId === 20"> 指定角色</td>
+      <td nzAlign="center" *ngIf="data.handlerTypeId === 30"> 指定用户</td>
+
+      <td *ngIf="data.handlerTypeId === 20">{{ mapOfHandler[data.handlerId]}}</td>
+      <td *ngIf="data.handlerTypeId !== 20"></td>
+
+      <td *ngIf="data.handlerTypeId === 30">{{ mapOfHandler[data.handlerId]}}</td>
+      <td *ngIf="data.handlerTypeId !== 30"></td>
+
+      <td  nzAlign="center"*ngIf="data.isMainDirector === 'Y'">是</td>
+      <td  nzAlign="center"*ngIf="data.isMainDirector === 'N'">否</td>
+      <td nzAlign="center">
+        <img src="assets/config/edit.png" class="img-filtrate" (click)="editHandler(data, index)" >
+        <nz-divider nzType="vertical"></nz-divider>
+        <img src="assets/config/delete.png" class="img-filtrate" (click)="deleteConfirm(index)">
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-card>

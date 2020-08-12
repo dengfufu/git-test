@@ -1,0 +1,183 @@
+<nz-card nzBordered="false">
+  <form nz-form  nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="validateForm" >
+    <nz-spin [nzSpinning]="spinning">
+      <div  nz-row>
+        <div nz-col  nzSpan="11">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" >企业Logo</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback >
+              <nz-upload
+                *ngIf="!isCanEditCorp"
+                nzListType="picture-card"
+                [(nzFileList)]="fileList"
+                [nzBeforeUpload]="beforeUpload"
+                [nzAction]="uploadAction"
+                (nzChange)="handleChange($event)"
+                [nzShowButton]="fileList.length < 1"
+                [nzRemove]="removeFile"
+                [nzPreview]="handlePreview"
+              >
+                <i class="upload-icon" nz-icon [nzType]="loading ? 'loading' : 'plus'"></i>
+                <div class="ant-upload-text">Upload</div>
+              </nz-upload>
+              <div *ngIf="isCanEditCorp">
+                <nz-avatar *ngFor="let file of this.fileList;let i = index"
+                           [nzShape]="'square'" [nzSize]="50"
+                           style="margin-left: 10px;margin-bottom: 10px;"
+                           [nzSrc]="file.url"
+                           pro-image-viewer
+                           [images]="getImageUrls(this.fileList)"
+                           [currentImgIndex]="i+1">
+                </nz-avatar>
+              </div>
+              <nz-modal
+                [nzVisible]="previewVisible"
+                [nzContent]="modalContent"
+                [nzFooter]="null"
+                (nzOnCancel)="previewVisible = false"
+              >
+                <ng-template #modalContent>
+                  <img [src]="previewImage" [ngStyle]="{ width: '100%' }" alt=''/>
+                </ng-template>
+              </nz-modal>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >公司全称</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="validateForm.controls.corpName.errors?.explain">
+              <input nz-input formControlName="corpName" style="width: 300px;" placeholder="请输入公司全称"
+                     [disabled]="isCanEditCorp"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>公司简称</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="validateForm.controls.shortName.errors?.explain">
+              <input nz-input formControlName="shortName" maxlength="20"
+                     style="width: 300px;" placeholder="请输入公司简称"
+                     [disabled]="isCanEditCorp"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>联系电话</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" nzHasFeedback [nzErrorTip]="validateForm.controls.telephone.errors?.explain">
+              <input nz-input formControlName="telephone" maxlength="20" style="width: 300px;"
+                     placeholder="请输入公司联系电话"
+                     [disabled]="isCanEditCorp"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>详细地址</nz-form-label>
+            <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="validateForm.controls.address.errors?.explain">
+            <textarea rows="2" nz-input formControlName="address"
+                      placeholder="请输入详细地址，200字以内"
+                      style="padding-right: 25px;width: 300px;"
+                      [disabled]="isCanEditCorp"
+                      exeHighlight></textarea>
+              <img src="assets/anyfix/address-parser.svg" (click)="addressParse()" style="margin-left: -24px;
+            margin-top: 5px; position: absolute; width: 18px;" title="从地址中解析行政区划">
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>注册地区</nz-form-label>
+            <nz-form-control [nzSm]="16" [nzXs]="24"    [nzErrorTip]="validateForm.controls.area.errors?.explain" >
+              <nz-cascader nzPlaceHolder="省/市/区"
+                           [nzExpandTrigger]="'click'"
+                           [nzOptions]="districtsList" [nzShowSearch]="ZorroUtils.showSearchOptions"
+                           [nzChangeOnSelect]="true"
+                           formControlName="area"
+                           style="width: 300px;"
+                           [nzDisabled]="isCanEditCorp"
+                           >
+              </nz-cascader>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">所属行业</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" [nzErrorTip]="validateForm.controls.industry.errors?.explain">
+              <nz-select nzAllowClear
+                         style="width: 300px"
+                         [nzDisabled]="isCanEditCorp"
+                         nzPlaceHolder="请选择所属行业"
+                         formControlName="industry">
+                <nz-option *ngFor="let o of industryList" [nzLabel]="o.name" [nzValue]="o.code"> </nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+
+        </div>
+
+        <div nz-col  nzSpan="13" style="border-left: 1px dashed #dad8d8;">
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">人员规模</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" [nzErrorTip]="validateForm.controls.staffQty.errors?.explain">
+              <nz-select nzAllowClear
+                         style="width: 300px"
+                         [nzDisabled]="isCanEditCorp"
+                         nzPlaceHolder="请选择人员规模"
+                         formControlName="staffQty">
+                <nz-option *ngFor="let o of staffList" [nzLabel]="o.name" [nzValue]="o.code"> </nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">官方网址</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" [nzErrorTip]="validateForm.controls.website.errors?.explain">
+              <input  [disabled]="isCanEditCorp" nz-input style="width: 300px" formControlName="website" placeholder="请输入官方网址"/>
+            </nz-form-control>
+          </nz-form-item>
+         <!-- <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>管理密码</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" [nzErrorTip]="validateForm.controls.passwd.errors?.explain">
+              <input nz-input style="width: 300px" type="password" formControlName="passwd" placeholder="6~20位字符"/>
+            </nz-form-control>
+          </nz-form-item>-->
+
+          <!--<nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>密码确认</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" [nzErrorTip]="validateForm.controls.confirm.errors?.explain">
+              <input nz-input style="width: 300px" type="password" formControlName="confirm" placeholder="6~20位字符"/>
+            </nz-form-control>
+          </nz-form-item>-->
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>主营业务</nz-form-label>
+            <nz-form-control  [nzSpan]="16"  nzHasFeedback [nzErrorTip]="validateForm.controls.business.errors?.explain">
+            <textarea nz-input formControlName="business" maxlength="100" style="width: 300px;" placeholder="请输入主营业务"
+                      [disabled]="isCanEditCorp"  [nzAutosize]="{minRows: 2,maxRows: 5}"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>是否可用</nz-form-label>
+            <nz-form-control >
+              <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">备注</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="validateForm.controls.business.errors?.explain">
+            <textarea nz-input formControlName="description" maxlength="200" style="width: 300px;" placeholder="请输入备注"
+                      [nzAutosize]="{minRows: 3,maxRows: 5}"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+
+        </div>
+
+      </div>
+    </nz-spin>
+  </form>
+</nz-card>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal('')" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm()" [disabled]="!validateForm.valid" class="button-modal-submit" >提交</button>
+</div>

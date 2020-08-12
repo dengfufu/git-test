@@ -1,0 +1,57 @@
+<my-pro-page-header-wrapper>
+  <nz-card nzBordered="false">
+    <st-pro #stPro [quickFilter]="quickFilter"
+            [columns]="columns"
+            [data]="url"
+            [req]="req"
+            [res]="res"
+            [page]="page"
+            [scrollX]="scrollX"
+            [overflow]="overflowMode"
+            [defaultButtons]="defaultButtons"
+            [batchButtons]="batchButtons"
+            (selectRow)="selectWorkList($event)"
+            (dblClick)="dbClick($event)"
+            (pageChange)="pageChange($event)"></st-pro>
+    <ng-template #quickFilter>
+      <button nz-button
+              nzType="primary"
+              nzSize="small"
+              [acl]="{ability: [aclRight.FEE_SERVICE_CHECK, aclRight.FEE_MANAGER_CHECK], mode: 'oneOf'}"
+              (click)="checkPass()">批量通过
+      </button>
+    </ng-template>
+
+    <ng-template #defaultButtons>
+      <button nz-button nzShape="round" nzSize="small" (click)="openDrawer()">筛选</button>
+    </ng-template>
+
+    <ng-template #batchButtons>
+      <button nz-button
+              nzType="primary"
+              nzSize="small"
+              [acl]="{ability: [aclRight.FEE_SERVICE_CHECK, aclRight.FEE_MANAGER_CHECK], mode: 'oneOf'}"
+              (click)="checkPass()">批量通过
+      </button>
+    </ng-template>
+
+  </nz-card>
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">工单筛选</span>
+  </ng-template>
+
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="visible" [nzWidth]="1000" [nzClosable]="false" (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <work-fee-check-list-filter
+      [params]="params"
+      [searchForm]="searchForm"
+      (searchFormData)="searchFormDataChange($event)"></work-fee-check-list-filter>
+    <div class="footer">
+      <button nz-button (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;">清空筛选
+      </button>
+      <button (click)="closeDrawer();queryWork();" nz-button nzType="primary">确定</button>
+    </div>
+  </nz-drawer>
+</my-pro-page-header-wrapper>
+

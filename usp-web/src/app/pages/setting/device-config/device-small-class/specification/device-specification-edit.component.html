@@ -1,0 +1,14 @@
+<form nz-form [formGroup]="validateForm">
+  <nz-form-item nz-row>
+    <nz-form-label [nzSpan]="4" nzRequired>规格名称</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback>
+      <input nz-input maxlength="50" formControlName="name" placeholder="请输入规格名称"/>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+    </nz-form-control>
+  </nz-form-item>
+</form>

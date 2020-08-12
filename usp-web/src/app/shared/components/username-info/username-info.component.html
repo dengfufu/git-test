@@ -1,0 +1,6 @@
+<a nz-popover style="cursor: pointer" nzPopoverPlacement="right"
+   nzPopoverTrigger="click" [nzPopoverContent]="contentTemplate"
+   >{{username}}</a>
+<ng-template #contentTemplate>
+  <app-user-detail [userId]="userId" ></app-user-detail>
+</ng-template>

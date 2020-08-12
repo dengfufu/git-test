@@ -1,0 +1,165 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>批量审批</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" nzShape="round" (click)="goBack()">返回</button>
+  </nz-page-header-extra>
+</nz-page-header>
+
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+
+<nz-layout>
+
+  <nz-card [nzBordered]="false">
+    <form [formGroup]="searchForm">
+
+      <div nz-row >
+        <div nz-col>
+          <nz-form-item>
+            <nz-form-label [nzSpan]="2"  >申请库房</nz-form-label>
+            <nz-form-control [nzSpan]="4" [nzErrorTip]="">
+              <nz-select nzShowSearch nzAllowClear
+                         formControlName="toDepotId"
+                         nzPlaceHolder="请选择申请库房"
+                         style="width: 150px"
+                         (ngModelChange)="toDepotChange($event)"
+                         (nzOnSearch)="queryDepotList($event)">
+                <nz-option *ngFor="let item of fromDepotSelectionOptions" [nzValue]="item.id"
+                           [nzLabel]="item.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+            <nz-form-label [nzSpan]="2"  >备件名称</nz-form-label>
+            <nz-form-control [nzSpan]="6" [nzErrorTip]="">
+              <nz-select nzShowSearch nzAllowClear formControlName="catalogId"
+                         nzPlaceHolder="请选择备件名称"
+                         (nzOnSearch)="wmsService.queryCatalogList($event)">
+                <nz-option *ngFor="let item of wmsService.selectOptions.catalogList" [nzValue]="item.id"
+                           [nzLabel]="item.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+            <button nz-button nzType="primary" [disabled]="isListChecked()" nzShape="round" (click)="checkStock()">批量检查库存</button>
+            <button nz-button nzType="primary" [disabled]="isListChecked()" nzShape="round" (click)="showBatchSelect()" style="margin-left: 10px">批量填充库存</button>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+
+
+
+  <div nz-row>
+    <nz-card style="border-width: 1px 0 0 0">
+      <nz-table
+        nzBordered
+        nzHideOnSinglePage
+        nzFrontPagination="true"
+        nzShowSizeChanger
+        [nzPageIndex]="page.pageNum"
+        [nzPageSize]="page.pageSize"
+        [nzData]="showList"
+        [nzTotal]="showList.length"
+        nzLoadingDelay="1000"
+        nzNoResult="无"
+      >
+        <thead>
+        <tr>
+          <th
+            nzShowCheckbox
+            [(nzChecked)]="isAllDisplayDataChecked"
+            [nzIndeterminate]="isIndeterminate"
+            (nzCheckedChange)="checkReceiveAll($event)"
+          >全选</th>
+          <th nzWidth="50px">序号</th>
+          <th>申请单号</th>
+          <th>申请库房</th>
+          <th>申请人</th>
+          <th>备件</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>紧急程度</th>
+          <th>本次审批数量</th>
+          <th>库存现有数</th>
+          <th>已审批总数</th>
+          <th>待审批总数</th>
+          <th>已申请总数</th>
+          <th>申请日期</th>
+          <th>发货库房</th>
+          <th>发货数量</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of showList; let index = index" >
+          <td nzShowCheckbox [(nzChecked)]="mapOfDeliveryCheckedId[data.id]"
+              (nzCheckedChange)="refreshStatus()" ></td>
+          <td nzAlign="center">{{ page.getNo(index) }}</td>
+          <td nzAlign="left">{{ data.transCode }}</td>
+          <td nzAlign="left">{{ data.toDepotName }}</td>
+          <td nzAlign="left">{{ data.createByName }}</td>
+          <td nzAlign="left">{{ data.catalogName }}</td>
+          <td nzAlign="left">{{ data.brandName }}</td>
+          <td nzAlign="left">{{ data.modelName }}</td>
+          <td nzAlign="left">{{ data.priorityLevel }}</td>
+          <td nzAlign="left">{{ data.currentAuditQty }}</td>
+          <td nzAlign="left">{{ data.depotActualQty }}</td>
+          <td nzAlign="left">{{ data.auditedQty }}</td>
+          <td nzAlign="left">{{ data.toAuditQty }}</td>
+          <td nzAlign="left">{{ data.applyQuantity }}</td>
+          <td nzAlign="left">{{ data.applyDate | date:'yyyy-MM-dd' }}</td>
+          <td nzAlign="left" *ngIf="data.fromDepotId==0">
+            <img src="/assets/wms/add-circle.svg" (click)="addDispatchStoreHouse(data)" style="width: 20px;height: 15px;">
+            <span style="margin-left: 5px" >选择</span>
+          </td>
+          <td nzAlign="left" *ngIf="data.fromDepotId!=0">
+            {{data.fromDepotName}}
+            <img src="/assets/wms/close-circle.svg" (click)="removeDispatchStoreHouse(data)" style="width: 20px;height: 15px;">
+          </td>
+          <td>
+            <nz-input-number [nzMin]="0"  [nzStep]="1" style="width: 80px"
+                [(ngModel)]="data.passedQuantity"></nz-input-number>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </div>
+
+  <nz-card style="border-width: 1px 0 0 0">
+    <form [formGroup]="searchForm">
+      <div nz-row >
+        <nz-form-item>
+          <nz-form-label [nzSpan]="2"  >审核处理</nz-form-label>
+          <nz-form-control  [nzErrorTip]="">
+            <nz-radio-group (ngModelChange)="auditTypeChange()"  formControlName="status">
+              <label nz-radio [nzValue]="o.value" *ngFor="let o of auditStatusOptions">{{ o.label }}</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item >
+          <nz-form-label nz-col [nzSpan]="2"  >审核意见</nz-form-label>
+          <nz-form-control  [nzSpan]="16"  nzErrorTip="审核处理不通过通过，需填写审批意见">
+            <textarea  nz-col  nz-input formControlName="doDescried" maxlength="200"
+                      placeholder="若不通过，则必填(100个字之内)" [nzAutosize]="{minRows: 4,maxRows: 5}"></textarea>
+          </nz-form-control>
+          <button  [disabled]="checkedList.length <1" style="margin-top: 50px; margin-left: 20px"
+                  (click)="submit()" nzShape="round"  nzType="primary" nz-button>提交</button>
+        </nz-form-item>
+      </div>
+    </form>
+  </nz-card>
+
+
+  <nz-modal [(nzVisible)]="isBatchSelectVisible" nzTitle="批量选择" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()" >
+    <nz-form-label nz-col    >选择库房：</nz-form-label>
+    <nz-select [(ngModel)]="storeSelectedValue" [nzAllowClear]="true" nzPlaceHolder="请选择" style="width: 200px">
+      <nz-option *ngFor="let option of repoStatusOptions" [nzLabel]="option.label"
+                  [nzValue]="option"></nz-option>
+    </nz-select>
+  </nz-modal>
+
+
+</nz-layout>
+

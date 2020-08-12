@@ -1,0 +1,52 @@
+<my-pro-page-header-wrapper>
+  <nz-spin [nzSpinning]="spinning">
+      <nz-card [nzBordered]="false">
+        <div nz-row class="div-row">
+          <div nz-col>
+            <button
+              nz-popconfirm nzPopconfirmTitle="确定要重新初始化公共权限吗？"
+              (nzOnConfirm)="initSysCommonRedis()"
+              nzPopconfirmPlacement="bottomLeft"
+              nzType="primary"
+              nz-button>
+              重新初始化公共权限
+            </button>
+            <button
+              nz-popconfirm nzPopconfirmTitle="确定要重新初始化角色权限吗？"
+              (nzOnConfirm)="initRoleRightRedis()"
+              nzPopconfirmPlacement="bottomLeft"
+              nzType="primary"
+              nz-button>
+              重新初始化角色权限
+            </button>
+            <button
+              nz-popconfirm nzPopconfirmTitle="确定要重新初始化租户类型吗？"
+              (nzOnConfirm)="initCorpTenantRedis()"
+              nzPopconfirmPlacement="bottomLeft"
+              nzType="primary"
+              nz-button>
+              重新初始化租户类型
+            </button>
+            <button
+              nz-popconfirm nzPopconfirmTitle="确定要重新初始化租户权限吗？"
+              (nzOnConfirm)="initTenantRightRedis()"
+              nzPopconfirmPlacement="bottomLeft"
+              nzType="primary"
+              nz-button>
+              重新初始化租户权限
+            </button>
+          </div>
+        </div>
+        <div nz-row class="div-row">
+          <div nz-col>
+            <span class="label-item">键：</span><input nz-input [(ngModel)]="key" style="width: 800px; margin-right: 10px;">
+            <button nz-button nzType="primary" (click)="queryRedis()">查询</button>
+            <button nz-button nzType="primary" (click)="deleteRedis()" *ngIf="key">删除</button>
+          </div>
+        </div>
+        <nz-spin [nzSpinning]="spinning">
+          <ngx-json-viewer *ngIf="redisValue" [json]="redisValue"></ngx-json-viewer>
+        </nz-spin>
+      </nz-card>
+  </nz-spin>
+</my-pro-page-header-wrapper>

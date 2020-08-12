@@ -1,0 +1,348 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title style="margin-left: -10px;">委托商档案详情</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzShape="round" (click)="goBack()" class="edit-button">返回</button>
+    <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"
+            style="margin-right: 20px;border: none;">
+      <img src="assets/drop-menu.svg">
+    </button>
+    <nz-dropdown-menu #menu="nzDropdownMenu"
+                      class="edit-menu">
+      <ul nz-menu nzSelectable>
+        <li nz-menu-item [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}" (click)="editModal()">编辑委托商档案
+        </li>
+        <li nz-menu-item [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_DEL]}"
+            (click)="showDeleteConfirmDemander(detail.id);">删除委托商档案
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+  </nz-page-header-extra>
+
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+
+<nz-spin [nzSpinning]="spinning">
+  <nz-layout>
+    <nz-sider [nzWidth]="320">
+      <nz-card style="width:320px;" [nzBordered]="false" [nzBodyStyle]="{paddingTop: '16px', paddingBottom: '0px'}">
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">企业名称：</div>
+          <div nz-col nzSpan="16">{{detail.demanderCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">企业简称：</div>
+          <div nz-col nzSpan="16">{{detail.demanderShortCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">联系电话：</div>
+          <div nz-col nzSpan="16">{{detail.telephone}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">行政区划：</div>
+          <div nz-col nzSpan="16">{{detail.region}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">注 册 人：</div>
+          <div nz-col nzSpan="16">
+            <username-info [userId]="detail.regUserId" [username]="detail.regUserName"></username-info>
+          </div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">官方网址：</div>
+          <div nz-col nzSpan="16">{{detail.website}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">详细地址：</div>
+          <div nz-col nzSpan="16">{{detail.address}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">主营业务：</div>
+          <div nz-col nzSpan="16">{{detail.business}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">企业备注：</div>
+          <div nz-col nzSpan="16">{{detail.description}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">是否可用：</div>
+          <div nz-col nzSpan="16" *ngIf="detail.enabled=='Y'">是</div>
+          <div nz-col nzSpan="16" *ngIf="detail.enabled=='N'">否</div>
+        </div>
+
+      </nz-card>
+
+    </nz-sider>
+    <nz-content>
+      <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;"
+               [nzBodyStyle]="{paddingTop: '6px', paddingBottom: '0px'}">
+        <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+          <nz-tab nzTitle="数据项配置">
+            <div>
+              <nz-table
+                nzShowSizeChanger
+                nzBordered
+                [(nzPageIndex)]="configPage.pageNum"
+                [(nzPageSize)]="configPage.pageSize"
+                [nzTotal]="configPage.total"
+                [nzLoading]="configLoading"
+                [nzFrontPagination]="false"
+                [nzData]="dataConfigList"
+              >
+                <thead>
+
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th>配置名</th>
+                  <th>配置值</th>
+                  <th [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of dataConfigList;let index = index">
+                  <td>{{ configPage.getNo(index) }}</td>
+                  <td>
+                    {{data.description}}
+                  </td>
+                  <td *ngIf="data.itemValue !='2'">否</td>
+                  <td *ngIf="data.itemValue =='2'">是</td>
+                  <td [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}" (click)="configData(data)"
+                      style="color: #FFBD50; cursor: pointer">配置
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+
+            <nz-tab nzTitle="附件配置">
+              <button nz-button class="edit-button tab-button"
+                      nzShape="round"
+                      [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}" (click)="addFileConfig(null);"
+              >添加
+              </button>
+              <nz-table
+                nzShowSizeChanger
+                nzBordered
+                [(nzPageIndex)]="fileConfigPage.pageNum"
+                [(nzPageSize)]="fileConfigPage.pageSize"
+                [nzTotal]="fileConfigPage.total"
+                [nzLoading]="fileConfigLoading"
+                [nzFrontPagination]="false"
+                (nzPageIndexChange)="getFileConfigData()"
+                (nzPageSizeChange)="getFileConfigData()"
+                [nzData]="fileConfigList"
+              >
+                <thead>
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th>附件类型</th>
+                  <th>用于表单名称</th>
+                  <th>工单类型</th>
+                  <th>最少数量</th>
+                  <th>最多数量</th>
+                  <th [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of fileConfigList;let index = index">
+                  <td>{{ fileConfigPage.getNo(index) }}</td>
+                  <td>{{ data.groupName }}</td>
+                  <td>{{ data.formTypeName }}</td>
+                  <td>{{ data.workTypeName }}</td>
+                  <td>{{ data.minNum }}</td>
+                  <td>{{ data.maxNum }}</td>
+                  <td [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}">
+                    <a class="edit-style" (click)="addFileConfig(data)">编辑</a>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <a class="edit-style" (click)="showDeleteFileConfig(data.id)">删除</a>
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </nz-tab>
+
+            <nz-tab nzTitle="委托协议">
+              <button nz-button class="edit-button tab-button"
+                      nzShape="round"
+                      [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}" (click)="showContConfig(null);"
+              >添加
+              </button>
+              <nz-table
+                nzShowSizeChanger
+                nzBordered
+                [(nzPageIndex)]="demanderContPage.pageNum"
+                [(nzPageSize)]="demanderContPage.pageSize"
+                [nzTotal]="demanderContPage.total"
+                [nzLoading]="demanderContLoading"
+                [nzFrontPagination]="false"
+                (nzPageIndexChange)="queryDemanderContList()"
+                (nzPageSizeChange)="queryDemanderContList()"
+                [nzData]="demanderContList"
+              >
+                <thead>
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th>委托协议号</th>
+                  <th>协议有效期</th>
+                  <th>收费规则描述</th>
+                  <th>收费规则附件</th>
+                  <th>服务标准描述</th>
+                  <th>服务标准附件</th>
+                  <th [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of demanderContList;let index = index">
+                  <td>{{ demanderContPage.getNo(index) }}</td>
+                  <td>{{ data.contNo }}</td>
+                  <td nzAlign="left">{{data.startDate | date:'yyyy-MM-dd'}} ~ {{data.endDate | date:'yyyy-MM-dd'}}</td>
+                  <td (click)="showMoreDetail(SHOW_FEE_DESCRIPTION,data.feeRuleDescription)">{{ cutStr(data.feeRuleDescription) }}</td>
+                  <td>
+                    <nz-avatar *ngFor="let fileId of data.feeRuleFileList; let i = index"
+                               [nzShape]="'square'" [nzSize]="64" style="margin-right: 16px;"
+                               [nzSrc]="showFileUrl + fileId"
+                               pro-image-viewer
+                               [images]="getImageUrls(data.feeRuleFileList)"
+                               [currentImgIndex]="i+1">
+                    </nz-avatar>
+                  </td>
+                  <td (click)="showMoreDetail(SHOW_SERVICE_DESCRIPTION, data.serviceStandardNote)">{{ cutStr(data.serviceStandardNote) }}</td>
+                  <td >
+                    <nz-avatar *ngFor="let fileId of data.serviceStandardFileList; let i = index"
+                               [nzShape]="'square'" [nzSize]="64" style="margin-right: 16px;"
+                               [nzSrc]="showFileUrl + fileId"
+                               pro-image-viewer
+                               [images]="getImageUrls(data.serviceStandardFileList)"
+                               [currentImgIndex]="i+1">
+                    </nz-avatar>
+                  </td>
+                  <td [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}">
+                    <a class="edit-style" (click)="showContConfig(data)">编辑</a>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <a class="edit-style" (click)="showDeleteTip(data.id)">删除</a>
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </nz-tab>
+
+          <nz-tab nzTitle="客户经理">
+            <button nz-button class="edit-button tab-button"
+                    nzShape="round"
+                    [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}"
+                    (click)="editManager()">编辑
+            </button>
+            <div *ngIf="editManagerFlag">
+              <div nz-row>
+                <div nz-col nzSpan="24">
+                  <nz-form-item>
+                    <nz-form-label nzSpan="4">人员</nz-form-label>
+                    <nz-form-control nzSpan="20">
+                      <nz-select
+                        style="width: 200px;"
+                        nzAllowClear
+                        nzShowSearch
+                        nzServerSearch
+                        nzPlaceHolder="可输入姓名搜索"
+                        [nzFilterOption]="nzFilterOption"
+                        (nzOnSearch)="matchCorpUser($event)"
+                        [(ngModel)]="manager"
+                        (ngModelChange)="checkManager()">
+                        <nz-option *ngFor="let o of userList" [nzLabel]="o.userName" [nzValue]="o"></nz-option>
+                      </nz-select>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+              <div nz-row>
+                <div nz-col nzSpan="24">
+                  <nz-form-item>
+                    <nz-form-label nzSpan="4">已选择客户经理</nz-form-label>
+                    <nz-form-control nzSpan="20">
+                      <nz-tag *ngFor="let manager of managerCheckedList" nzMode="closeable" [nzColor]="'green'"
+                              (nzOnClose)="deleteManager(manager.userId)">{{ manager.userName }}</nz-tag>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+              <div nz-row>
+                <div nz-col nzSpan="24">
+                  <nz-form-item class="btn-form-item">
+                    <nz-form-control [nzOffset]="4" [nzSpan]="12">
+                      <button nz-button class="ant-btn" style="margin-right: 10px;" (click)="cancelManager()">
+                        <span>取消</span>
+                      </button>
+                      <button nz-button nzType="primary" (click)="submitManager()">提交</button>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+            </div>
+            <div nz-row *ngIf="!editManagerFlag">
+              <div nz-col nzSpan="24">
+                <nz-form-label nzSpan="2">客户经理</nz-form-label>
+                <nz-form-control nzSpan="20">
+                  <span *ngFor="let manager of managerList; let i = index;">
+                  {{manager.userName}}<span *ngIf="i != managerList.length - 1">，</span>
+                </span>
+                </nz-form-control>
+              </div>
+            </div>
+          </nz-tab>
+          <nz-tab nzTitle="自动化配置">
+            <button nz-button class="edit-button tab-button"
+                    nzShape="round"
+                    [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_MOD]}"
+                    (click)="editAutoConfig()">编辑
+            </button>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4">结算方式</nz-form-label>
+              <nz-form-control [nzSpan]="16">{{autoConfig.settleTypeName}}</nz-form-control>
+            </nz-form-item>
+            <nz-form-item *ngIf="autoConfig.settleType == 2 || autoConfig.settleType == 3">
+              <nz-form-label [nzSpan]="4">结算日期</nz-form-label>
+              <nz-form-control [nzSpan]="16">每月 {{autoConfig.settleDay}} 日</nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4">自动对账</nz-form-label>
+              <nz-form-control [nzSpan]="16">{{autoConfig.autoVerify === 'Y' ? '开启' : '关闭'}}</nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4">自动确认服务</nz-form-label>
+              <nz-form-control [nzSpan]="16">{{autoConfig.autoConfirmService === 'Y' ? '开启' : '关闭'}}</nz-form-control>
+            </nz-form-item>
+            <nz-form-item *ngIf="autoConfig.autoConfirmService === 'Y'">
+              <nz-form-label [nzSpan]="4">自动确认服务时间</nz-form-label>
+              <nz-form-control [nzSpan]="16">
+                服务审核通过后 {{autoConfig.autoConfirmServiceHours}} 小时
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4">自动确认费用</nz-form-label>
+              <nz-form-control [nzSpan]="16">{{autoConfig.autoConfirmFee === 'Y' ? '开启' : '关闭'}}</nz-form-control>
+            </nz-form-item>
+            <nz-form-item *ngIf="autoConfig.autoConfirmFee === 'Y'">
+              <nz-form-label [nzSpan]="4">自动确认费用时间</nz-form-label>
+              <nz-form-control [nzSpan]="16">
+                费用审核通过后 {{autoConfig.autoConfirmFeeHours}} 小时
+              </nz-form-control>
+            </nz-form-item>
+          </nz-tab>
+        </nz-tabset>
+      </nz-card>
+
+      <nz-modal [(nzVisible)]="isVisible" nzTitle="{{title}}"
+                (nzOnCancel)="handleCancel()"
+                (nzOnOk)="handleOk()"
+                nzMaskClosable nzWidth="800px"
+                [nzFooter]="null">
+        <!--          <pre>{{detailDescription}}</pre>-->
+        <textarea nz-input style="width: 800px;" rows="25" readonly>{{detailDescription}}</textarea>
+      </nz-modal>
+
+    </nz-content>
+  </nz-layout>
+</nz-spin>

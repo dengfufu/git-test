@@ -1,0 +1,147 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzRequired>企业名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="corpErrorTpl">
+        <nz-select
+          nzShowSearch
+          nzServerSearch
+          nzAllowClear="true"
+          nzPlaceHolder="请选择企业"
+          [nzFilterOption]="nzFilterOption"
+          (nzOnSearch)="matchCorp($event)"
+          formControlName="corpId">
+          <nz-option *ngFor="let o of corpList" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+          <nz-option *ngIf="corpLoading" nzDisabled nzCustomContent>
+            <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+          </nz-option>
+        </nz-select>
+        <ng-template #corpErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择企业！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzRequired>委托商</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serviceDemanderErrorTpl">
+        <nz-select nzAllowClear="true" formControlName="serviceDemander"
+                   nzPlaceHolder="是/否" (ngModelChange)="demanderChange($event)">
+          <nz-option nzLabel="是" nzValue="Y"></nz-option>
+          <nz-option nzLabel="否" nzValue="N"></nz-option>
+        </nz-select>
+        <ng-template #serviceDemanderErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择委托商！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="showDemanderLevel">
+      <nz-form-label [nzSpan]="6" nzRequired>委托商级别</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="demanderLevelErrorTpl">
+        <nz-select nzAllowClear="true" formControlName="demanderLevel"
+                   nzPlaceHolder="普通/高级">
+          <nz-option *ngFor="let o of levelOptions" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+        </nz-select>
+        <ng-template #demanderLevelErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择委托商级别！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzRequired>服务提供商</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serviceProviderErrorTpl">
+        <nz-select nzAllowClear="true" formControlName="serviceProvider"
+                   nzPlaceHolder="是/否" (ngModelChange)="serviceChange($event)">
+          <nz-option nzLabel="是" nzValue="Y"></nz-option>
+          <nz-option nzLabel="否" nzValue="N"></nz-option>
+        </nz-select>
+        <ng-template #serviceProviderErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择服务提供商！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="showServiceLevel">
+      <nz-form-label [nzSpan]="6" nzRequired>服务提供商级别</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serviceLevelErrorTpl">
+        <nz-select nzAllowClear="true" formControlName="serviceLevel"
+                   nzPlaceHolder="普通/高级">
+          <nz-option *ngFor="let o of levelOptions" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+        </nz-select>
+        <ng-template #serviceLevelErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择服务提供商级别！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzRequired>设备使用商</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="deviceUserErrorTpl">
+        <nz-select nzAllowClear="true" formControlName="deviceUser"
+                   nzPlaceHolder="是/否">
+          <nz-option nzLabel="是" nzValue="Y"></nz-option>
+          <nz-option nzLabel="否" nzValue="N"></nz-option>
+        </nz-select>
+        <ng-template #deviceUserErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择设备使用商！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzRequired>平台管理</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="cloudManagerErrorTpl">
+        <nz-select nzAllowClear="true" formControlName="cloudManager"
+                   nzPlaceHolder="是/否">
+          <nz-option nzLabel="是" nzValue="Y"></nz-option>
+          <nz-option nzLabel="否" nzValue="N"></nz-option>
+        </nz-select>
+        <ng-template #cloudManagerErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择平台管理！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzRequired>是否校验企业账号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="needAccountErrorTpl">
+        <nz-select nzAllowClear="true" formControlName="needAccount"
+                   nzPlaceHolder="是/否">
+          <nz-option nzLabel="是" [nzValue]="true"></nz-option>
+          <nz-option nzLabel="否" [nzValue]="false"></nz-option>
+        </nz-select>
+        <ng-template #needAccountErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择是否校验企业账号！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6">用户校验API</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="applyCheckApiErrorTpl">
+        <input nz-input formControlName="applyCheckApi">
+        <ng-template #applyCheckApiErrorTpl let-control>
+          URL格式不对
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submitForm(validateForm.value)" [disabled]="!validateForm.valid"
+          class="button-modal-submit">提交
+  </button>
+</div>
+

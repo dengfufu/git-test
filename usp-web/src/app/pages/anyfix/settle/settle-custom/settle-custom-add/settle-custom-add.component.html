@@ -1,0 +1,38 @@
+<form nz-form class="add-form" [formGroup]="addForm">
+  <nz-form-item>
+    <nz-form-label [nzSm]="8" [nzXs]="24">客户名称</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="请选择客户!">
+      <nz-select
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="请选择客户"
+        formControlName="customCorp"
+      >
+        <nz-option *ngFor="let custom of customList" [nzLabel]="custom.demanderCorpName" [nzValue]="custom.demanderCorp"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="8" [nzXs]="24">结算时间</nz-form-label>
+    <nz-form-text></nz-form-text>
+    <nz-form-control [nzSm]="14" [nzXs]="24">
+      <nz-range-picker formControlName="settleTimeRange" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="8" [nzXs]="24">备注</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24">
+        <textarea
+          nz-input
+          placeholder="请输入备注"
+          formControlName="note"
+          [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+        ></textarea>
+    </nz-form-control>
+    </nz-form-item>
+</form>
+<nz-row style="text-align: center">
+  <button nz-button style="margin-right: 20px" (click)="destroyModal()">取消</button>
+  <button nz-button [nzType]="'primary'" [disabled]="!addForm.valid" (click)="addSubmit()">添加</button>
+</nz-row>
+

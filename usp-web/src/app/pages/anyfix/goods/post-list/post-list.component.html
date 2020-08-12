@@ -1,0 +1,354 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <div style="margin-bottom: 16px;">
+      <button nz-button class="add-button" nzShape="round" (click)="addGoodsPost()"
+              [acl]="{ability: [anyfixRight.GOODS_POST_ADD]}">新建
+      </button>
+      <button nz-button class="filtrate-button" nzShape="round" (click)="openDrawer()">筛选</button>
+      <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"
+              class="more-button">
+        <img class="menu-img" src="assets/drop-menu-theme.svg" style="margin-top: -2px; margin-left: -8px;">
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item (click)="openCustomColumnList()">自定义列</li>
+          <li>
+            <button nz-menu-item
+                    style="border: none;outline: none"
+                    pro-down-file
+                    [acl]="{ability: [anyfixRight.GOODS_POST_EXPORT]}"
+                    httpMethod="post"
+                    [httpUrl]="'/api/anyfix/goods-post-excel/export'"
+                    [msg]="'正在导出物品寄送单...'"
+                    [fileNum]="page.total"
+                    [httpBody]="getParams()">导出寄送单</button>
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              style="padding-top: 20px;"
+              [nzPageSizeOptions]="userService.pageSizeOptions"
+              [nzFrontPagination]="false"
+              [nzLoading]="loading"
+              [nzData]="goodsPostList"
+              [nzTotal]="page.total"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="queryGoodsPostList()"
+              (nzPageSizeChange)="queryGoodsPostList(true)"
+              [nzScroll]="{ x: totalWidth + 'px' }">
+      <thead>
+      <tr>
+        <th nzWidth="50px" nzLeft="0px">序号</th>
+        <th nzWidth="100px" nzLeft="50px">签收状态</th>
+        <th nzWidth="150px" nzLeft="150px">寄送单号</th>
+        <ng-container *ngFor="let item of checkedColumnList">
+          <th *ngIf="item.checked" [nzWidth]="item.width + 'px'">{{item.title}}</th>
+        </ng-container>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data;let index = index" (dblclick)="viewGoodsPostDetail(data.id)">
+        <td nzLeft="0px">{{ page.getNo(index) }}</td>
+        <td nzLeft="50px">
+          <button nz-button class="button-status" [ngStyle]="data.buttonColor"
+                  (click)="viewGoodsPostDetail(data.id)">{{ data.signStatusName}}</button>
+        </td>
+        <td nzLeft="150px">
+          <a (click)="viewGoodsPostDetail(data.id)">{{ data.postNo }}</a>
+        </td>
+        <ng-container *ngFor="let item of checkedColumnList">
+          <td nzBreakWord *ngIf="item.checked && item.type && item.type === 'date'">
+            {{data[item.field] | date: 'yyyy-MM-dd'}}
+          </td>
+          <td nzBreakWord *ngIf="item.checked && (!item.type || item.type ==='')">{{data[item.field]}}</td>
+        </ng-container>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <!-----------------------------------查询条件抽屉-------------------------------------------------->
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">物品寄送单筛选</span>
+  </ng-template>
+
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="visible" [nzWidth]="500" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">寄送单号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-input-group [nzSuffix]="postNoSuffixTemplate">
+            <input type="text" nz-input formControlName="postNo" placeholder="请输入寄送单号"/>
+          </nz-input-group>
+          <ng-template #postNoSuffixTemplate>
+            <i
+              nz-icon
+              nz-tooltip
+              class="ant-input-clear-icon"
+              nzTheme="fill"
+              nzType="close-circle"
+              *ngIf="searchForm.value.postNo"
+              (click)="searchForm.controls.postNo.setValue(null)"></i
+            ></ng-template>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">签收状态</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzMode="multiple"
+            nzAllowClear
+            formControlName="signStatusList"
+            nzPlaceHolder="请选择签收状态">
+            <nz-option *ngFor="let item of signStatusList"
+                       [nzLabel]="item.text" [nzValue]="item.id"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">发货企业</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            formControlName="consignCorp"
+            nzPlaceHolder="请选择发货企业"
+            nzAllowClear
+            nzShowSearch
+            (ngModelChange)="consignCorpChange()">
+            <nz-option *ngFor="let corp of corpList"
+                       [nzValue]="corp.corpId"
+                       [nzLabel]="corp.corpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="consignBranchVisible">
+        <nz-form-label [nzSpan]="8">发货网点</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            formControlName="consignBranch"
+            nzPlaceHolder="请选择网点"
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzFilterOption
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchConsignBranch($event)"
+            (ngModelChange)="consignBranchChange()">
+            <nz-option *ngFor="let consignBranch of consignBranchList"
+                       [nzLabel]="consignBranch.branchName"
+                       [nzValue]="consignBranch.branchId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">发货人</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzPlaceHolder="请输入发货人"
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzFilterOption
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchConsignUser($event)"
+            formControlName="consignUserName">
+            <nz-option *ngFor="let consignUser of consignUserList"
+                       [nzLabel]="consignUser.userName"
+                       [nzValue]="consignUser.userName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">发货行政区划</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-cascader
+            nzPlaceHolder="请选择行政区划"
+            nzAllowClear
+            nzShowSearch
+            [nzOptions]="areaList"
+            [nzShowSearch]="true"
+            [nzChangeOnSelect]="true"
+            formControlName="consignAreaList">
+          </nz-cascader>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">收货企业</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            formControlName="receiveCorp"
+            nzPlaceHolder="请选择收货企业"
+            nzAllowClear
+            nzShowSearch
+            (ngModelChange)="receiveCorpChange()">
+            <nz-option *ngFor="let corp of corpList"
+                       [nzValue]="corp.corpId"
+                       [nzLabel]="corp.corpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="receiveBranchVisible">
+        <nz-form-label [nzSpan]="8">收货网点</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-select
+            formControlName="receiveBranch"
+            nzPlaceHolder="请选择网点"
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzFilterOption
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchReceiveBranch($event)"
+            (ngModelChange)="receiveBranchChange()"
+            style="width: 310px;">
+            <nz-option *ngFor="let receiveBranch of receiveBranchList"
+                       [nzLabel]="receiveBranch.branchName"
+                       [nzValue]="receiveBranch.branchId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">收货人</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-select
+            nzPlaceHolder="请输入收货人"
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzFilterOption
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchReceiveUser($event)"
+            formControlName="receiverName">
+            <nz-option *ngFor="let receiveUser of receiveUserList"
+                       [nzLabel]="receiveUser.userName"
+                       [nzValue]="receiveUser.userName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">收货行政区划</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-cascader
+            nzPlaceHolder="请选择行政区划"
+            nzAllowClear
+            nzShowSearch
+            [nzOptions]="areaList"
+            [nzShowSearch]="true"
+            [nzChangeOnSelect]="true"
+            formControlName="receiveAreaList">
+          </nz-cascader>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">运输方式</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-select
+            formControlName="transportTypeList"
+            nzPlaceHolder="请选择运输方式"
+            nzMode="multiple"
+            nzAllowClear
+            (ngModelChange)="transportTypeChange()">
+            <nz-option *ngFor="let transportType of transportTypeList"
+                       [nzValue]="transportType.code"
+                       [nzLabel]="transportType.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="consignTypeVisible">
+        <nz-form-label [nzSpan]="8">托运方式</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            formControlName="consignTypeList"
+            nzPlaceHolder="请选择托运方式"
+            nzMode="multiple"
+            nzAllowClear>
+            <nz-option *ngFor="let consignType of consignTypeList"
+                       [nzValue]="consignType.code"
+                       [nzLabel]="consignType.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="expressCompanyVisible">
+        <nz-form-label [nzSpan]="8">快递公司</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            formControlName="expressCorpName"
+            nzPlaceHolder="请选择快递公司"
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzFilterOption
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchExpressCompany($event)">
+            <nz-option *ngFor="let expressCompany of expressCompanyList"
+                       [nzValue]="expressCompany.name"
+                       [nzLabel]="expressCompany.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="expressNoVisible">
+        <nz-form-label [nzSpan]="8">快递单号</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <input nz-input formControlName="expressNo" placeholder="请输入快递单号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngIf="expressTypeVisible">
+        <nz-form-label [nzSpan]="8">快递类型</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-select
+            formControlName="expressTypeList"
+            nzPlaceHolder="请选择快递类型"
+            nzMode="multiple"
+            nzAllowClear>
+            <nz-option *ngFor="let expressType of expressTypeList"
+                       [nzValue]="expressType.code"
+                       [nzLabel]="expressType.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">付费方式</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-select
+            formControlName="payWayList"
+            nzPlaceHolder="请选择付费方式"
+            nzMode="multiple"
+            nzAllowClear>
+            <nz-option [nzValue]="1" [nzLabel]="'寄付'"></nz-option>
+            <nz-option [nzValue]="2" [nzLabel]="'收付'"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">发货时间</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-range-picker formControlName="consignTime" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8">创建时间</nz-form-label>
+        <nz-form-control  [nzSpan]="16">
+          <nz-range-picker formControlName="createTime" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+    <div class="footer">
+      <button nz-button (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;">清空筛选
+      </button>
+      <button (click)="closeDrawer();queryGoodsPostList(true);" nz-button nzType="primary">确定</button>
+    </div>
+  </nz-drawer>
+
+</my-pro-page-header-wrapper>
+
+
+
+
+

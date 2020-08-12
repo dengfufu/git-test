@@ -1,0 +1,49 @@
+<nz-table nzShowSizeChanger
+          nzBordered
+          style="padding-top: 20px;"
+          [nzFrontPagination]="false"
+          [nzData]="workFeeList"
+          [nzLoading]="loading"
+          [nzTotal]="page.total"
+          [(nzPageIndex)]="page.pageNum"
+          [(nzPageSize)]="page.pageSize"
+          [nzShowTotal]="totalTemplate"
+          (nzPageIndexChange)="queryWork(false)"
+          (nzPageSizeChange)="queryWork(true)">
+  <thead>
+  <tr>
+    <th nzWidth="50px">序号</th>
+    <th>工单编号</th>
+    <th>委托单号</th>
+    <th>工单类型</th>
+    <th>创建时间</th>
+    <th>客户</th>
+    <th>产品类型</th>
+    <th>规格</th>
+    <th>品牌</th>
+    <th>型号</th>
+    <th>工单费用</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let workFee of workFeeList;let i = index">
+    <td nzAlign="center">{{page.getNo(i)}}</td>
+    <td>{{workFee.workCode}}</td>
+    <td>{{workFee.checkWorkCode}}</td>
+    <td>{{workFee.workTypeName}}</td>
+    <td>{{workFee.createTime | date:'yyyy-MM-dd HH:mm'}}</td>
+    <td>{{workFee.customCorpName}}</td>
+    <td>{{workFee.smallClassName}}</td>
+    <td>{{workFee.specificationName}}</td>
+    <td>{{workFee.brandName}} </td>
+    <td>{{workFee.modelName}} </td>
+    <td nzAlign="right">{{workFee.totalFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+  </tr>
+  </tbody>
+</nz-table>
+<ng-template #totalTemplate let-total>
+  共{{ total }}条
+</ng-template>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">关闭</button>
+</div>

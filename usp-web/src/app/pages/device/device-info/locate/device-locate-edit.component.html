@@ -1,0 +1,120 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">设备唯一编号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="deviceCodeErrorTpl">
+        <input nz-input formControlName="deviceCode" maxlength="50" 
+               placeholder="请输入设备唯一编号"/>
+        <ng-template #deviceCodeErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过50个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">设备网点</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select
+          formControlName="branchId"
+          nzAllowClear
+          nzShowSearch
+          nzServerSearch
+          (ngModelChange)="branchChange($event)"
+          [nzFilterOption]="nzFilterOption"
+          (nzOnSearch)="matchDeviceBranch($event)"
+          nzPlaceHolder="请选择设备网点">
+          <nz-option *ngFor="let data of branchList" [nzLabel]="data.branchName" [nzValue]="data.branchId"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>行政区划</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="areaErrorTpl">
+        <nz-cascader
+          [nzExpandTrigger]="'click'"
+          [nzOptions]="areaList" [nzShowSearch]="ZorroUtils.showSearchOptions"
+          (ngModelChange)="areaChange($event)"
+          formControlName="area"
+          nzPlaceHolder="请选择行政区划">
+        </nz-cascader>
+        <ng-template #areaErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择行政区划！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item >
+      <nz-form-label [nzSpan]="4" >详细地址</nz-form-label>
+      <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="addressErrorTpl">
+      <textarea nz-input formControlName="address" maxlength="200" placeholder="请输入详细地址" style="width:88.89%;"
+                [nzAutosize]="{minRows: 2,maxRows: 5}"></textarea>
+        <i nz-icon nzType="environment" nzTheme="twotone" (click)="choosePosition()"></i>
+        <ng-template #addressErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过200个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">分布</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.zone.errors?.explain">
+        <nz-select formControlName="zone"  nzAllowClear nzPlaceHolder="市区/郊县">
+          <nz-option nzValue="1" nzLabel="市区"></nz-option>
+          <nz-option nzValue="2" nzLabel="郊县"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>设备状态</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="statusErrorTpl">
+        <nz-select
+          formControlName="status"
+          nzAllowClear
+          nzShowSearch
+          nzPlaceHolder="请选择设备状态">
+          <nz-option nzLabel="运行" nzValue="1"></nz-option>
+          <nz-option nzLabel="暂停" nzValue="2"></nz-option>
+          <nz-option nzLabel="死亡" nzValue="3"></nz-option>
+        </nz-select>
+        <ng-template #statusErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择设备状态！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">安装日期</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="installDateErrorTpl">
+        <nz-date-picker
+          formControlName="installDate"
+          nzPlaceHolder="安装日期">
+        </nz-date-picker>
+        <ng-template #installDateErrorTpl let-control>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">设备说明</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+      <textarea nz-input formControlName="description" maxlength="200" placeholder="请输入设备说明"
+                [nzAutosize]="{minRows: 2,maxRows: 5}"></textarea>
+        <ng-template #descriptionErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过200个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submitForm(validateForm.value)" [disabled]="!validateForm.valid"
+          class="button-modal-submit">提交
+  </button>
+</div>

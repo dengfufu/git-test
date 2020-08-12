@@ -1,0 +1,261 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>调拨详情</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" nzShape="round" (click)="goBack()">返回</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 10px;">
+</ng-template>
+
+<nz-layout>
+  <nz-sider [nzWidth]="320">
+    <nz-card style="width:320px;" [nzBordered]="false">
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请单号：</div>
+        <div nz-col nzSpan="12">{{detail.id}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">审批状态：</div>
+        <button nz-button class="button-status"
+             *ngIf="detail.flowNodeType !=0 "  [ngStyle]="{'background-color': '#FFBD50'}" >{{this.wmsService.mapOptions.statusMap[detail.flowNodeType]}}</button>
+        <button nz-button class="button-status" *ngIf="detail.transStatus === 30"
+               [ngStyle]="{'background-color': '#FFBD50'}">已确认
+        </button>
+      </div>
+
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请库房：</div>
+        <div nz-col nzSpan="16">{{detail.toDepotName}}</div>
+      </div>
+      <div class="div-row" class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请日期：</div>
+        <div nz-col nzSpan="16">{{detail.applyDate}}</div>
+      </div>
+      <div class="div-row" class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请人：</div>
+        <div nz-col nzSpan="16">{{detail.createByName}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请原因：</div>
+        <div nz-col nzSpan="16">{{detail.description}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">紧急程度：</div>
+        <div nz-col nzSpan="16">{{detail.priorityLevel}}</div>
+      </div>
+
+      <div>
+        <nz-divider nzText=""></nz-divider>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">出库地点：</div>
+          <div nz-col nzSpan="16">{{detail.fromDepotName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">审批人：</div>
+          <div nz-col nzSpan="16">{{auditDetail.completedByName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">审批意见：</div>
+          <div nz-col nzSpan="16">{{auditDetail.completedDescription}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">审批时间：</div>
+          <div nz-col nzSpan="16">{{auditDetail.completedTime  | date:'yyyy-MM-dd'}}</div>
+        </div>
+      </div>
+
+      <div>
+        <nz-divider nzText=""></nz-divider>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">发货单号：</div>
+          <div nz-col *ngIf="!checkReceived()" nzSpan="16" style="color: #FFBD50;cursor: pointer" (click)="editDispatchInfo()">{{consignDetail.transCode}}</div>
+          <div nz-col *ngIf="checkReceived()" nzSpan="16" style="color: #FFBD50;">{{consignDetail.transCode}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">发货时间：</div>
+          <div nz-col nzSpan="16">{{consignDetail.consignDate}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">发货人：</div>
+          <div nz-col nzSpan="16">{{consignDetail.consignByName}}</div>
+        </div>
+      </div>
+
+      <div>
+        <nz-divider nzText=""></nz-divider>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货人：</div>
+          <div nz-col nzSpan="14">{{consignDetail.receiveName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货联系方式：</div>
+          <div nz-col nzSpan="14">{{consignDetail.receiverMobile}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货地址：</div>
+          <div nz-col nzSpan="14">{{consignDetail.receiveDistrictAddress}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">快递方式：</div>
+          <div nz-col nzSpan="14">{{consignDetail.transportTypeName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">快递公司：</div>
+          <div nz-col nzSpan="14">{{consignDetail.expressCorpName}}</div>
+        </div>
+      </div>
+    </nz-card>
+  </nz-sider>
+
+
+  <nz-content>
+    <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;">
+      <nz-card style="width: 100%;height: 100%;border-width: 0 0 0 0">
+        <nz-steps nzSize="small"  [nzLabelPlacement]="'vertical'">
+          <nz-step
+            *ngFor="let item of flowInstanceNodeList"
+            [nzTitle]="item.templateNodeName"
+            [nzIcon]="item.completed == 'Y' ? finishTemplate : waitTemplate"
+            [nzDescription]="item.completedTime | date: 'yyyy-MM-dd HH:mm:ss'"
+            [nzStatus]="item.completed == 'Y' ? 'finish' : 'wait'"
+          ></nz-step>
+
+          <ng-template #finishTemplate><i nz-icon style="font-size: 40px" nzType="wms:green-round"></i></ng-template>
+          <ng-template #waitTemplate><i nz-icon style="font-size: 40px" nzType="wms:gray-round"></i></ng-template>
+        </nz-steps>
+      </nz-card>
+
+
+      <nz-tabset>
+        <nz-tab nzTitle="申请备件清单">
+          <div>
+            <nz-table
+              [nzData]="[{}]"
+              nzBordered="true"
+              nzFrontPagination="false"
+              nzSize="small"
+              nzNoResult="无"
+            >
+              <thead>
+              <tr>
+                <th  >备件名称</th>
+                <th>备件种类</th>
+                <th>申请数量</th>
+                <th>待发货数量</th>
+                <th>已发货在途数</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>{{detail.catalogName}}</td>
+                <td>{{detail.applyQuantity}}</td>
+                <td>{{detail.currentLeft}}</td>
+                <td>{{detail.safeDownLimit}}</td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </div>
+        </nz-tab>
+
+        <nz-tab nzTitle="发货清单" >
+          <div>
+            <nz-table
+              nzShowSizeChanger
+              nzFrontPagination="false"
+              [nzData]="consignList"
+            >
+              <thead>
+              <tr>
+                <th nzWidth="50px">序号</th>
+                <th>快递公司</th>
+                <th>单号</th>
+                <th>发货人</th>
+                <th>发货联系方式</th>
+                <th>发货时间</th>
+                <th>此单分箱号</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let data of consignList;let index = index">
+                <td>{{ index + 1 }}</td>
+                <td>{{ data.expressCorpName}}</td>
+                <td>{{ data.expressNo }}</td>
+                <td>{{ data.consignByName}}</td>
+                <td>{{ data.consignMobile }}</td>
+                <td>{{ data.createTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                <td>{{data.subBoxNum}}</td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </div>
+        </nz-tab>
+
+        <nz-tab nzTitle="收货清单" >
+          <nz-table
+              nzFrontPagination="false"
+              [nzData]="consignList">
+            <thead>
+            <tr>
+              <th nzWidth="50px">序号</th>
+              <th>快递公司</th>
+              <th>单号</th>
+              <th>收货人</th>
+              <th>收货联系方式</th>
+              <th>收货时间</th>
+              <th>此单分箱号</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of consignList;let index = index">
+              <td>{{ index + 1 }}</td>
+              <td>{{ data.expressCorpName}}</td>
+              <td>{{ data.expressNo }}</td>
+              <td>{{ data.signByName }}</td>
+              <td>{{ data.receiverMobile }}</td>
+              <td>{{ data.signTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+              <td>{{data.subBoxNum}}</td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-tab>
+
+        <nz-tab nzTitle="审核">
+          <nz-table
+            nzBordered
+            nzShowPagination="false"
+            nzShowSizeChanger
+            nzNoResult="无"
+            #flowTraceTable
+            [nzData]="flowInstanceTraceList"
+          >
+            <thead>
+            <tr>
+              <th nzWidth="50px">序号</th>
+              <th>审批节点</th>
+              <th>审批人</th>
+              <th>审批结果</th>
+              <th>审批意见</th>
+              <th>审批时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of flowTraceTable.data;let index = index">
+              <td>{{ index + 1 }}</td>
+              <td>{{ data.templateNodeName}}</td>
+              <td>{{ data.completedByName }}</td>
+              <td>{{ data.dealResultName }}</td>
+              <td>{{ data.completedDescription }}</td>
+              <td>{{ data.completedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-tab>
+      </nz-tabset>
+
+
+    </nz-card>
+  </nz-content>
+
+
+</nz-layout>

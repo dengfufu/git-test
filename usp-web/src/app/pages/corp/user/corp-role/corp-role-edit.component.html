@@ -1,0 +1,85 @@
+<nz-layout>
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">编辑角色</nz-page-header-title>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+        <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+          <nz-spin [nzSpinning]="spinning">
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4" nzRequired>角色名称</nz-form-label>
+              <nz-form-control [nzSpan]="20" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+                <input nz-input formControlName="roleName" style="width: 400px;"
+                       [readOnly]="role.sysType == 1"
+                       placeholder="请输入角色名称"/>
+                <ng-template #nameErrorTpl let-control>
+                  <ng-container *ngIf="control.hasError">
+                    {{control.errors?.explain}}
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4">描述</nz-form-label>
+              <nz-form-control nzValidateStatus="false" [nzSpan]="20" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+              <textarea rows="3" nz-input formControlName="description" maxlength="100" style="width: 400px;"
+                        [readOnly]="role.sysType == 1"
+                        placeholder="请输入描述"></textarea>
+                <ng-template #descriptionErrorTpl let-control>
+                  <ng-container *ngIf="control.hasError('maxlength')">
+                    不能超过200个字符！
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <text-area-word-number currentNumber="{{validateForm.value.description.length}}"
+                                   totalCount="200"></text-area-word-number>
+
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+              <nz-form-control [nzSpan]="20">
+                <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4">角色权限</nz-form-label>
+              <nz-form-control [nzSpan]="20">
+                <nz-tree #rightTree
+                         [nzData]="rightTreeNodes"
+                         nzShowLine
+                         nzCheckable
+                         nzMultiple
+                         nzCheckStrictly
+                         [nzTreeTemplate]="nzTreeTemplate"
+                         (nzCheckBoxChange)="checkRightNode($event)"
+                         [nzCheckedKeys]="defaultCheckedKeys">
+                </nz-tree>
+                <ng-template #nzTreeTemplate let-node>
+                  <span>{{ node.title }}</span>
+                  <a *ngIf="node?.origin?.hasScope === 'Y' && rightScopeVisible" (click)="editRightScope(node)">[设置]</a>
+                  <span *ngIf="node?.origin?.scopeNames && rightScopeVisible"
+                        style="color: #5EC894;margin-left: 15px;">{{node?.origin?.scopeNames}}</span>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item class="btn-form-item">
+              <nz-form-control [nzOffset]="10" [nzSpan]="12">
+                <button nz-button type="button" (click)="goBack()">返回</button>&nbsp;
+                <button nz-button type="submit" nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+              </nz-form-control>
+            </nz-form-item>
+          </nz-spin>
+
+        </form>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

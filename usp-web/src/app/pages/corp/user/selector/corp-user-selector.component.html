@@ -1,0 +1,71 @@
+<nz-content style="margin: -20px;">
+  <nz-card [nzBordered]="false"
+           [nzBodyStyle]="{'padding': '0 0 0 0'}">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4" nzFor="userId">姓名</nz-form-label>
+        <nz-form-control [nzSpan]="10">
+          <nz-select
+            style="width: 200px;"
+            nzShowSearch
+            nzServerSearch
+            nzAllowClear
+            nzPlaceHolder="根据姓名、手机号搜索"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchUser($event)"
+            formControlName="userId">
+            <nz-option *ngFor="let o of userOptions" [nzLabel]="o.userName" [nzValue]="o.userId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+        <button nz-button [nzType]="'primary'" (click)="queryAvailableUser(true,true)">查询</button>
+      </nz-form-item>
+    </form>
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="list"
+              [nzLoading]="loading"
+              [nzTotal]="page.total"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              (nzPageIndexChange)="queryAvailableUser()"
+              (nzPageSizeChange)="queryAvailableUser(true)">
+      <thead>
+      <tr>
+        <th
+          nzShowCheckbox
+          [(nzChecked)]="checkBox.isAllChecked"
+          [nzIndeterminate]="checkBox.isIndeterminate"
+          (nzCheckedChange)="checkBox.checkAll($event)"
+        ></th>
+        <th nzWidth="50px">序号
+        </th>
+        <th>员工姓名</th>
+        <th>手机号</th>
+        <th>角色</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data;let index = index">
+        <td
+          nzShowCheckbox
+          [(nzChecked)]="checkBox.mapOfCheckedId[data.userId]"
+          (nzCheckedChange)="checkBox.refreshStatus()"
+        ></td>
+        <td>{{ page.getNo(index) }}</td>
+        <td>{{ data.userName }}</td>
+        <td>{{ data.mobile }}</td>
+        <td>{{ data.roleNames }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+
+</nz-content>
+
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm()"   class="button-modal-submit" >提交</button>
+</div>
+

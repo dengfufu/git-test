@@ -1,0 +1,189 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>批量收货</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" nzShape="round" (click)="goBack()">返回</button>
+    <button nz-button nzType="primary" nzShape="round" >确认收货</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+<nz-layout>
+
+  <div nz-row style="background-color: white">
+    <div nz-col nzSpan="6">
+      <nz-card style="width:100%;border-width: 0 1px 0 0">
+        <div class="div-row" nz-row  >
+          <div nz-col class="label-item" nzSpan="10">发货地点：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.applyStoreName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货地点：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.outStoreName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货单号：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.dispatchNo}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">运送方式：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.transType}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">快递公司：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.transType}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">总箱数：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.totalBoxNum}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">快递单号：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.expressNo}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货时间：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.expressDate}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货人：</div>
+          <div nz-col nzSpan="14">{{receiveDetail.consignorName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货人联系方式：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.consignorContact}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货人：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.receiverName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货人联系方式：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.receiverContact}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货地址：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.receiveAddress}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">备注：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.note}}</div>
+        </div>
+
+      </nz-card>
+    </div>
+
+
+    <div nz-col nzSpan="18" style="height: 100%">
+      <div nz-row >
+        <nz-card style="width: 100%;height: 100%" nzBordered="false">
+          <nz-tabset>
+
+            <nz-tab nzTitle="发货备件">
+              <div>
+                <nz-table
+                  nzBordered
+                  nzShowPagination="false"
+                  nzShowSizeChanger
+                  nzNoResult="无"
+                  #flowTraceTable
+                  [nzPageIndex]="page.pageNum"
+                  [nzPageSize]="page.pageSize"
+                  [nzData]="dispatchPartList"
+                  [nzTotal]="dispatchPartList.length"
+                >
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>申请单号</th>
+                    <th>备件</th>
+                    <th>品牌</th>
+                    <th>型号</th>
+                    <th>数量</th>
+                    <th>紧急程度</th>
+                    <th>申请日期</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of  dispatchPartList;let index = index">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ data.applyNo}}</td>
+                    <td>{{ data.applicantName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.completedDescription }}</td>
+                    <td>{{ data.completedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+            <nz-tab nzTitle="发货备件清单">
+              <div>
+                <nz-table
+                  nzBordered
+                  nzShowPagination="false"
+                  nzShowSizeChanger
+                  nzNoResult="无"
+                  #flowTraceTable
+                  [nzPageIndex]="page.pageNum"
+                  [nzPageSize]="page.pageSize"
+                  [nzData]="dispatchPartList"
+                  [nzTotal]="dispatchPartList.length"
+                >
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>此单分箱号</th>
+                    <th>备件名称</th>
+                    <th>品牌</th>
+                    <th>型号</th>
+                    <th>规格</th>
+                    <th>备件状态</th>
+                    <th>单价(元)</th>
+                    <th>在保状态</th>
+                    <th>维保到期日</th>
+                    <th>厂商序列号</th>
+                    <th>唯一编码</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of  dispatchPartList;let index = index">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ data.applyNo}}</td>
+                    <td>{{ data.applicantName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.partName }}</td>
+                    <td>{{ data.completedDescription }}</td>
+                    <td>{{ data.completedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+          </nz-tabset>
+        </nz-card>
+      </div>
+    </div>
+
+  </div>
+</nz-layout>

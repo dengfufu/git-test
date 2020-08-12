@@ -1,0 +1,192 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>{{incomeDetail.smallClassName}}&nbsp;&nbsp;{{incomeDetail.incomeCode}}</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzShape="round" nzType="primary" (click)="goBack()" style="margin-right: 32px; width: 100px;">返回</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+<nz-layout>
+  <div nz-row style="background-color: white">
+    <div nz-col nzSpan="6">
+      <nz-card style="width:100%;border-width: 0 1px 0 0">
+        <div class="div-row" nz-row nzAlign="middle" style="text-align: right">
+          <label class="label-status-un-income" *ngIf="incomeDetail.incomeStatus === 10">待审批</label>
+          <label class="label-status-income" *ngIf="incomeDetail.incomeStatus === 20">已入库</label>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">入库库房：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.depotName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">备件产权：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.propertyRightName}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="incomeDetail.smallClassId === 10">
+          <div nz-col class="label-item" nzSpan="8">采购合同号：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.contId}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="incomeDetail.smallClassId === 10">
+          <div nz-col class="label-item" nzSpan="8">采购订单号：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.purchaseDetailId}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">入库时间：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.incomeDate | date: 'yyyy-MM-dd'}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">申请人：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.createNameBy}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">申请时间：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.createTime | date: 'yyyy-MM-dd HH:mm:ss'}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">备件名称：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.catalogName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">备件品牌：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.brandName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">备件型号：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.modelName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">厂商序列号：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.sn}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">唯一编码：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.barcode}}</div>
+        </div>
+        <div *ngIf="incomeDetail.normsValue">
+          <div class="div-row" nz-row *ngFor="let key of objectKeys(incomeDetail.normsValue)">
+            <div nz-col class="label-item" nzSpan="8">{{ key }}：</div>
+            <div nz-col nzSpan="16">{{incomeDetail.normsValue[key]}}</div>
+          </div>
+        </div>
+        <div class="div-row" nz-row *ngIf="incomeDetail.smallClassId === 10">
+          <div nz-col class="label-item" nzSpan="8">维保到期日：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.serviceEndDate | date: 'yyyy-MM-dd'}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="incomeDetail.smallClassId === 10">
+          <div nz-col class="label-item" nzSpan="8">单价：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.unitPrice | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">入库数量：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.quantity}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">备件状态：</div>
+          <div nz-col nzSpan="16">{{incomeDetail.statusName}}</div>
+        </div>
+      </nz-card>
+    </div>
+    <div nz-col nzSpan="18" style="height: 100%">
+      <div nz-row style="height: 30%">
+        <nz-card style="width: 100%;height: 100%;border-width: 0 0 1px 0">
+          <nz-steps nzSize="small" [nzCurrent]="1" [nzLabelPlacement]="'vertical'">
+            <nz-step
+              *ngFor="let item of flowInstanceNodeList"
+              [nzTitle]="item.templateNodeName"
+              [nzIcon]="item.completed == 'Y' ? finishTemplate : waitTemplate"
+              [nzDescription]="item.completedTime | date: 'yyyy-MM-dd HH:mm:ss'"
+              [nzStatus]="item.completed == 'Y' ? 'finish' : 'wait'"
+            ></nz-step>
+            <ng-template #finishTemplate><i nz-icon style="font-size: 40px" nzType="wms:green-round"></i></ng-template>
+            <ng-template #waitTemplate><i nz-icon style="font-size: 40px" nzType="wms:gray-round"></i></ng-template>
+          </nz-steps>
+        </nz-card>
+      </div>
+      <div nz-row style="height: 70%">
+        <nz-card style="width: 100%;height: 100%" nzBordered="false">
+          <nz-card-tab>
+            <nz-tabset nzSize="small" nzSelectedIndex="0" [nzTabBarStyle]="{'border-bottom': '0px'}">
+              <nz-tab nzTitle="审批过程">
+                <nz-table
+                  nzBordered
+                  nzShowPagination="false"
+                  nzShowSizeChanger
+                  nzNoResult="无"
+                  #flowTraceTable
+                  [nzData]="flowInstanceTraceList"
+                >
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>审批节点</th>
+                    <th>审批人</th>
+                    <th>审批结果</th>
+                    <th>审批意见</th>
+                    <th>审批时间</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of flowTraceTable.data;let index = index">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ data.templateNodeName}}</td>
+                    <td>{{ data.completedByName }}</td>
+                    <td>{{ data.dealResultName }}</td>
+                    <td>{{ data.completedDescription }}</td>
+                    <td>{{ data.completedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </nz-tab>
+              <nz-tab nzTitle="销账明细" *ngIf="incomeDetail.smallClassId === 40 || incomeDetail.smallClassId === 50">
+                <nz-table
+                  class="detail-table"
+                  nzBordered
+                  style="width: 100%"
+                  nzShowPagination="false"
+                  #reverseDetailTable
+                  nzNoResult="无"
+                  [nzData]="reverseDetailList"
+                >
+                  <thead>
+                  <tr>
+                    <th>序号</th>
+                    <th>备件名称</th>
+                    <th>品牌</th>
+                    <th>型号</th>
+                    <th>规格</th>
+                    <th>备件状态</th>
+                    <th>序列号</th>
+                    <th>条形码</th>
+                    <th>备件产权</th>
+                    <th>出库数量</th>
+                    <th>经办人</th>
+                    <th>出库时间</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of reverseDetailTable.data;let index = index">
+                    <td nzAlign="center">{{index + 1}}</td>
+                    <td>{{data.catalogName}}</td>
+                    <td>{{data.brandName}}</td>
+                    <td>{{data.modelName}}</td>
+                    <td>{{data.normsValueName}}</td>
+                    <td>{{data.statusName}}</td>
+                    <td>{{data.sn}}</td>
+                    <td>{{data.barcode}}</td>
+                    <td>{{data.propertyRightName}}</td>
+                    <td>{{data.saleQty}}</td>
+                    <td>{{data.createByName}}</td>
+                    <td>{{data.createTime | date: 'yyyy-MM-dd'}}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </nz-tab>
+            </nz-tabset>
+          </nz-card-tab>
+        </nz-card>
+      </div>
+    </div>
+  </div>
+</nz-layout>

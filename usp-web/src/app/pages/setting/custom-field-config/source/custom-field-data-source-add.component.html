@@ -1,0 +1,17 @@
+<form nz-form [formGroup]="sourceForm">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8" nzRequired>数据源值</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <input nz-input maxlength="1000" formControlName="sourceValue" placeholder="请输入数据源值" style="width: 200px;"/>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="8"nzRequired>是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="10">
+        <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否" (ngModelChange)="switch($event)"
+                   [ngModel]="this.enabled"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+</nz-spin>
+</form>

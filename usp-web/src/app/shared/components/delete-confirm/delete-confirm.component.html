@@ -1,0 +1,11 @@
+<div class="confirm_container">
+  <img src="assets/danger_warming.svg" alt="">
+  <p>{{title1}}</p>
+  <p>{{title2}}</p>
+</div>
+
+<div class="buttons">
+  <button (click)="modal.destroy();">取消</button>
+  <button (click)="modal.destroy('submit');">提交</button>
+</div>
+

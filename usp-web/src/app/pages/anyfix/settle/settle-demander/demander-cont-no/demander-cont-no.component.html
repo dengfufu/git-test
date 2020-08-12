@@ -1,0 +1,52 @@
+<nz-table
+  nzShowSizeChanger
+  nzBordered
+  nzFrontPagination="false"
+  [nzData]="[{}]"
+>
+  <tbody>
+  <tr>
+    <td width="20%" class="label-item">委托协议号</td>
+    <td width="80%">{{detail.contNo}}</td>
+  </tr>
+  <tr>
+    <td width="20%" class="label-item">协议有效期</td>
+    <td width="80%">{{detail.startDate | date: 'yyyy-MM-dd'}} ~ {{detail.endDate | date: 'yyyy-MM-dd'}}</td>
+  </tr>
+  <tr >
+    <td  width="20%" class="label-item">收费规则描述</td>
+    <td width="80%" nzBreakWord nzAlign="left">{{detail.feeRuleDescription}}</td>
+  </tr>
+  <tr>
+    <td class="label-item">收费规则附件</td>
+    <td nzAlign="left" colspan="3">
+      <nz-avatar *ngFor="let fileId of feeFileList; let i = index"
+                 [nzShape]="'square'" [nzSize]="76" style="margin-right: 16px;"
+                 [nzSrc]="showFileUrl + fileId"
+                 pro-image-viewer
+                 [images]="getImageUrls(feeFileList)"
+                 [currentImgIndex]="i+1">
+      </nz-avatar>
+    </td>
+  </tr>
+  <tr >
+    <td  width="20%" class="label-item">服务标准描述</td>
+    <td width="80%" nzBreakWord nzAlign="left">{{detail.serviceStandardNote}}</td>
+  </tr>
+  <tr>
+    <td class="label-item">服务标准附件</td>
+    <td nzAlign="left" colspan="3">
+      <nz-avatar *ngFor="let fileId of serviceFileList; let i = index"
+                 [nzShape]="'square'" [nzSize]="76" style="margin-right: 16px;"
+                 [nzSrc]="showFileUrl + fileId"
+                 pro-image-viewer
+                 [images]="getImageUrls(serviceFileList)"
+                 [currentImgIndex]="i+1">
+      </nz-avatar>
+    </td>
+  </tr>
+  </tbody>
+</nz-table>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">关闭</button>
+</div>

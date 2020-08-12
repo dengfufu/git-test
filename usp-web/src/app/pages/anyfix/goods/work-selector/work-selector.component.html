@@ -1,0 +1,116 @@
+<form nz-form style="width: 950px" [nzLayout]="'inline'" [formGroup]="searchForm" (ngSubmit)="queryWork(true)">
+  <div nz-row>
+    <div nz-col nzSpan="24">
+      <nz-form-item>
+        <nz-form-label>已选择工单</nz-form-label>
+        <nz-form-control>
+          <nz-tag *ngFor="let work of workCheckedList" nzMode="closeable" [nzColor]="'green'"
+                  (nzOnClose)="deleteWork(work.workId)">{{ work.workCode }}</nz-tag>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+  <div nz-row>
+    <div nz-col nzSpan="8">
+      <nz-form-item>
+        <nz-form-label>工单号</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="workCode" placeholder="请输入工单号"/>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="8">
+      <nz-form-item>
+        <nz-form-label>工单类型</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true"
+                     formControlName="workTypes"
+                     nzShowSearch
+                     nzPlaceHolder="请选择工单类型"
+                     style="width: 200px;">
+            <nz-option *ngFor="let option of workTypeList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="8">
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary" type="submit" [disabled]="!searchForm.valid">查询</button>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+</form>
+<ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+<nz-table nzShowSizeChanger
+          nzBordered
+          [nzFrontPagination]="false"
+          [nzTotal]="page.total"
+          [(nzPageIndex)]="page.pageNum"
+          [(nzPageSize)]="page.pageSize"
+          [nzData]="workList"
+          [nzLoading]="loading"
+          nzShowPagination="true"
+          [nzShowTotal]="totalTemplate"
+          (nzPageIndexChange)="queryWork()"
+          (nzPageSizeChange)="queryWork(true)"
+          [nzScroll]="{ x: '1970px' }"
+          style="margin-top: 10px">
+  <thead>
+  <tr>
+    <th
+      nzShowCheckbox
+      [(nzChecked)]="checkBox.isAllChecked"
+      [nzIndeterminate]="checkBox.isIndeterminate"
+      (nzCheckedChange)="checkAll($event);checkBox.checkAll($event);"
+      nzWidth="50px" nzLeft="0px"></th>
+    <th nzWidth="50px" nzLeft="50px">序号</th>
+    <th nzWidth="150px" nzLeft="100px">工单编号</th>
+    <th nzWidth="100px">委托商</th>
+    <th nzWidth="100px">服务商</th>
+    <th nzWidth="150px">委托单号</th>
+    <th nzWidth="60px">省</th>
+    <th nzWidth="80px">市</th>
+    <th nzWidth="100px">区</th>
+    <th nzWidth="200px">客户名称</th>
+    <th nzWidth="150px">设备类型</th>
+    <th nzWidth="100px">出厂序列号</th>
+    <th nzWidth="100px">品牌</th>
+    <th nzWidth="150px">型号</th>
+    <th nzWidth="100px">设备规格</th>
+    <th nzWidth="100px">工单类型</th>
+    <th nzWidth="80px">创建人</th>
+    <th nzWidth="150px">创建时间</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of workList;let i = index">
+    <td nzShowCheckbox [(nzChecked)]="checkBox.mapOfCheckedId[data.workId]"
+        (nzCheckedChange)="checkBox.refreshStatus();checkWork($event, data)"
+        nzLeft="0px"></td>
+    <td nzLeft="50px">{{ page.getNo(i) }}</td>
+    <td nzLeft="100px">{{ data.workCode }}</td>
+    <td>{{ data.demanderCorpName }}</td>
+    <td>{{ data.serviceCorpName }}</td>
+    <td>{{ data.checkWorkCode }}</td>
+    <td>{{ data.provinceName }}</td>
+    <td>{{ data.cityName }}</td>
+    <td>{{ data.districtName }}</td>
+    <td>{{ data.customCorpName }}</td>
+    <td>{{ data.smallClassName }}</td>
+    <td>{{ data.serial }}</td>
+    <td>{{ data.brandName }}</td>
+    <td>{{ data.modelName }}</td>
+    <td>{{ data.specificationName }}</td>
+    <td>{{ data.workTypeName }}</td>
+    <td>{{ data.creatorName }}</td>
+    <td>{{ data.createTime | date:'yyyy-MM-dd HH:mm' }}</td>
+  </tr>
+  </tbody>
+</nz-table>
+<div *nzModalFooter>
+  <button nz-button (click)="destroyModal()">取消</button>&nbsp;
+  <button nz-button nzType="primary" (click)="submitForm()" [disabled]="workCheckedList.length <= 0">提交</button>&nbsp;
+</div>

@@ -1,0 +1,78 @@
+<form nz-form [formGroup]="flowNodeForm">
+
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8" nzRequired>节点名称</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <input nz-input formControlName="name" placeholder="请输入节点名称" style="width: 200px;"/>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8" nzRequired>节点类型</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzPlaceHolder="请选择节点类型"
+          formControlName="nodeType"
+        >
+          <nz-option *ngFor="let nodeType of selectOptions.nodeTypeList" [nzValue]="nodeType.id"
+                     [nzLabel]="nodeType.name"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+  <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8" nzRequired>基本信息模板</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzPlaceHolder="请选择基本信息模板"
+          formControlName="formMainId"
+        >
+          <nz-option *ngFor="let formMain of selectOptions.formMainList" [nzValue]="formMain.value"
+                     [nzLabel]="formMain.text"></nz-option>
+        </nz-select>
+      </nz-form-control>
+  </nz-form-item>
+
+    <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8" nzRequired>明细信息模板</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzPlaceHolder="请选择明细信息模板"
+          formControlName="formDetailId"
+        >
+          <nz-option *ngFor="let formDetail of selectOptions.formDetailList" [nzValue]="formDetail.value"
+                     [nzLabel]="formDetail.text"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item nz-row>
+      <nz-form-label [nzSpan]="8" nzRequired>节点顺序</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <nz-input-number
+          [nzMin]="1"
+          [nzMax]="1000000"
+          [nzStep]="1"
+          formControlName="sortNo"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="8">是否核心节点</nz-form-label>
+      <nz-form-control [nzSpan]="10" nzHasFeedback>
+        <nz-radio-group formControlName="isCore">
+          <label nz-radio nzValue="Y">是</label>
+          <label nz-radio nzValue="N">否</label>
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>

@@ -1,0 +1,123 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+
+        <div class="edit-button-div">
+          <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+        </div>
+
+        <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+        <nz-table #headerTable
+                  nzShowSizeChanger
+                  nzBordered
+                  [nzFrontPagination]="false"
+                  [nzData]="list"
+                  [nzLoading]="loading"
+                  [nzTotal]="page.total"
+                  [(nzPageIndex)]="page.pageNum"
+                  [(nzPageSize)]="page.pageSize"
+                  [nzShowTotal]="totalTemplate"
+                  (nzPageIndexChange)="queryCorpList()"
+                  (nzPageSizeChange)="queryCorpList(true)">
+          <thead>
+          <tr>
+            <th style="width: 50px">序号</th>
+            <th>企业名称</th>
+            <th>企业简称</th>
+            <th>联系方式</th>
+            <th>官方网站</th>
+            <th>是否认证</th>
+            <th>行政区划</th>
+            <th>详细地址</th>
+            <th>注册时间</th>
+            <!--            <th style="width: 100px" [acl]="{ability: [aclRight.TENANT_MOD, aclRight.TENANT_DEL]}">操作</th>-->
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of headerTable.data;let index = index"
+                  style="cursor: pointer" (click)="toDetail(data.corpId)">
+            <td>{{ page.getNo(index) }}</td>
+            <td>{{ data.corpName }}</td>
+            <td>{{ data.shortName }}</td>
+            <td>{{ data.telephone }}</td>
+            <td>{{ data.website }}</td>
+            <td>{{ data.verify === 1 ? '是' : '否'}}</td>
+            <td>{{ data.region }}</td>
+            <td>{{ data.address }}</td>
+            <td>{{ data.regTime | date:'yyyy-MM-dd HH:mm'}}</td>
+            <!--            <td [acl]="{ability: [aclRight.TENANT_MOD, aclRight.TENANT_DEL]}">-->
+<!--              <a [acl]="{ability: [aclRight.TENANT_MOD]}" (click)="editModal(data)">编辑</a>-->
+<!--              <nz-divider [acl]="{ability: [aclRight.TENANT_MOD, aclRight.TENANT_DEL], mode: 'allOf'}"-->
+<!--                          nzType="vertical"></nz-divider>-->
+<!--              <a [acl]="{ability: [aclRight.TENANT_DEL]}" (click)="showDeleteConfirm(data.corpId)">删除</a>-->
+<!--            </td>-->
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </nz-content>
+
+    <ng-template #filterTitle>
+      <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+      <span style="font-size: 16px;font-weight: bold;">企业筛选</span>
+    </ng-template>
+
+    <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="500" [nzClosable]="false"
+               (nzOnClose)="closeDrawer()"
+               [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+      <form nz-form [formGroup]="searchForm">
+        <nz-form-item>
+          <nz-form-label nzFor="roleName" [nzSpan]="6">企业名称</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-select
+              nzShowSearch
+              nzServerSearch
+              nzAllowClear="true"
+              nzPlaceHolder="请输入企业名称"
+              [nzFilterOption]="nzFilterOption"
+              (nzOnSearch)="matchCorp($event)"
+              formControlName="corpId">
+              <nz-option *ngFor="let o of corpList" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+              <nz-option *ngIf="corpLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+       <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzFor="hidden">是否认证</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-radio-group formControlName="verify">
+              <label nz-radio [nzValue] = 2>不限</label>
+              <label nz-radio [nzValue] = 1>是</label>
+              <label nz-radio [nzValue] = 0>否</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">行政区划</nz-form-label>
+          <nz-form-control  [nzSpan]="16">
+            <nz-cascader
+              nzPlaceHolder="请选择行政区划"
+              [nzShowSearch]="ZorroUtils.showSearchOptions"
+              formControlName="area"
+              [nzChangeOnSelect]="true"
+              [nzAllowClear]="true"
+              [nzOptions]="areaInfoOption"
+              (ngModelChange)="areaChange($event)">
+            </nz-cascader>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div style="text-align: right;margin-top: 40px">
+          <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+          </button>
+          <button nz-button [nzType]="'primary'" (click)="closeDrawer();queryCorpList(true)">查询</button>
+        </div>
+      </form>
+    </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>

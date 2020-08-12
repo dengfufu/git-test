@@ -1,0 +1,95 @@
+<nz-spin [nzSpinning]="spinning">
+  <nz-form-item *ngIf="configItem[WORK_ADD_NEED_QUOTE].isShow">
+    <nz-form-label nzSpan="8">费用报价</nz-form-label>
+    <nz-form-control nzSpan="14">￥
+      <nz-input-number
+        style="width: 200px"
+        [(ngModel)]="workFee.basicServiceFee"
+        nzPrecision="2"
+        nzStep="10"
+        nzMin="0"
+        nzMax="99999999"
+        nzPlaceHolder="请输入费用报价"
+      ></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="!configItem[WORK_ADD_NEED_QUOTE].isShow">
+    <nz-form-label nzSpan="8">费用报价</nz-form-label>
+    <nz-form-control nzSpan="14">
+      {{workFee.basicServiceFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+    </nz-form-control>
+  </nz-form-item>
+<!--  <nz-form-item *ngFor="let item of assortFeeList">-->
+<!--    <nz-form-label nzSpan="8">基础维护费</nz-form-label>-->
+<!--    <nz-form-control nzSpan="14">-->
+<!--      ￥{{item.amount | number: '0.1-2'}}<span *ngIf="item.note">({{item.note}})</span>-->
+<!--    </nz-form-control>-->
+<!--  </nz-form-item>-->
+  <nz-form-item>
+    <nz-form-label nzSpan="8">基础维护费</nz-form-label>
+    <nz-form-control nzSpan="14">
+      {{workFee.assortBasicFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="8">辅助人员费用</nz-form-label>
+    <nz-form-control nzSpan="14">
+      {{workFee.assortSupportFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+    </nz-form-control>
+  </nz-form-item>
+  <div *ngFor="let item of implementFeeList">
+    <nz-form-item>
+      <nz-form-label nzSpan="8">{{item.implementName}}</nz-form-label>
+      <nz-form-control nzSpan="14">
+        ￥
+        <nz-input-number
+          style="width: 200px"
+          nzPrecision="2"
+          nzStep="10"
+          nzMin="0"
+          nzMax="99999999"
+          [(ngModel)]="item.amount"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="item.amount > 0 || (item.note && item.note.length > 0)">
+      <nz-form-label nzSpan="8">{{item.implementName}}备注</nz-form-label>
+      <nz-form-control nzSpan="14">
+        <textarea rows="2" nz-input maxlength="200" [(ngModel)]="item.note"
+                  [placeholder]="'请输入' + item.implementName + '备注'"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+  <nz-form-item>
+    <nz-form-label nzSpan="8">备件费用</nz-form-label>
+    <nz-form-control nzSpan="14">
+      {{ workFee.wareUseFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="8">其他费用</nz-form-label>
+    <nz-form-control nzSpan="14">￥
+      <nz-input-number
+        style="width: 200px"
+        [(ngModel)]="workFee.otherFee"
+        nzPrecision="2"
+        nzStep="10"
+        nzMin="0"
+        nzMax="99999999"
+        nzPlaceHolder="请输入其他费用"
+      ></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="8">其他费用说明</nz-form-label>
+    <nz-form-control nzSpan="14">
+      <textarea rows="2" nz-input maxlength="200" [(ngModel)]="workFee.otherFeeNote" placeholder="请输入其他费用说明，200字以内"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-spin>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="submitLoading">
+    提交
+  </button>
+</div>

@@ -1,0 +1,239 @@
+<my-pro-page-header-wrapper>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+
+      <div class="edit-button-div">
+        <!--<i nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addDeviceInfo()" nz-tooltip
+           nzTooltipTitle="新建" [acl]="{ability: [aclRight.DEVICE_INFO_ADD]}"></i>
+        <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+           nzTooltipTitle="筛选"></i>-->
+        <button nz-button class="icon-add" nzShape="round" (click)="addDeviceInfo()"
+                [acl]="{ability: [aclRight.DEVICE_INFO_ADD]}">新建
+        </button>
+        <button nz-button class="icon-import" nzShape="round" (click)="import()"
+                [acl]="{ability: [aclRight.DEVICE_INFO_ADD]}">导入
+        </button>
+        <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+        <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"
+                class="more-button">
+          <img class="menu-img" src="assets/drop-menu-theme.svg" style="margin-top: -2px; margin-left: -8px;">
+        </button>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="openCustomList()">自定义列</li>
+            <li [acl]="{ability: [aclRight.DEVICE_INFO_EXPORT]}">
+              <button nz-menu-item
+                      style="border: none;outline: none"
+                      pro-down-file
+                      httpMethod="post"
+                      [httpUrl]="'/api/device/device-excel/export'"
+                      [msg]="'正在导出设备...'"
+                      [fileNum]="this.listNum"
+                      [httpBody]="getParams()">导出设备
+              </button>
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+      <ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+      <nz-table #headerTable
+                nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="deviceInfoList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total" [nzShowTotal]="totalTemplate"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="queryDeviceInfo()"
+                (nzPageSizeChange)="queryDeviceInfo(true)"
+                [nzScroll]="{ x : totalWidth + 'px'}">
+        <thead>
+        <tr>
+          <th nzWidth="50px" nzLeft="0px">序号</th>
+          <th nzWidth="200px" nzLeft="50px">客户名称</th>
+          <th nzWidth="150px" nzLeft="250px">设备类型</th>
+          <ng-container *ngFor="let item of customTileList">
+            <th *ngIf="item.checked" [nzWidth]="item.width + 'px'">{{item.title}}</th>
+          </ng-container>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of headerTable.data,let index = index" (dblclick)="detail(data.deviceId)">
+          <td nzLeft="0px">{{ page.getNo(index) }}</td>
+          <td nzAlign="left" nzLeft="50px">{{ data.customCorpName }}</td>
+          <td nzLeft="250px">{{ data.smallClassName }}</td>
+
+          <td *ngIf="showRowData.brandName">{{data.brandName}}</td>
+          <td *ngIf="showRowData.modelName">{{data.modelName}}</td>
+          <td *ngIf="showRowData.serial"><a (click)="detail(data.deviceId)">{{ data.serial }}</a></td>
+          <td *ngIf="showRowData.largeClassName">{{data.largeClassName}}</td>
+          <td *ngIf="showRowData.specificationName">{{data.specificationName}}</td>
+          <td *ngIf="showRowData.provinceName">{{data.provinceName}}</td>
+          <td *ngIf="showRowData.cityName">{{data.cityName}}</td>
+          <td *ngIf="showRowData.districtName">{{data.districtName}}</td>
+          <td *ngIf="showRowData.branchName">{{data.branchName}}</td>
+          <td *ngIf="showRowData.contactName">{{data.contactName}}</td>
+          <td *ngIf="showRowData.contactPhone">{{data.contactPhone}}</td>
+          <td *ngIf="showRowData.address">{{data.address}}</td>
+          <td *ngIf="showRowData.description">{{data.description}}</td>
+          <td *ngIf="showRowData.demanderCorpName">{{data.demanderCorpName}}</td>
+          <td *ngIf="showRowData.serviceCorpName">{{data.serviceCorpName}}</td>
+          <td *ngIf="showRowData.workManagerName">{{data.workManagerName}}</td>
+          <td *ngIf="showRowData.engineerName">{{data.engineerName}}</td>
+          <td *ngIf="showRowData.installDate">{{data.installDate | date: 'yyyy-MM-dd' }}</td>
+          <td *ngIf="showRowData.warrantyStatusName">{{data.warrantyStatusName}}</td>
+          <td *ngIf="showRowData.warrantyEndDate ">{{ data.warrantyEndDate | date: 'yyyy-MM-dd' }}</td>
+          <td *ngIf="showRowData.statusName">{{data.statusName}}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">设备档案筛选</span>
+  </ng-template>
+
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="400" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="model">委托商</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch
+            formControlName="demanderCorp"
+            nzAllowClear="true"
+            (ngModelChange)="demanderCorpChange($event)"
+            nzPlaceHolder="请选择委托商">
+            <nz-option *ngFor="let data of demanderCorpList" [nzLabel]="data.demanderCorpName"
+                       [nzValue]="data.demanderCorp"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="largeClass">设备分类</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-cascader
+            nzShowSearch
+            nzAllowClear
+            [nzExpandTrigger]="'hover'"
+            [nzOptions]="deviceClassList"
+            (ngModelChange)="deviceClassChange($event)"
+            formControlName="deviceClass">
+          </nz-cascader>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="brand">品牌型号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-cascader
+            nzShowSearch
+            nzAllowClear
+            [nzExpandTrigger]="'hover'"
+            [nzOptions]="brandModelList"
+            (ngModelChange)="brandModelChange($event)"
+            formControlName="brandModel">
+          </nz-cascader>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="serial">出厂序列号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <input nz-input formControlName="serial" nzAllowClear="true" placeholder="请输入出厂序列号"
+                 (ngModelChange)="serialChange()"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="deviceCode">自定义编号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <input nz-input formControlName="deviceCode" nzAllowClear="true" placeholder="请输入设备自定义编号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="custom">客户名称</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select nzShowSearch formControlName="customId" nzAllowClear="true" nzPlaceHolder="请选择设备所属客户"
+                     (ngModelChange)="customCorpChange($event)">
+            <nz-option *ngFor="let data of customCorpList" [nzLabel]="data.customCorpName"
+                       [nzValue]="data.customId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="deviceBranch">设备网点</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch nzAllowClear="true"
+            nzServerSearch
+            nzPlaceHolder="请输入网点名称"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchDeviceBranch(this.searchForm.value.customId ,$event)"
+            formControlName="branchId">
+            <nz-option *ngFor="let o of deviceBranchList" [nzLabel]="o.branchName" [nzValue]="o.branchId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="serviceCorp">服务商</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select formControlName="serviceCorp" nzAllowClear="true" nzPlaceHolder="请选择服务商"
+                     (ngModelChange)="serviceCorpChange($event)">
+            <nz-option *ngFor="let data of serviceCorpList" [nzLabel]="data.serviceCorpName"
+                       [nzValue]="data.serviceCorp"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="serviceBranch">服务网点</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch nzAllowClear="true"
+            nzServerSearch
+            nzPlaceHolder="请输入网点名称"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchSearchBranch(this.searchForm.value.serviceCorp, $event)"
+            formControlName="serviceBranch">
+            <nz-option *ngFor="let o of serviceBranchList" [nzLabel]="o.branchName"
+                       [nzValue]="o.branchId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="warrantyStatus">保修状态</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select formControlName="warrantyStatus" nzAllowClear="true" nzPlaceHolder="请选择保修状态">
+            <nz-option nzLabel="保内" nzValue="1"></nz-option>
+            <nz-option nzLabel="保外" nzValue="2"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="8" nzFor="status">设备状态</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select formControlName="status" nzAllowClear="true" nzPlaceHolder="请选择设备状态">
+            <nz-option nzLabel="运行" nzValue="1"></nz-option>
+            <nz-option nzLabel="暂停" nzValue="2"></nz-option>
+            <nz-option nzLabel="死亡" nzValue="3"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+    <div style="text-align: right;margin-top: 40px">
+      <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;"><span>清空筛选</span>
+      </button>
+      <button type="button" (click)="closeDrawer();queryDeviceInfo(true)" class="ant-btn ant-btn-primary">
+        <span>查询</span>
+      </button>
+    </div>
+  </nz-drawer>
+</my-pro-page-header-wrapper>
+
+
+
+
+
+

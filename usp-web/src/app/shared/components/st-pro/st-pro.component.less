@@ -1,0 +1,188 @@
+@import '~ng-zorro-antd/style/themes/default.less';
+//@import '~ng-zorro-antd/style/themes/index';
+
+@st-pro-background-color-light: hsv(0, 0, 98%); // background of header and selected item
+@st-pro-background-color-base: hsv(0, 0, 96%); // Default grey background color
+@st-pro-background-color-silver: #F0F2F5;
+@st-pro-checked-row-background-color: #ffeebb;
+@st-pro-disabled-row-background-color: @disabled-bg;
+
+@st-pro-prefix-cls: ~'st-pro';
+@st-pro-toolbar-margin-bottom: 8px;
+@st-pro-toolbar-button-margin-left: 8px;
+
+.@{st-pro-prefix-cls} {
+  display: block;
+  //overflow: auto;
+  min-height: 350px;
+  height: 100%;
+  //margin-bottom: 8px;
+  &-toolbar {
+    display: flex;
+    justify-content: space-between;
+    //margin-bottom: @st-pro-toolbar-margin-bottom;
+    &-quick-filter {
+      display: block;
+      a.ant-btn {
+        padding: 0;
+        width: auto;
+      }
+    }
+    &-button-group {
+      display: block;
+      .col-selector {
+        display: inline-block;
+        .ant-btn {
+          border-radius: 15px;
+        }
+      }
+      .toolbar-button {
+        //margin-left: @st-pro-toolbar-button-margin-left;
+        //:first-child {
+        //  margin-left: 0;
+        //}
+      }
+      .toolbar-button+.toolbar-extra-buttons {
+        margin-left: @st-pro-toolbar-button-margin-left;
+      }
+      .toolbar-extra-buttons {
+        display: inline-block;
+        button,.ant-btn {
+          //:last-child {
+          //  margin-right: @st-pro-toolbar-button-margin-left/2;
+          //}
+        }
+        .ant-btn + .ant-btn {
+          margin-left: 8px;
+        }
+      }
+    }
+  }
+  &-toolbar-hide {
+    display: none;
+  }
+
+  &-batch-toolbar {
+    display: inline-block;
+    .batch-info {
+      em {
+        color: @primary-color;
+        margin: 0 5px;
+        font-style: normal;
+        font-weight: 500;
+      }
+    }
+    .batch-info + .ant-btn {
+      margin-left: @st-pro-toolbar-button-margin-left;
+    }
+    button,.ant-btn {
+      //margin-left: @st-pro-toolbar-button-margin-left;
+      //:last-child {
+      //  margin-right: @st-pro-toolbar-button-margin-left/2;
+      //}
+      border-radius: 15px;
+    }
+  }
+  &-batch-toolbar-hide {
+    display: none;
+  }
+
+  &-table {
+    margin-top: 8px;
+  }
+  div.ant-table-scroll {
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+      //background-color: #dfe3e8
+      background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-button {
+      height: 0;
+      width: 0
+    }
+
+    ::-webkit-scrollbar-thumb {
+      height: 10px;
+      background-color: #C3CBD9;
+      -webkit-border-radius: 0;
+      border-radius: 0
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #7fb8fd
+    }
+    ::-webkit-scrollbar-thumb:horizontal {
+      border-width: 6px 1px 1px;
+      padding: 0 0 0 100px;
+      box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1),inset -1px 0 0 rgba(0, 0, 0, .07)
+    }
+
+    ::-webkit-scrollbar-track {
+      border-radius: 0;
+      background: #E7EAED;
+      -webkit-box-shadow: none;
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: 0 0
+    }
+    ::-webkit-scrollbar-track-piece {
+      background-clip: padding-box;
+      //background-color: #eee
+    }
+    ::-webkit-scrollbar-track-piece:horizontal {
+      //background-color: #eee
+    }
+  }
+  div.ant-table-header {
+    margin-bottom: -8px !important;
+    padding-bottom: 0px;
+    overflow: scroll;
+    ::-webkit-scrollbar-track {
+      border-radius: 0;
+      background: @st-pro-background-color-silver;
+      -webkit-box-shadow: none;
+    }
+
+  }
+
+  table {
+    thead {
+      tr {
+        th {
+          background-color: @st-pro-background-color-silver !important;
+        }
+      }
+    }
+  }
+  table {
+    tbody.ant-table-tbody {
+      tr.st-pro-row-clicked {
+        td {
+          background-color: @st-pro-checked-row-background-color !important;
+        }
+      }
+      tr.st-pro-row-checked {
+        td {
+          background-color: @st-pro-checked-row-background-color !important;
+        }
+      }
+      tr {
+        td {
+          padding: 6px 8px !important;
+          .ant-tag {
+            border-radius: 15px;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-table-body  table {
+    word-wrap: break-word;
+    table-layout: fixed;
+  }
+
+
+}

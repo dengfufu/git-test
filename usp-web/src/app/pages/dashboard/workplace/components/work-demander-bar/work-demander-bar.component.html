@@ -1,0 +1,71 @@
+<nz-card nzTitle="工单按委托商统计{{ workTotalCount >0 ? '('+ workTotalCount+')':'' }}"
+         style="margin-bottom: 0px"
+         [nzBordered]="false"
+         [nzExtra]="extraTemplate"
+         [nzBodyStyle]="{padding:'6px',height: '900px',overflow: 'auto'}">
+  <nz-spin [nzSpinning]="isLoading" style="position: absolute;top: 55%;left: 50%;"></nz-spin>
+  <div class="content-flex-center" *ngIf="isEmptyData">
+    <nz-embed-empty nzComponentName="normal"></nz-embed-empty>
+  </div>
+
+  <ng-container *ngIf="!isEmptyData">
+    <div *ngIf="showChart" echarts [options]="chartOption" style="width:100%;height: 100%" [theme]="'usp'"></div>
+
+    <ng-container *ngIf="!showChart">
+      <nz-table #basicTable [nzTitle]="tableTitleTemplate" [nzData]="dataset4table" [nzFrontPagination]="false">
+        <thead>
+        <tr>
+          <ng-container *ngFor="let data of basicTable.data;let i = index">
+            <ng-container *ngIf="i === 0">
+              <ng-container *ngFor="let d of data">
+                <th>{{d}}</th>
+              </ng-container>
+              <th>总数</th>
+            </ng-container>
+          </ng-container>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of basicTable.data;let i = index">
+          <ng-container *ngIf="i > 0">
+            <ng-container *ngFor="let d of data">
+              <td>{{ d }}</td>
+            </ng-container>
+            <td>{{getCorpWorkCount(data)}}</td>
+          </ng-container>
+        </tr>
+        </tbody>
+      </nz-table>
+    </ng-container>
+  </ng-container>
+</nz-card>
+<ng-template #extraTemplate>
+  <div style="display: flex;">
+    <div style="margin-right: 20px">
+      <nz-switch [(ngModel)]="showChart" nzSize="small" nzCheckedChildren="图" nzUnCheckedChildren="表"></nz-switch>
+    </div>
+    <nz-range-picker nzSize="small"
+                     [nzRanges]="rangeDates"
+                     [(ngModel)]="rangeDate"
+                     (ngModelChange)="dateRangeChange($event)">
+    </nz-range-picker>
+    <nz-select
+      nzSize="small"
+      nzMode="multiple"
+      nzPlaceHolder="请选择工单类型"
+      [(ngModel)]="workTypeSelectedValue"
+      (ngModelChange)="loadData()"
+      style="margin-left: 20px; min-width:100px;cursor: pointer;"
+    >
+      <nz-option *ngFor="let item of workTypeOption" [nzLabel]="item.name" [nzValue]="item.code"></nz-option>
+    </nz-select>
+  </div>
+</ng-template>
+
+<ng-template #tableTitleTemplate>
+  <div class="content-flex-center">
+    委托商总数:{{corpTotalCount}}
+    <nz-divider nzType="vertical"></nz-divider>
+    工单总数:{{workTotalCount}}
+  </div>
+</ng-template>

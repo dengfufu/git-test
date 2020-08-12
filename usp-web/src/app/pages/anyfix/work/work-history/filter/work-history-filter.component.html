@@ -1,0 +1,287 @@
+<form nz-form nz-row [formGroup]="searchForm">
+    <nz-card [nzBordered]="false">
+      <div nz-row >
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">委托单号</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-input-group [nzSuffix]="checkWorkCodeSuffixTemplate">
+                <input type="text" nz-input formControlName="checkWorkCode" [(ngModel)]="params.checkWorkCode" placeholder="请输入委托单号" />
+              </nz-input-group>
+              <ng-template #checkWorkCodeSuffixTemplate
+              ><i
+                nz-icon
+                nz-tooltip
+                class="ant-input-clear-icon"
+                nzTheme="fill"
+                nzType="close-circle"
+                *ngIf="searchForm.value.checkWorkCode"
+                (click)="searchForm.controls.checkWorkCode.setValue('');"
+              ></i
+              ></ng-template>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">工单编号</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-input-group [nzSuffix]="workCodeSuffixTemplate">
+                <input type="text" nz-input formControlName="workCode" [(ngModel)]="params.workCode" placeholder="请输入工单号" />
+              </nz-input-group>
+              <ng-template #workCodeSuffixTemplate
+              ><i
+                nz-icon
+                nz-tooltip
+                class="ant-input-clear-icon"
+                nzTheme="fill"
+                nzType="close-circle"
+                *ngIf="searchForm.value.workCode"
+                (click)="searchForm.controls.workCode.setValue('');"
+              ></i
+              ></ng-template>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">工单类型</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select [nzAllowClear]="true" formControlName="workTypes" [(ngModel)]="params.workTypes" nzShowSearch nzAllowClear
+                         nzPlaceHolder="请选择工单类型">
+                <nz-option *ngFor="let option of optionList.workTypeOption" [nzValue]="option.id"
+                           [nzLabel]="option.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">工单状态</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <label class="label-checkbox" nz-checkbox [(ngModel)]="allChecked"
+                     (ngModelChange)="updateAllChecked()"
+                     [ngModelOptions]="{standalone: true}">全选</label>
+              <nz-checkbox-group formControlName="workStatusCheck" nzPlaceHolder="工单状态"
+                                 [(ngModel)]="checkOptionsOne"
+                                 (ngModelChange)="updateSingleChecked() "></nz-checkbox-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">客户名称</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select [nzAllowClear]="true" formControlName="customId" [(ngModel)]="params.customId" nzShowSearch nzPlaceHolder="请选择客户名称">
+                <nz-option *ngFor="let option of optionList.customOption" [nzValue]="option.customId"
+                           [nzLabel]="option.customCorpName"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">服务网点</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select
+                nzAllowClear
+                nzShowSearch
+                nzServerSearch
+                nzFilterOption
+                nzPlaceHolder="可输入名称搜索服务网点"
+                [nzFilterOption]="nzFilterOption"
+                (nzOnSearch)="getBranchOption($event)"
+                (ngModelChange)="branchChange($event)"
+                formControlName="serviceBranches"  >
+                <nz-option *ngFor="let o of branchOption" [nzLabel]="o.branchName"
+                           [nzValue]="o.branchId"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">工程师</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select [nzAllowClear]="true"
+                         formControlName="engineer"
+                         nzShowSearch nzServerSearch (nzOnSearch)="engineerChange($event)"
+                         nzPlaceHolder="请选择工程师">
+                <nz-option *ngFor="let option of optionList.engineerList" [nzValue]="option.userId"
+                           [nzLabel]="option.userName"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">行政区划</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-cascader
+                nzPlaceHolder="请选择行政区划"
+                formControlName="area" [(ngModel)]="params.area"
+                [nzChangeOnSelect]="true"
+                [nzAllowClear]="true"
+                [nzOptions]="this.optionList.areaInfoOption" [nzShowSearch]="ZorroUtils.showSearchOptions"
+                (ngModelChange)="areaChange($event)">
+              </nz-cascader>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="isServiceCorp">
+            <nz-form-label [nzSpan]="6">服务审核</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-checkbox-group formControlName="finishCheckStatuses"
+                                 [(ngModel)]="checkConfirmObject.finishCheckStatusList"></nz-checkbox-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="isServiceCorp">
+            <nz-form-label [nzSpan]="6">费用审核</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-checkbox-group formControlName="feeCheckStatuses"
+                                 [(ngModel)]="checkConfirmObject.feeCheckStatusList"></nz-checkbox-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">服务确认</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-checkbox-group formControlName="finishConfirmStatuses"
+                                 [(ngModel)]="checkConfirmObject.finishConfirmStatusList"></nz-checkbox-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">费用确认</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-checkbox-group formControlName="feeConfirmStatuses"
+                                 [(ngModel)]="checkConfirmObject.feeConfirmStatusList"></nz-checkbox-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzSpan="12" style="border-left: 1px dashed #dad8d8;">
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">委托商名称</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select [nzAllowClear]="true"
+                         formControlName="demanderCorp"
+                         (ngModelChange)="changeDemanderCorp($event)"
+                         [(ngModel)]="params.demanderCorp" nzShowSearch nzPlaceHolder="请选择委托商名称">
+                <nz-option *ngFor="let option of optionList.demanderOption" [nzValue]="option.demanderCorp"
+                           [nzLabel]="option.demanderCorpName"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">设备类型</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select [nzAllowClear]="true" formControlName="smallClassId" [(ngModel)]="params.smallClassId" nzShowSearch nzPlaceHolder="请选择设备类型">
+                <nz-option *ngFor="let option of optionList.deviceSmallClassOption" [nzValue]="option.id"
+                           [nzLabel]="option.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">设备型号</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select [nzAllowClear]="true" formControlName="deviceModel" [(ngModel)]="params.deviceModel" nzShowSearch nzPlaceHolder="请选择设备型号">
+                <nz-option *ngFor="let option of optionList.deviceModelOption" [nzValue]="option.id"
+                           [nzLabel]="option.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">设备品牌</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select [nzAllowClear]="true" formControlName="deviceBrand" [(ngModel)]="params.deviceBrand" nzShowSearch nzPlaceHolder="请选择设备品牌">
+                <nz-option *ngFor="let option of optionList.deviceBrandOption" [nzValue]="option.id"
+                           [nzLabel]="option.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">联系人</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <input nz-input formControlName="contactName" [(ngModel)]="params.contactName" placeholder="请输入联系人"/>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">联系电话</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <input nz-input formControlName="contactPhone" [(ngModel)]="params.contactPhone" placeholder="请输入联系电话"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">出厂序列号</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <input nz-input formControlName="serial" [(ngModel)]="params.serial" placeholder="请输入出厂序列号"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="workStatusNow !== this.yesterdayFinished && workStatusNow !== this.todayFinished">
+            <nz-form-label [nzSpan]="6">完单时间</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-range-picker formControlName="finishTime" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">创建时间</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-range-picker formControlName="createTime" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">提单日期</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-range-picker formControlName="dispatchTime" [nzFormat]="'yyyy-MM-dd'" ></nz-range-picker>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">服务方式</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-radio-group formControlName="serviceMode" [(ngModel)]="params.serviceMode" nzPlaceHolder="请选择服务方式">
+                <label nz-radio [nzValue]="0">不限</label>
+                <label nz-radio [nzValue]="1">现场服务</label>
+                <label nz-radio [nzValue]="2">远程处理</label>
+              </nz-radio-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">费用录入完成</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-radio-group formControlName="workFeeStatus" [(ngModel)]="params.workFeeStatus">
+                <label nz-radio [nzValue]="0">不限</label>
+                <label nz-radio [nzValue]="2">是</label>
+                <label nz-radio [nzValue]="1">否</label>
+              </nz-radio-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">是否回访</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-radio-group formControlName="isReview" nzPlaceHolder="请选择是否回访">
+                <label nz-radio [nzValue]="0">不限</label>
+                <label nz-radio [nzValue]="1">已回访</label>
+                <label nz-radio [nzValue]="2">未回访</label>
+              </nz-radio-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">沟通记录</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-radio-group formControlName="hasWorkChat" [(ngModel)]="params.hasWorkChat" nzPlaceHolder="选择是否有记录">
+                <label nz-radio [nzValue]="0">不限</label>
+                <label nz-radio [nzValue]="1">无</label>
+                <label nz-radio [nzValue]="2">有</label>
+              </nz-radio-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </nz-card>
+</form>

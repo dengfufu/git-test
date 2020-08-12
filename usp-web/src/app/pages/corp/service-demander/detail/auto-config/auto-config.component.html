@@ -1,0 +1,78 @@
+<form nz-form [formGroup]="form" (ngSubmit)="submitForm()">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6" nzRequired>结算方式</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-select nzAllowClear formControlName="settleType" style="width: 200px">
+        <nz-option *ngFor="let item of demanderService.settleTypeList" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="form.value.settleType === 2 || form.value.settleType === 3">
+    <nz-form-label [nzSpan]="6" nzRequired>结算日期</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      每月
+      <nz-input-number
+        style="width: 60px"
+        formControlName="settleDay"
+        nzPrecision="0"
+        nzStep="1"
+        nzMin="1"
+        nzMax="31"
+      ></nz-input-number>
+      日
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6">自动对账</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-switch formControlName="autoVerify" nzCheckedChildren="开启" nzUnCheckedChildren="关闭"></nz-switch>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6">自动确认服务</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-switch formControlName="autoConfirmService" nzCheckedChildren="开启" nzUnCheckedChildren="关闭"></nz-switch>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="form.value.autoConfirmService">
+    <nz-form-label [nzSpan]="6" nzRequired>自动确认服务时间</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      服务审核通过后
+      <nz-input-number
+        style="width: 100px"
+        formControlName="autoConfirmServiceHours"
+        nzPrecision="1"
+        nzStep="1"
+        nzMin="1"
+        nzMax="240"
+      ></nz-input-number>
+      小时
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="6">自动确认费用</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-switch formControlName="autoConfirmFee" nzCheckedChildren="开启" nzUnCheckedChildren="关闭"></nz-switch>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="form.value.autoConfirmFee">
+    <nz-form-label [nzSpan]="6" nzRequired>自动确认费用时间</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      费用审核通过后
+      <nz-input-number
+        style="width: 100px"
+        formControlName="autoConfirmFeeHours"
+        nzPrecision="0"
+        nzStep="1"
+        nzMin="1"
+        nzMax="240"
+      ></nz-input-number>
+      小时
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm()"
+          [disabled]="!form.valid"  class="button-modal-submit" [nzLoading]="submitLoading">提交</button>
+</div>

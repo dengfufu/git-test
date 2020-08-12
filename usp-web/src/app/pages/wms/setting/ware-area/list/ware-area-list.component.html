@@ -1,0 +1,76 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+      <button nz-button nzType="primary" style="margin-bottom: 16px" (click)="addWareArea()">
+        <i nz-icon nzType="plus"></i>
+        <span>新建</span>
+      </button>
+      &nbsp;
+      <button nz-button nzType="primary" style="margin-bottom: 16px" (click)="openDrawer()">筛选</button>
+      &nbsp;
+      <button nz-button (click)="clearForm();queryWareArea();">
+        <i nz-icon nzType="delete" nzTheme="outline"></i>
+        <span>清空筛选</span>
+      </button>
+
+      <nz-table #table
+                nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="wareAreaList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="queryWareArea(false)"
+                (nzPageSizeChange)="queryWareArea(true)">
+        <thead>
+        <tr>
+          <th>序号</th>
+          <th>区域名称</th>
+          <th>负责人</th>
+          <th>描述</th>
+          <th>是否可用</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of table.data let index = index">
+          <td>{{ page.getNo(index) }}</td>
+          <td>{{ data.name }}</td>
+          <td>{{ data.userNames }}</td>
+          <td>{{ data.description }}</td>
+          <td>{{ data.enabled }}</td>
+          <td>
+            <a (click)="editWareArea(data)">编辑</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a (click)="confirmDelete(data.id)">删除</a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">区域筛选</span>
+  </ng-template>
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="360" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form name="form" [formGroup]="searchForm" (ngSubmit)="queryWareArea(false)">
+      <nz-form-item>
+        <nz-form-label>区域名称</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="name">
+        </nz-form-control>
+      </nz-form-item>
+      <div style="text-align: right;margin-top: 40px">
+        <button nz-button class="ant-btn" (click)="clearForm()">清空筛选</button>
+        &nbsp;
+        <button nz-button nzType="primary">查询</button>
+      </div>
+    </form>
+  </nz-drawer>
+</nz-layout>

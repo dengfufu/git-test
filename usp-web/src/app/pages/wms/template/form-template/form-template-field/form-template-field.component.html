@@ -1,0 +1,68 @@
+<nz-card [nzBordered]="false">
+  <nz-table #rowSelectionTable
+            nzShowSizeChanger
+            nzBordered
+            nzSize="middle"
+            style="padding-top: 20px;"
+            [nzFrontPagination]="false"
+            [nzData]="list"
+            [nzLoading]="loading">
+    <thead>
+    <tr >
+      <th style="width: 70px">序号</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">字段名称</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">字段分类</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">字段类型</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">引用列表</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否可用</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否必填</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of rowSelectionTable.data;let index = index">
+      <td nzAlign="center">{{ index +1 }}</td>
+      <td nzAlign="center">{{ data.fieldName }}</td>
+
+      <td nzAlign="center" *ngIf="data.fieldClass === 10"> 系统核心字段</td>
+      <td nzAlign="center" *ngIf="data.fieldClass === 20"> 系统可选字段</td>
+      <td nzAlign="center" *ngIf="data.fieldClass === 30"> 用户自定义字段</td>
+
+      <td nzAlign="center" *ngIf="data.fieldType === 10" > 单行文本</td>
+      <td nzAlign="center" *ngIf="data.fieldType === 20"> 多行文本</td>
+      <td nzAlign="center" *ngIf="data.fieldType === 30"> 上传图片</td>
+      <td nzAlign="center" *ngIf="data.fieldType === 40"> 上传文件</td>
+      <td nzAlign="center" *ngIf="data.fieldType === 50"> 系统列表</td>
+      <td nzAlign="center" *ngIf="data.fieldType === 60"> 自定义列表</td>
+      <td nzAlign="center" *ngIf="data.fieldType === 70"> 日期</td>
+      <td nzAlign="center" *ngIf="data.fieldType === 80"> 数字</td>
+
+      <td nzAlign="center" *ngIf="data.referenceList === 0" ></td>
+      <td nzAlign="center" *ngIf="data.referenceList === 10" > 品牌列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 20"> 型号列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 30"> 分类列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 40"> 库房列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 50"> 状态列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 60"> 产权列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 70"> 区域列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 80"> 用户列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 90"> 供应商列表</td>
+      <td nzAlign="center" *ngIf="data.referenceList === 100"> {{ mapOfRefer[data.customListMainId] }}</td>
+
+      <td  nzAlign="center"*ngIf="data.enabled === 'Y'">是</td>
+      <td  nzAlign="center"*ngIf="data.enabled === 'N'">否</td>
+      <td  nzAlign="center"*ngIf="data.notnull === 'Y'">是</td>
+      <td  nzAlign="center"*ngIf="data.notnull === 'N'">否</td>
+      <td nzAlign="center">
+        <img src="assets/config/edit.png" class="img-filtrate" (click)="editFormTemplate(data)" >
+        <!--<nz-divider nzType="vertical"></nz-divider>
+        <img src="assets/config/delete.png" class="img-filtrate" (click)="showDeleteConfirm(data)">-->
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+<div class="footer">
+  <button nz-button (click)="destroyModal()">取消</button>&nbsp;
+  <button nz-button nzType="primary" (click)="submitForm()">确定</button>&nbsp;
+</div>

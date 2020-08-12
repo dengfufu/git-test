@@ -1,0 +1,63 @@
+<form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="customForm" (change)="submit()">
+    <nz-form-item *ngFor="let customField of customFieldList">
+      <nz-form-label [nzSm]="6" [nzXs]="24"
+                     [nzRequired]="customField.required==='Y'">{{ customField.fieldName }}</nz-form-label>
+
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===10">
+        <input nz-input [formControlName]="customField.fieldId" maxlength="100"
+               placeholder="请输入{{customField.fieldName}}"/>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===20">
+                <textarea rows="4" nz-input [formControlName]="customField.fieldId"
+                          placeholder="请输入{{customField.fieldName}}"></textarea>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===30">
+        <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择一个下拉" [formControlName]="customField.fieldId">
+          <nz-option *ngFor="let dataSource of customField.customFieldDataSourceList"
+                     [nzLabel]="dataSource.sourceValue" [nzValue]="dataSource.sourceValue"></nz-option>
+        </nz-select>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===40">
+        <nz-select
+          [nzMaxTagCount]="5"
+          [nzMaxTagPlaceholder]="tagPlaceHolder"
+          nzMode="multiple"
+          nzPlaceHolder="请选择下拉"
+          [formControlName]="customField.fieldId"
+        >
+          <nz-option *ngFor="let dataSource of customField.customFieldDataSourceList"
+                     [nzLabel]="dataSource.sourceValue" [nzValue]="dataSource.sourceValue"></nz-option>
+        </nz-select>
+        <ng-template #tagPlaceHolder let-selectedList> and {{ selectedList.length }} more selected</ng-template>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===50">
+        <nz-radio-group [formControlName]="customField.fieldId">
+          <label nz-radio [nzDisabled]="o.enabled==='N'" [nzValue]="o.sourceValue"
+                 *ngFor="let o of customField.customFieldDataSourceList">{{ o.sourceValue }}</label>
+        </nz-radio-group>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===60">
+        <nz-checkbox-group [formControlName]="customField.fieldId"
+                           [(ngModel)]="customField.checkBox"
+                           (ngModelChange)="updateSingleChecked($event) "></nz-checkbox-group>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===70">
+        <nz-date-picker [formControlName]="customField.fieldId"></nz-date-picker>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===80">
+        <nz-time-picker [formControlName]="customField.fieldId"></nz-time-picker>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===90">
+        <nz-input-number [formControlName]="customField.fieldId" [nzMin]="1" [nzMax]="10"
+                         [nzStep]="1"></nz-input-number>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===100">
+        <input nz-input [formControlName]="customField.fieldId" maxlength="100"
+               placeholder="请输入{{customField.fieldName}}"/>
+      </nz-form-control>
+      <nz-form-control [nzSm]="16" [nzXs]="24" *ngIf="customField.fieldType ===110">
+        <input nz-input [formControlName]="customField.fieldId" maxlength="100"
+               placeholder="请输入{{customField.fieldName}}"/>
+      </nz-form-control>
+    </nz-form-item>
+</form>

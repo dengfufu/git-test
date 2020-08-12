@@ -1,0 +1,83 @@
+<div>
+  <nz-table [nzData]="[{}]" [nzShowPagination]="false" *ngIf="oneList.length > 0">
+    <thead>
+       <tr >
+        <th nzWidth="80px" *ngFor="let item of oneList">
+          {{item.title}}
+        </th>
+        <th nzWidth="80px" *ngFor="let item of nullOneList"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td  *ngFor="let item of oneList"
+             [(nzChecked)]="item.checked"
+             nzShowCheckbox (nzCheckedChange)="refreshStatus()"  ></td>
+        <td  *ngFor="let item of nullOneList"></td>
+      </tr>
+    </tbody>
+  </nz-table>
+  <nz-table [nzData]="[{}]" [nzShowPagination]="false" style="margin-top: 20px" *ngIf="twoList.length > 0">
+    <thead>
+    <tr >
+      <th nzWidth="80px" *ngFor="let item of twoList">
+        {{item.title}}
+      </th>
+      <th nzWidth="80px" *ngFor="let item of nullTwoList"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td  *ngFor="let item of twoList"
+           [(nzChecked)]="item.checked"
+           nzShowCheckbox (nzCheckedChange)="refreshStatus()"  ></td>
+      <td  *ngFor="let item of nullTwoList"></td>
+    </tr>
+    </tbody>
+  </nz-table>
+  <nz-table [nzData]="[{}]" [nzShowPagination]="false" style="margin-top: 20px" *ngIf="threeList.length > 0">
+    <thead>
+    <tr >
+      <th nzWidth="80px" *ngFor="let item of threeList">
+        {{item.title}}
+      </th>
+      <th nzWidth="80px" *ngFor="let item of nullThreeList"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td  *ngFor="let item of threeList"
+           [(nzChecked)]="item.checked"
+           nzShowCheckbox (nzCheckedChange)="refreshStatus()"  ></td>
+      <td  *ngFor="let item of nullThreeList"></td>
+    </tr>
+    </tbody>
+  </nz-table>
+  <nz-table [nzData]="[{}]" [nzShowPagination]="false" style="margin-top: 20px" *ngIf="fourList.length > 0">
+    <thead>
+    <tr >
+      <th nzWidth="80px" *ngFor="let item of fourList">
+        {{item.title}}
+      </th>
+      <th nzWidth="80px" *ngFor="let item of nullFourList"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td  *ngFor="let item of fourList"
+           [(nzChecked)]="item.checked"
+           nzShowCheckbox (nzCheckedChange)="refreshStatus()" ></td>
+      <td  *ngFor="let item of nullFourList"></td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+<div *nzModalFooter>
+  <label nz-checkbox [(ngModel)]="isAllCheck" style="margin-right: 100px"
+         (nzCheckedChange)="allChecked()"
+         [nzIndeterminate]="indeterminate">全选</label>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submit()"
+          class="button-modal-submit">提交
+  </button>
+</div>

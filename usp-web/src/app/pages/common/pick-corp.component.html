@@ -1,0 +1,51 @@
+<form nz-form [formGroup]="searchForm"
+      (ngSubmit)="queryConfig(true)">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" >服务商名称</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="appErrorTpl">
+      <input nz-input formControlName="name" maxlength="100" style="width: 400px;" placeholder="请输入服务商名称" />
+
+      <ng-template #appErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请输入服务商名称！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+
+  <div  style="overflow:hidden;">
+    <div style="margin-bottom: 10px">
+      <button type="submit" nz-button [nzType]="'primary'">查询</button>
+    </div>
+  </div>
+
+  </nz-form-item>
+</form>
+<nz-table #headerTable
+          nzShowSizeChanger
+          nzBordered
+          [nzFrontPagination]="false"
+          [nzData]="dataList"
+          [nzLoading]="loading"
+          [nzTotal]="total"
+          [(nzPageIndex)]="pageNum"
+          [(nzPageSize)]="pageSize"
+          (nzPageIndexChange)="queryConfig()"
+          [nzPageSize]="10">
+  <thead>
+  <tr>
+    <th>服务商企业编号</th>
+    <th>服务商名称</th>
+    <th>选择</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of headerTable.data">
+    <td>{{ data.corpId }}</td>
+    <td>{{ data.corpName }}</td>
+    <td>
+      <a  (click)="choose(data)">选择</a>
+    </td>
+  </tr>
+  </tbody>
+</nz-table>
+

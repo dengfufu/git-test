@@ -1,0 +1,149 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <div class="edit-button-div">
+      <button nz-button  class="icon-add" nzShape="round"  (click)="addVerify()"
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY_ADD, aclRight.WORK_FEE_VERIFY_MANAGER]}">新建</button>
+      <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+    </div>
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+    <nz-table nzShowSizeChanger
+              [nzPageSizeOptions]="userService.pageSizeOptions"
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="verifyList"
+              [nzLoading]="loading"
+              [nzTotal]="page.total"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="queryVerifyList(false)"
+              (nzPageSizeChange)="queryVerifyList(true)"
+              [nzScroll]="{x: '1450px'}"
+    >
+      <thead>
+      <tr >
+        <th nzWidth="50px" nzLeft="0">序号</th>
+        <th nzWidth="200px" nzLeft="50px">对账单号</th>
+        <th nzWidth="120px" nzLeft="250px">委托商</th>
+        <th nzWidth="120px" nzLeft="370px">服务商</th>
+        <th>起始日期</th>
+        <th>截止日期</th>
+        <th>工单总费用</th>
+        <th>对账总费用</th>
+        <th>对账总工单数</th>
+        <th>对账单状态</th>
+        <th>结算状态</th>
+        <th>添加人</th>
+        <th>添加时间</th>
+      </tr>
+      </thead>
+      <tbody >
+      <tr *ngFor="let data of verifyList;let i = index;" (dblclick)="toVerifyDetail(data.verifyId)">
+        <td nzLeft="0">{{page.getNo(i)}}</td>
+        <td nzAlign="left" nzLeft="50px"><a (click)="toVerifyDetail(data.verifyId)">{{data.verifyName}}</a></td>
+        <td nzAlign="left" nzLeft="250px">{{data.demanderCorpName}}</td>
+        <td nzAlign="left" nzLeft="370px">{{data.serviceCorpName}}</td>
+        <td>{{data.startDate | date: 'yyyy-MM-dd'}}</td>
+        <td>{{data.endDate | date: 'yyyy-MM-dd'}}</td>
+        <td nzAlign="right">{{data.totalAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+        <td nzAlign="right" *ngIf="data.status > 2">{{data.verifyAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+        <td nzAlign="right" *ngIf="data.status <= 2"></td>
+        <td nzAlign="right">{{data.workQuantity}}</td>
+        <td><a (click)="toVerifyDetail(data.verifyId)">{{data.statusName}}</a></td>
+        <td>{{data.settleStatusName}}</td>
+        <td>{{data.addUserName}}</td>
+        <td>{{data.addTime | date: 'yyyy-MM-dd HH:mm'}}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">对账单筛选</span>
+  </ng-template>
+
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="visible" [nzWidth]="460" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form [formGroup]="searchForm">
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">对账单号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-input-group [nzSuffix]="verifyNameSuffixTemplate">
+            <input type="text" nz-input formControlName="verifyName" placeholder="请输入对账单号" />
+          </nz-input-group>
+          <ng-template #verifyNameSuffixTemplate
+          ><i
+            nz-icon
+            nz-tooltip
+            class="ant-input-clear-icon"
+            nzTheme="fill"
+            nzType="close-circle"
+            *ngIf="searchForm.value.verifyName"
+            (click)="searchForm.controls.verifyName.setValue('');"
+          ></i
+          ></ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">委托商名称</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select [nzAllowClear]="true"
+                     formControlName="demanderCorp"
+                     nzShowSearch
+                     nzPlaceHolder="请选择委托商名称">
+            <nz-option *ngFor="let option of demanderCorpList" [nzValue]="option.demanderCorp"
+                       [nzLabel]="option.demanderCorpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">服务商名称</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select [nzAllowClear]="true"
+                     formControlName="serviceCorp"
+                     nzShowSearch
+                     nzPlaceHolder="请选择服务商名称">
+            <nz-option *ngFor="let option of serviceCorpList" [nzValue]="option.serviceCorp"
+                       [nzLabel]="option.serviceCorpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">对账单状态</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <label class="label-checkbox" nz-checkbox [(ngModel)]="verifyStatusCheckedAll"
+                 [nzIndeterminate]="verifyStatusIndeterminate"
+                 (ngModelChange)="updateVerifyStatusAllChecked()"
+                 [ngModelOptions]="{standalone: true}">全选</label>
+          <nz-checkbox-group [(ngModel)]="verifyStatusList"
+                             [ngModelOptions]="{standalone: true}"
+                             (ngModelChange)="updateVerifyStatusSingleChecked()"></nz-checkbox-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">结算状态</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <label class="label-checkbox" nz-checkbox [(ngModel)]="settleStatusCheckedAll"
+                 [nzIndeterminate]="settleStatusIndeterminate"
+                 (ngModelChange)="updateSettleStatusAllChecked()"
+                 [ngModelOptions]="{standalone: true}">全选</label><br>
+          <nz-checkbox-group [(ngModel)]="settleStatusList"
+                             [ngModelOptions]="{standalone: true}"
+                             (ngModelChange)="updateSettleStatusSingleChecked()"></nz-checkbox-group>
+        </nz-form-control>
+      </nz-form-item>
+
+    </form>
+    <div class="footer">
+      <button nz-button (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;">清空筛选
+      </button>
+      <button (click)="closeDrawer();queryVerifyList(false)" nz-button nzType="primary">确定</button>
+    </div>
+  </nz-drawer>
+</my-pro-page-header-wrapper>

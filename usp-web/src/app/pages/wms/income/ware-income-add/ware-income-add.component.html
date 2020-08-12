@@ -1,0 +1,250 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>{{type == 'add' ? '添加' : '编辑'}}{{ incomeCommon.smallClassName }}申请</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzShape="round" nzType="primary" *ngIf="incomeCommon.saveStatus == 10" (click)="save()"
+            style="margin-right: 32px; width: 100px;">保存
+    </button>
+    <button nz-button nzShape="round" nzType="primary" (click)="addSubmit()" style="margin-right: 32px; width: 100px;">
+      提交
+    </button>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+<nz-layout>
+  <nz-card nzBordered="false">
+    <div nz-row>
+      <form [formGroup]="addForm">
+        <div nz-col nzSpan="8">
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>入库库房</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="请选择库房!">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                nzPlaceHolder="请选择库房"
+                formControlName="depotId"
+                [nzServerSearch]="true"
+                (nzOnSearch)="wmsService.queryDepotList($event)"
+              >
+                <nz-option *ngFor="let depot of wmsService.selectOptions.depotList" [nzLabel]="depot.name"
+                           [nzValue]="depot.id"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>物料产权</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="请选择物料产权!">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                nzPlaceHolder="请选择备件产权"
+                formControlName="propertyRight"
+                [nzServerSearch]="true"
+                (nzOnSearch)="wmsService.queryPropertyRightList($event)"
+              >
+                <nz-option *ngFor="let propertyRight of wmsService.selectOptions.propertyRightList"
+                           [nzLabel]="propertyRight.name" [nzValue]="propertyRight.id"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngIf="incomeCommon.smallClassId == 10">
+            <nz-form-label [nzSm]="8" [nzXs]="24">采购合同号</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <input nz-input formControlName="contId" placeholder="请输入采购合同号">
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngIf="incomeCommon.smallClassId == 10">
+            <nz-form-label [nzSm]="8" [nzXs]="24">采购订单号</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <input nz-input formControlName="purchaseDetailId" placeholder="请输入采购订单号">
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngIf="incomeCommon.smallClassId == 10">
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>是否二手物料</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                nzPlaceHolder="请选择"
+                formControlName="secondHand"
+              >
+                <nz-option nzLabel="是" nzValue="Y"></nz-option>
+                <nz-option nzLabel="否" nzValue="N"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24">描述</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <textarea rows="2" nz-input formControlName="description" placeholder="请输入描述，不超过200字"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzSpan="8">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件分类</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                formControlName="catalogId"
+                nzPlaceHolder="请选择备件分类"
+                (ngModelChange)="catalogChange($event)"
+                [nzServerSearch]="true"
+                (nzOnSearch)="wmsService.queryCatalogList($event)"
+              >
+                <nz-option *ngFor="let catalog of wmsService.selectOptions.catalogList" [nzValue]="catalog.id"
+                           [nzLabel]="catalog.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件品牌</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                formControlName="brandId"
+                nzPlaceHolder="请选择备件品牌"
+                (ngModelChange)="brandChange($event)"
+                [nzServerSearch]="true"
+                (nzOnSearch)="wmsService.queryBrandList($event)"
+              >
+                <nz-option *ngFor="let brand of wmsService.selectOptions.brandList" [nzValue]="brand.id"
+                           [nzLabel]="brand.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件型号</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                formControlName="modelId"
+                nzPlaceHolder="请选择备件型号"
+                [nzServerSearch]="true"
+                (nzOnSearch)="wmsService.queryModelList($event, addForm.value.catalogId, addForm.value.brandId)"
+              >
+                <nz-option *ngFor="let model of wmsService.selectOptions.modelList" [nzValue]="model.id"
+                           [nzLabel]="model.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>入库数量</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-input-number
+                [nzMin]="1"
+                [nzMax]="1000000"
+                [nzStep]="1"
+                formControlName="quantity"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备件状态</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                formControlName="status"
+                nzPlaceHolder="请选择备件状态"
+                [nzServerSearch]="true"
+                (nzOnSearch)="wmsService.queryStatusList($event)"
+              >
+                <nz-option *ngFor="let status of wmsService.selectOptions.statusList" [nzValue]="status.id"
+                           [nzLabel]="status.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">厂商序列号</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <input nz-input formControlName="sn" placeHolder="请输入厂商序列号"/>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">唯一编码</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <input nz-input formControlName="barcode" placeHolder="请输入唯一编码"/>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </form>
+      <div nz-col nzSpan="8" *ngIf="wmsService.selectOptions.normList && wmsService.selectOptions.normList.length > 0">
+        <div nz-row nzType="flex" nzAlign="middle" style="height: 40px">
+          <label class="label-sub-title">备件规格：</label>
+        </div>
+        <div nz-row style="height: 40px" nzType="flex" nzAlign="middle"
+             *ngFor="let item of wmsService.selectOptions.normList">
+          <div nz-col nzSpan="6" style="text-align: right">
+            <label class="label-content">{{item.attribute}}：</label>
+          </div>
+          <div nz-col nzSpan="18" style="text-align: left">
+            <nz-select
+              style="width: 200px"
+              [(ngModel)]="normsValue[item.attribute]"
+              nzShowSearch nzAllowClear
+              *ngIf="item.valueList && item.valueList.length > 0"
+            >
+              <nz-option *ngFor="let value of item.valueList" [nzValue]="value" [nzLabel]="value"></nz-option>
+            </nz-select>
+            <input nz-input [(ngModel)]="normsValue[item.attribute]" style="width: 200px"
+                   *ngIf="!item.valueList || item.valueList.length <= 0"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nz-card>
+  <nz-card style="border-width: 1px 0 0 0" *ngIf="incomeCommon.smallClassId == 40 || incomeCommon.smallClassId == 50">
+    <p class="p-title">销账明细</p>
+    <button nz-button nzType="primary" nzSize="small" nzShape="round" (click)="chooseReverseDetail()">选择</button>
+    <nz-table
+      class="detail-table"
+      nzBordered
+      style="width: 100%"
+      nzShowPagination="false"
+      #reverseDetailTable
+      nzNoResult="无"
+      [nzData]="reverseDetailList"
+    >
+      <thead>
+      <tr>
+        <th>序号</th>
+        <th>备件名称</th>
+        <th>品牌</th>
+        <th>型号</th>
+        <th>规格</th>
+        <th>备件状态</th>
+        <th>序列号</th>
+        <th>条形码</th>
+        <th>备件产权</th>
+        <th>出库数量</th>
+        <th>经办人</th>
+        <th>出库时间</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of reverseDetailTable.data;let index = index">
+        <td nzAlign="center">{{index + 1}}</td>
+        <td>{{data.catalogName}}</td>
+        <td>{{data.brandName}}</td>
+        <td>{{data.modelName}}</td>
+        <td>{{data.normsValueName}}</td>
+        <td>{{data.statusName}}</td>
+        <td>{{data.sn}}</td>
+        <td>{{data.barcode}}</td>
+        <td>{{data.propertyRightName}}</td>
+        <td>{{data.saleQty}}</td>
+        <td>{{data.createByName}}</td>
+        <td>{{data.createTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+        <td><a (click)="deleteReverseDetail(data.id)"><i nz-icon type="wms:close-circle"></i>删除</a></td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</nz-layout>

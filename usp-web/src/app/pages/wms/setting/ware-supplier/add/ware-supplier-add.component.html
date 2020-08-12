@@ -1,0 +1,43 @@
+<nz-content>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>供应商名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <input nz-input formControlName="name" placeholder="请选择供应商名称">
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>供应商类型</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select formControlName="type" nzPlaceHolder="请选择供应商类型">
+          <nz-option nzLabel="厂商" nzValue="1"></nz-option>
+          <nz-option nzLabel="代理商" nzValue="2"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">描述</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <textarea nz-input formControlName="description" placeholder="请输入描述" [nzAutosize]="{minRows: 2, maxRows: 5}"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>顺序号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-input-number nz-input formControlName="sortNo" nzPlaceHolder="" [nzMin]="0"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-switch formControlName="enabled" nzCheckedChildren="启用" nzUnCheckedChildren="禁用" [(ngModel)]="enabledValue"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzOffset]="10" [nzSpan]="12">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+        <button nz-button type="button" (click)="destroyModal()">取消</button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-content>

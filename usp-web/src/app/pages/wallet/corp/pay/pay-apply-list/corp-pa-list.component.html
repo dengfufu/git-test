@@ -1,0 +1,98 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <div class="edit-button-div">
+      <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+    </div>
+    <nz-table #basicTable
+              [nzFrontPagination]="false"
+              [nzData]="list"
+              [nzLoading]="loading"
+              [nzTotal]="page.total"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="queryList(false)"
+              (nzPageSizeChange)="queryList(true)">
+      <thead>
+      <tr>
+        <th>序号</th>
+        <th>商品名称</th>
+        <th>金额</th>
+        <th>支付方式</th>
+        <th>状态</th>
+        <th>申请时间</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of basicTable.data;let i = index">
+        <td nzLeft="0px">{{page.getNo(i)}}</td>
+        <td><a (click)="showDetail(data.orderId)">{{ data.orderName }}</a></td>
+        <td>{{ data.orderAmount | currency:'CNY' }}</td>
+        <td>{{ data.payWayName }}</td>
+        <td>{{ data.statusName }}</td>
+        <td>{{ data.applyTime | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td>
+          <a (click)="view(data)">查看</a>
+          <ng-container
+            *ngIf="data.status === payApplyStatusCode.CREATE || data.status === payApplyStatusCode.IN_PAY;">
+            <span [acl]="{ability: [payRight.PAY_ONLINE]}">
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="pay(data)">继续支付</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="cancelPay(data)">取消支付</a>
+            </span>
+          </ng-container>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+  </nz-card>
+</my-pro-page-header-wrapper>
+
+
+<nz-drawer
+  [nzClosable]="false"
+  [nzVisible]="drawerVisible"
+  [nzPlacement]="'right'"
+  nzTitle="筛选"
+  (nzOnClose)="closeDrawer()">
+
+  <form nz-form name="form" nzLayout="inline">
+    <nz-form-item>
+      <nz-form-label>商品名称</nz-form-label>
+      <nz-form-control>
+        <input nz-input [(ngModel)]="orderName" [ngModelOptions]="{standalone: true}" placeholder="支持模糊匹配">
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>支付订单状态</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="status" nzAllowClear style="width: 171px;" [ngModelOptions]="{standalone: true}">
+          <nz-option *ngFor="let item of payApplyStatusDef" [nzValue]="item.code" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>申请起始日期</nz-form-label>
+      <nz-form-control>
+        <nz-date-picker [(ngModel)]="startApplyTime" [nzFormat]="'yyyy-MM-dd'"
+                        [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>申请截止日期</nz-form-label>
+      <nz-form-control>
+        <nz-date-picker [(ngModel)]="endApplyTime" [nzFormat]="'yyyy-MM-dd'"
+                        [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div style="text-align: right;margin-top: 40px">
+      <button nz-button class="ant-btn" (click)="resetParam()">清空筛选</button>
+      &nbsp;
+      <button nz-button nzType="primary" (click)="closeDrawer();queryList(true)">查询</button>
+    </div>
+  </form>
+</nz-drawer>

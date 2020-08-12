@@ -1,0 +1,54 @@
+<nz-table nzBordered
+          nzShowSizeChanger
+          [nzPageSizeOptions]="userService.pageSizeOptions"
+          [nzScroll]="{ x: '1200px'}"
+          [nzFrontPagination]="false"
+          [nzData]="workFeeVerifyList"
+          [nzLoading]="loading"
+          [nzTotal]="page.total"
+          [(nzPageIndex)]="page.pageNum"
+          [(nzPageSize)]="page.pageSize"
+          [nzShowTotal]="totalTemplate"
+          (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+          (nzPageIndexChange)="queryVerify(false)"
+          (nzPageSizeChange)="queryVerify(true)">
+  <thead>
+  <tr>
+    <th nzShowCheckbox="true"
+        [(nzChecked)]="isAllChecked"
+        [nzIndeterminate]="isIndeterminate"
+        (nzCheckedChange)="onAllChecked($event)"></th>
+    <th nzWidth="50px" nzLeft>序号</th>
+    <th>对账单号</th>
+    <th>委托商</th>
+    <th>对账周期</th>
+    <th>行政区划</th>
+    <th>对账工单总数</th>
+    <th>对账后费用</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of workFeeVerifyList;let index=index">
+    <td nzShowCheckbox="true"
+        [nzChecked]="setOfCheckedId.has(data.verifyId)"
+        (nzCheckedChange)="onItemChecked(data, $event)"></td>
+    <td nzAlign="center">{{page.getNo(index)}}</td>
+    <td>{{data.verifyName}}</td>
+    <td>{{data.demanderCorpName}}</td>
+    <td>{{data.startDate | date: 'yyyy-MM-dd'}}~{{data.endDate | date: 'yyyy-MM-dd'}}</td>
+    <td>{{data.districtName}}</td>
+    <td nzAlign="right">{{data.workQuantity}}</td>
+    <td nzAlign="right">￥{{data.verifyAmount | number: '0.01-2'}}</td>
+  </tr>
+  </tbody>
+</nz-table>
+<ng-template #totalTemplate let-total>
+  共{{total}}条
+</ng-template>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="submit()"
+          style="margin-left: 20px;">确定
+  </button>
+</div>
+

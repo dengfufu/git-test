@@ -1,0 +1,59 @@
+<form style="width: 500px" [formGroup]="form">
+  <nz-form-item>
+    <nz-form-label nzSpan="6">邮寄方式</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <nz-select
+        nzAllowClear
+        formControlName="postWay">
+        <nz-option nzLabel="快递" nzValue="1"></nz-option>
+        <nz-option nzLabel="物流" nzValue="2"></nz-option>
+        <nz-option nzLabel="托运" nzValue="3"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6">邮寄公司</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <input style="width: 400px;"
+             placeholder="请选择分类或输入一个新的邮寄公司"
+             nz-input
+             (input)="postCorpInput($event.target)"
+             formControlName="postCorpName"
+             [nzAutocomplete]="postCorpComplete"/>
+      <nz-autocomplete nzBackfill #postCorpComplete (selectionChange)="selectPostCorp($event)">
+        <nz-auto-option *ngFor="let option of postCorpOptions" [nzLabel]="option.postCorpName" [nzValue]="option.postCorpName">
+          {{ option.postCorpName }}
+        </nz-auto-option>
+      </nz-autocomplete>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6">邮寄单号</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <input nz-input formControlName="postNumber" maxlength="50" placeholder="请输入邮寄单号">
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6">邮寄费</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <nz-input-number
+        style="width: 200px"
+        formControlName="postage"
+        nzPrecision="2"
+        nzStep="1"
+        nzMin="0"
+        nzMax="99999999"
+        [nzParser]="parserRmb"
+        [nzFormatter]="formatterRmb"
+        nzPlaceHolder="请输入邮寄费"
+      ></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid">
+    提交
+  </button>
+</div>

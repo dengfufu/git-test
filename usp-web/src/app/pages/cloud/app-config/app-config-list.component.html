@@ -1,0 +1,82 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <form nz-form [nzLayout]="'inline'" [formGroup]="searchForm"
+          (ngSubmit)="queryConfig(true)">
+      <div nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }">
+        <div nz-col nzMd="8">
+          <nz-form-item nz-row>
+            <nz-form-label nzFor="appId">应用服务</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                style="width: 150px;"
+                nzAllowClear
+                nzPlaceHolder="选择应用服务"
+                formControlName="appId"
+              >
+                <nz-option nzLabel="usp-admin" nzValue="usp-admin"></nz-option>
+                <nz-option nzLabel="usp-auth" nzValue="usp-auth"></nz-option>
+                <nz-option nzLabel="usp-config" nzValue="usp-config"></nz-option>
+                <nz-option nzLabel="usp-file" nzValue="usp-file"></nz-option>
+                <nz-option nzLabel="usp-gateway" nzValue="usp-gateway"></nz-option>
+                <nz-option nzLabel="usp-msg" nzValue="usp-msg"></nz-option>
+                <nz-option nzLabel="usp-pos" nzValue="usp-pos"></nz-option>
+                <nz-option nzLabel="usp-push" nzValue="usp-push"></nz-option>
+                <nz-option nzLabel="usp-uas" nzValue="usp-uas"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzMd="10">
+          <nz-form-item nz-row>
+            <nz-form-label nzFor="configKey">配置名称</nz-form-label>
+            <nz-form-control>
+              <input nz-input style="width: 300px;" id="configKey" formControlName="configKey" placeholder="请输入配置名称"/>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col style="overflow:hidden;">
+          <div style="float: right;margin-bottom: 24px">
+            <button  (click)="addConfigModal()" style="margin-right:10px" nz-button [nzType]="'primary'">添加</button>
+            <button type="submit" style="margin-right:10px" nz-button [nzType]="'primary'">查询</button>
+            <button   nz-button (click)="resetForm()">重置</button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="configList"
+              [nzLoading]="loading"
+              [nzTotal]="total"
+              [(nzPageIndex)]="pageNum"
+              [(nzPageSize)]="pageSize"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="queryConfig()"
+              [nzPageSize]="10">
+      <thead>
+      <tr>
+        <th>应用服务</th>
+        <th>配置名称</th>
+        <th>配置值</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data">
+        <td>{{ data.appId }}</td>
+        <td>{{ data.configKey }}</td>
+        <td>{{ data.configValue }}</td>
+        <td>
+          <a>编辑</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="showDeleteConfirm(data.configId);">删除</a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</my-pro-page-header-wrapper>

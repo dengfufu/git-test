@@ -1,0 +1,221 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)" style="margin: -20px;">
+  <nz-spin [nzSpinning]="spinning">
+    <div nz-row>
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>客户名称</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="customErrorTpl">
+            <nz-select
+              formControlName="customId"
+              nzAllowClear
+              nzShowSearch
+              style="width: 300px;"
+              nzPlaceHolder="请选择客户名称">
+              <nz-option *ngFor="let data of customCorpList" [nzLabel]="data.customCorpName"
+                         [nzValue]="data.customId"></nz-option>
+            </nz-select>
+            <ng-template #customErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择客户名称！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">客户联系人</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serialErrorTpl">
+            <input nz-input formControlName="contactName" maxlength="20" style="width: 300px;" placeholder="请输入联系人姓名"/>
+            <ng-template #serialErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请输入联系人姓名！
+              </ng-container>
+              <ng-container *ngIf="control.hasError('maxlength')">
+                不能超过20个字符！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">联系人电话</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serialErrorTpl">
+            <input nz-input formControlName="contactPhone" maxlength="20" style="width: 300px;" placeholder="请输入联系人电话"/>
+            <ng-template #serialErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请输入联系人电话！
+              </ng-container>
+              <ng-container *ngIf="control.hasError('maxlength')">
+                不能超过20个字符！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">服务商</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback>
+            <nz-select
+              formControlName="serviceCorp"
+              nzAllowClear
+              nzShowSearch
+              style="width: 300px;"
+              nzPlaceHolder="请选择服务商">
+              <nz-option *ngFor="let data of serviceCorpList" [nzLabel]="data.serviceCorpName"
+                         [nzValue]="data.serviceCorp"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>设备分类</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="deviceClassErrorTpl">
+            <nz-cascader
+              nzAllowClear
+              style="width: 300px;"
+              [nzExpandTrigger]="'hover'"
+              [nzOptions]="deviceClassList"
+              (ngModelChange)="deviceClassChange($event)"
+              formControlName="deviceClass"
+              nzPlaceHolder="请选择设备分类">
+            </nz-cascader>
+            <ng-template #deviceClassErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择设备分类！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">设备规格</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback>
+            <nz-select
+              formControlName="specificationId"
+              nzAllowClear
+              nzShowSearch
+              style="width: 300px;"
+              nzPlaceHolder="请选择设备规格">
+              <nz-option *ngFor="let data of specificationList" [nzLabel]="data.name"
+                         [nzValue]="data.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>品牌型号</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="brandModelErrorTpl">
+            <nz-cascader
+              nzAllowClear
+              style="width: 300px;"
+              [nzExpandTrigger]="'hover'"
+              [nzOptions]="brandModelList"
+              (ngModelChange)="brandModelChange($event)"
+              formControlName="brandModel"
+              nzPlaceHolder="请选择品牌型号">
+            </nz-cascader>
+            <ng-template #brandModelErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择品牌型号！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6" nzRequired>出厂序列号</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="serialErrorTpl">
+            <input nz-input formControlName="serial" maxlength="100" style="width: 300px;" placeholder="请输入出厂序列号"
+                   (ngModelChange)="serialChange()"/>
+            <ng-template #serialErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请输入出厂序列号！
+              </ng-container>
+              <ng-container *ngIf="control.hasError('maxlength')">
+                不能超过100个字符！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="12" style="border-left: 1px dashed #dad8d8;">
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">出厂日期</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback>
+            <nz-date-picker
+              formControlName="factoryDate"
+              nzPlaceHolder="出厂日期">
+            </nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">购买日期</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback>
+            <nz-date-picker
+              formControlName="purchaseDate"
+              nzPlaceHolder="购买日期">
+            </nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">维保方式</nz-form-label>
+          <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.warrantyMode.errors?.explain">
+            <nz-select nzAllowClear
+                       style="width: 300px"
+                       nzPlaceHolder="维保方式"
+                       formControlName="warrantyMode">
+              <nz-option nzValue="10" nzLabel="整机保"></nz-option>
+              <nz-option nzValue="20" nzLabel="单次保"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">维保合同号</nz-form-label>
+          <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.contNo.errors?.explain">
+            <input nz-input style="width: 300px" formControlName="contNo" placeholder="请输入维保合同号"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">保修日期</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback>
+            <nz-range-picker
+              style="width: 300px;"
+              (ngModelChange)="warrantyDateChange($event)"
+              formControlName="warrantyDate"
+            ></nz-range-picker>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">保修状态</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="statusErrorTpl">
+            <nz-select
+              formControlName="warrantyStatus"
+              nzAllowClear
+              style="width: 300px;"
+              nzPlaceHolder="请选择保修状态">
+              <nz-option nzLabel="保内" nzValue="1" [nzDisabled]="true"></nz-option>
+              <nz-option nzLabel="保外" nzValue="2" [nzDisabled]="true"></nz-option>
+            </nz-select>
+            <ng-template #statusErrorTpl let-controls>
+              <ng-container *ngIf="controls.hasError('required')">
+                请选择保修状态！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">保修说明</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="noteErrorTpl">
+        <textarea nz-input formControlName="warrantyNote" maxlength="200" style="width: 300px;" placeholder="请输入保修说明"
+                  [nzAutosize]="{minRows: 2,maxRows: 5}"></textarea>
+            <ng-template #noteErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('maxlength')">
+                不能超过200个字符！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submitForm(validateForm.value)" [disabled]="!validateForm.valid"
+          class="button-modal-submit">提交
+  </button>
+</div>

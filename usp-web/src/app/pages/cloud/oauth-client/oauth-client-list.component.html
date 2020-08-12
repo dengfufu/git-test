@@ -1,0 +1,65 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+        <div class="edit-button-div">
+          <button nz-button class="icon-add" nzShape="round" (click)="addModal()">新建</button>
+          <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+        </div>
+        <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+        <nz-table #basicTable
+                  nzBordered
+                  nzShowPagination
+                  nzShowSizeChanger
+                  [nzFrontPagination]="false"
+                  [nzLoading]="loading"
+                  [nzTotal]="page.total"
+                  [(nzPageIndex)]="page.pageNum"
+                  [(nzPageSize)]="page.pageSize"
+                  [nzShowTotal]="totalTemplate"
+                  (nzPageIndexChange)="loadData(false)"
+                  (nzPageSizeChange)="loadData(true)"
+                  [nzData]="list">
+          <thead>
+          <tr>
+            <th>序号</th>
+            <th>clientId</th>
+            <th>redirectUri</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of basicTable.data;let i = index;">
+            <td nzWidth="50px" nzLeft="0px">{{page.getNo(i)}}</td>
+            <td>{{data.clientId}}</td>
+            <td>{{data.webServerRedirectUri}}</td>
+            <td>
+              <a (click)="editModal(data)">编辑</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="showDeleteConfirm(data)">删除</a>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </nz-content>
+
+    <nz-drawer [nzVisible]="drawerVisible" nzTitle="第三方应用筛选" nzWidth="300px" [nzClosable]="true"
+               (nzOnClose)="closeDrawer()">
+      <form nz-form [nzLayout]="'inline'">
+        <nz-form-item>
+          <nz-form-label nzFor="roleName">clientId</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="clientIdFilter" [ngModelOptions]="{standalone: true}">
+          </nz-form-control>
+        </nz-form-item>
+        <div style="text-align: right;margin-top: 40px">
+          <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();">
+            <span>清空筛选</span>
+          </button>
+          <button nz-button [nzType]="'primary'" (click)="closeDrawer();loadData(true)">查询</button>
+        </div>
+      </form>
+    </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>

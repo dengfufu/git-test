@@ -1,0 +1,195 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>批量收货</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" nzShape="round" (click)="goBack()">返回</button>
+    <button nz-button nzType="primary" (click)="submit()" nzShape="round" [disabled]="checkedList.length < 1" >确认收货</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+<nz-layout>
+
+  <div nz-row style="background-color: white">
+    <div nz-col nzSpan="8">
+      <nz-card style="width:100%;border-width: 0 1px 0 0">
+        <div class="div-row" nz-row  >
+          <div nz-col class="label-item" nzSpan="10">申请库房：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.fromDepotName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">出库地点：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.fromDepotName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货单号：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.consignCode}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">运送方式：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.transportTypeName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">总箱数：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.totalBoxNum}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">快递单号：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.expressNo}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货时间：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.createTime |date:'yyyy-MM-dd'}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货人：</div>
+          <div nz-col nzSpan="14">{{receiveDetail.consignByName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">发货人联系方式：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.consignMobile}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货人：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.receiveName}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货人联系方式：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.receiverMobile}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">收货地址：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.receiveDistrictAddress}}</div>
+        </div>
+
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">备注：</div>
+          <div nz-col class="label-item-description" nzSpan="14">{{receiveDetail.note}}</div>
+        </div>
+
+      </nz-card>
+    </div>
+
+
+    <div nz-col nzSpan="16" style="height: 100%">
+      <div nz-row >
+        <nz-card style="width: 100%;height: 100%" nzBordered="false">
+          <nz-tabset>
+
+            <nz-tab nzTitle="发货备件">
+              <div>
+                <nz-table
+                  nzBordered
+                  nzShowPagination="false"
+                  nzShowSizeChanger
+                  nzNoResult="无"
+                  #flowTraceTable
+                  [nzPageIndex]="page.pageNum"
+                  [nzPageSize]="page.pageSize"
+                  [nzData]="consignList"
+                  [nzTotal]="consignList.length"
+                >
+                  <thead>
+                  <tr>
+<!--                    <th nzWidth="50px">序号</th>-->
+                    <th>申请单号</th>
+                    <th>申请人</th>
+                    <th>备件</th>
+                    <th>品牌</th>
+                    <th>型号</th>
+                    <th>数量</th>
+                    <th>紧急程度</th>
+                    <th>申请日期</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+<!--                    <td>{{ index + 1 }}</td>-->
+                    <td>{{ transDetail.transCode}}</td>
+                    <td>{{ transDetail.createByName }}</td>
+                    <td>{{ transDetail.catalogName }}</td>
+                    <td>{{ transDetail.brandName }}</td>
+                    <td>{{ transDetail.modelName }}</td>
+                    <td>{{ transDetail.applyQuantity }}</td>
+                    <td>{{ transDetail.priorityLevel }}</td>
+                    <td>{{ transDetail.applyDate | date: 'yyyy-MM-dd' }}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+            <nz-tab nzTitle="发货备件清单">
+              <div>
+                <nz-table
+                  nzBordered
+                  nzShowPagination="false"
+                  nzShowSizeChanger
+                  nzNoResult="无"
+                  #flowTraceTable
+                  [nzPageIndex]="page.pageNum"
+                  [nzPageSize]="page.pageSize"
+                  [nzData]="consignList"
+                  [nzTotal]="consignList.length"
+                >
+                  <thead>
+                  <tr>
+                    <th
+                      nzShowCheckbox
+                      [(nzChecked)]="isAllDisplayDataChecked"
+                      [nzIndeterminate]="isIndeterminate"
+                      (nzCheckedChange)="checkAll($event)"
+                    >全选</th>
+                    <th nzWidth="50px">序号</th>
+                    <th>此单分箱号</th>
+                    <th>备件名称</th>
+                    <th>品牌</th>
+                    <th>型号</th>
+                    <th>规格</th>
+                    <th>备件状态</th>
+                    <th>单价(元)</th>
+                    <th>在保状态</th>
+                    <th>维保到期日</th>
+                    <th>厂商序列号</th>
+                    <th>唯一编码</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let transDetail of  consignList;let index = index">
+                    <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[transDetail.id]"
+                        (nzCheckedChange)="refreshStatus()"   ></td>
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ transDetail.subBoxNum}}</td>
+                    <td>{{ transDetail.catalogName }}</td>
+                    <td>{{ transDetail.brandName }}</td>
+                    <td>{{ transDetail.modelName }}</td>
+                    <td>{{ transDetail.normsValue }}</td>
+                    <td>{{ transDetail.statusName }}</td>
+                    <td>{{ transDetail.statusName }}</td>
+                    <td>{{ transDetail.serviceEndDate }}</td>
+                    <td>{{ transDetail.sn }}</td>
+                    <td>{{ transDetail.barcode }}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+          </nz-tabset>
+        </nz-card>
+      </div>
+    </div>
+
+  </div>
+</nz-layout>

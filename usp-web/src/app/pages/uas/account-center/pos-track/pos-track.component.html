@@ -1,0 +1,10 @@
+<nz-card nzTitle="个人轨迹" [nzExtra]="extraTemplate">
+  <div #container style="width: 100%;height: 400px"></div>
+</nz-card>
+<ng-template #extraTemplate>
+  <nz-range-picker
+    nzShowTime
+    nzFormat="yyyy/MM/dd HH:mm:ss"
+    ngModel
+    (ngModelChange)="rangePickerChange($event)"></nz-range-picker>
+</ng-template>

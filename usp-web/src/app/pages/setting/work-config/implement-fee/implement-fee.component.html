@@ -1,0 +1,114 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+      <div class="edit-button-div">
+        <button nz-button class="icon-add" nzShape="round" (click)="add()"
+                [acl]="{ability: [aclRight.WORK_IMPLEMENT_FEE_ADD]}">新建
+        </button>
+        <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+      </div>
+      <ng-template #totalTemplate let-total>
+        共{{total}}条
+      </ng-template>
+      <nz-table #headerTable
+                nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="implementFeeList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [nzShowTotal]="totalTemplate"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="query()"
+                (nzPageSizeChange)="query(true)">
+        <thead>
+        <tr>
+          <th nzWidth="50px">序号</th>
+          <th>费用名称</th>
+          <th>类别</th>
+          <!--          <th>服务商</th>-->
+          <th>委托商</th>
+          <th>是否可用</th>
+          <th>说明</th>
+          <th [acl]="{ability: [aclRight.WORK_IMPLEMENT_FEE_MOD]}">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of headerTable.data;let i = index">
+          <td nzAlign="center">{{page.getNo(i)}}</td>
+          <td nzAlign="left">{{data.implementName}}</td>
+          <td nzAlign="left">{{data.implementTypeName}}</td>
+          <!--          <td nzAlign="left">{{data.serviceCorpName}}</td>-->
+          <td nzAlign="left">{{data.demanderCorpName}}</td>
+          <td>
+            {{data.enabled === 'Y' ? '是' : '否'}}
+          </td>
+          <td *ngIf="!aclRightIdList.includes(aclRight.WORK_IMPLEMENT_FEE_MOD)">
+            <label *ngIf="data.enabled === 'Y'">是</label>
+            <label *ngIf="data.enabled !== 'Y'" style="color: red">否</label>
+          </td>
+          <td nzAlign="left" width="40%" nzBreakWord>{{data.note}}</td>
+          <td [acl]="{ability: [aclRight.WORK_IMPLEMENT_FEE_MOD]}">
+            <a [acl]="{ability: [aclRight.WORK_IMPLEMENT_FEE_MOD]}" (click)="mod(data)">编辑</a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+  <nz-drawer nzTitle="筛选" [nzVisible]="drawerVisible" nzWidth="300px" (nzOnClose)="closeDrawer()"
+             [nzClosable]="'true'">
+    <form nz-form [nzLayout]="'inline'" [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label>费用名称</nz-form-label>
+        <nz-form-control>
+          <nz-input-group [nzSuffix]="implementNameTemplate">
+            <input style="width: 220px" type="text" nz-input formControlName="implementName" placeholder="请输入费用名称"/>
+          </nz-input-group>
+          <ng-template #implementNameTemplate>
+            <i
+              nz-icon
+              nz-tooltip
+              class="ant-input-clear-icon"
+              nzTheme="fill"
+              nzType="close-circle"
+              *ngIf="searchForm.value.implementName"
+              (click)="searchForm.controls.implementName.setValue('');"
+            ></i>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>委托商</nz-form-label>
+        <nz-form-control>
+          <nz-select nzShowSearch formControlName="demanderCorp" style="width: 220px;"
+                     nzAllowClear nzPlaceHolder="请选择委托商">
+            <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.demanderCorp"
+                       [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>是否可用</nz-form-label>
+        <nz-form-control>
+          <nz-select formControlName="enabled" style="width: 220px;"
+                     nzAllowClear nzPlaceHolder="是/否">
+            <nz-option [nzValue]="'Y'" nzLabel="是"></nz-option>
+            <nz-option [nzValue]="'N'" nzLabel="否"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div style="text-align: right;margin-top: 40px">
+        <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+        </button>
+        <button nz-button [nzType]="'primary'" (click)="closeDrawer();query(true)">查询</button>
+      </div>
+    </form>
+  </nz-drawer>
+</nz-layout>
+
+

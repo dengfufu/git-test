@@ -1,0 +1,58 @@
+<div nz-row>
+  <label class="label-header" nz-col>请点击表格选择服务商</label>
+  <span nz-col class="span-search">
+    <nz-input-group nzSearch style="" [nzAddOnAfter]="suffixIconButton">
+       <input type="text" nz-input placeholder="输入服务商" [(ngModel)]="searchName"/>
+    </nz-input-group>
+    <ng-template style="" #suffixIconButton>
+      <button nz-button nzType="primary" (click)="serviceCustom()" nzSearch><i nz-icon nzType="search"
+                                                                               (click)="serviceCustom()"></i></button>
+    </ng-template>
+  </span>
+</div>
+<nz-card [nzBordered]="false">
+  <nz-table #rowSelectionTable
+            nzShowSizeChanger
+            nzBordered
+            nzSize="middle"
+            style="padding-top: 20px;"
+            [nzFrontPagination]="false"
+            [nzData]="serviceList"
+            [nzLoading]="loading"
+            [nzTotal]="total"
+            [(nzPageIndex)]="pageNum"
+            [(nzPageSize)]="pageSize"
+            (nzPageIndexChange)="serviceCustom()">
+    <thead>
+    <tr>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;" *ngIf="isRadio"></th>
+      <th
+        *ngIf="isRadio !== true"
+        nzShowCheckbox
+        [(nzChecked)]="isAllChecked"
+        [nzIndeterminate]="isIndeterminate"
+        (nzCheckedChange)="checkAll($event)"
+      ></th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">服务商企业名称</th>
+      <!--<th>服务商企业编号</th>-->
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">地区</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">联系电话</th>
+      <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">详细地址</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of serviceList">
+      <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[data.id]" (nzCheckedChange)="refreshServiceStatus(data.id)"></td>
+      <td width="150px">{{ data.serviceCorpName }}</td>
+      <!--<td width="150px">{{ data.serviceCorp}}</td>-->
+      <td width="200px">{{ data.region }}</td>
+      <td width="200px">{{ data.telephone}}</td>
+      <td width="200px">{{ data.address}}</td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+<div class="footer">
+  <button nz-button (click)="destroyModal()">取消</button>&nbsp;
+  <button nz-button nzType="primary" (click)="submitForm()" [disabled]="disable">提交</button>&nbsp;
+</div>

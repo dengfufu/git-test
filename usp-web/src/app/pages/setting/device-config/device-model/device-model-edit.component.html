@@ -1,0 +1,95 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-spin [nzSpinning]="spinning">
+    <input nz-input hidden="true" formControlName="id">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>委托商</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-select nzShowSearch formControlName="corp" style="width: 400px;" nzDisabled>
+          <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.demanderCorp"
+                     [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>型号名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+        <input nz-input formControlName="name" style="width: 400px;" placeholder="请输入型号名称"/>
+        <ng-template #nameErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors?.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>设备品牌</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="brandErrorTpl">
+        <nz-select
+          style="width: 400px;"
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="请选择设备品牌"
+          formControlName="brandId"
+        >
+          <nz-option *ngFor="let date of brandList" [nzLabel]="date.name" [nzValue]="date.id"></nz-option>
+        </nz-select>
+        <ng-template #brandErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择设备品牌！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>设备大类</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="largeClassErrorTpl">
+        <nz-select
+          style="width: 400px;"
+          nzShowSearch
+          nzAllowClear
+          (ngModelChange)="largeClassChange()"
+          nzPlaceHolder="请选择设备大类"
+          formControlName="largeClassId"
+        >
+          <nz-option *ngFor="let data of largeClassList" [nzLabel]="data.name" [nzValue]="data.id"></nz-option>
+        </nz-select>
+        <ng-template #largeClassErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择设备大类！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>设备类型</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="smallClassErrorTpl">
+        <nz-select
+          style="width: 400px;"
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="请选择设备类型"
+          formControlName="smallClassId"
+        >
+          <nz-option *ngFor="let data of smallClassList" [nzLabel]="data.name" [nzValue]="data.id"></nz-option>
+        </nz-select>
+        <ng-template #smallClassErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择设备类型！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)"  [disabled]="!validateForm.valid"  class="button-modal-submit" >提交</button>
+</div>
+

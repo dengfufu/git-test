@@ -1,0 +1,150 @@
+<nz-card [nzBordered]="false">
+  <form nz-form [formGroup]="searchForm">
+    <div nz-row>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="8">物料分类</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select formControlName="catalogId" nzShowSearch nzAllowClear
+                     nzPlaceHolder="请选择物料分类">
+            <nz-option *ngFor="let option of wmsService.selectOptions.catalogList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="8">物料品牌</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select [nzAllowClear]="true" formControlName="brandId" nzShowSearch nzAllowClear
+                     nzPlaceHolder="请选择物料品牌">
+            <nz-option *ngFor="let option of wmsService.selectOptions.brandList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="8">物料型号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select formControlName="modelId" nzShowSearch nzAllowClear  [nzServerSearch]="true" nzPlaceHolder="请选择物料型号">
+            <nz-option *ngFor="let option of wmsService.selectOptions.modelList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="8">物料状态</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select [nzAllowClear]="true" formControlName="status" nzShowSearch nzAllowClear
+                     nzPlaceHolder="请选择物料状态">
+            <nz-option *ngFor="let option of wmsService.selectOptions.statusList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="8">唯一编码</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <input formControlName="barcode" nzShowSearch nzAllowClear nz-input placeholder="请输入一维码">
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="8">厂商序列号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <input formControlName="sn" nzShowSearch nzAllowClear nz-input placeholder="请输入序列号">
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label [nzSpan]="8">物料产权</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select [nzAllowClear]="true" formControlName="propertyRight" nzShowSearch nzAllowClear
+                     nzPlaceHolder="请选择物料产权">
+            <nz-option *ngFor="let option of wmsService.selectOptions.propertyRightList" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="8">
+        <nz-form-label  [nzSpan]="8" >入库日期</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-range-picker formControlName="createTimeList" nzFormat="yyyy-MM-dd"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+  <div style="text-align: center;margin-top: 20px;">
+    <button nz-button (click)="clearForm()" style="color: #FF9F00;margin-right: 20px;">重置</button>
+    <button nz-button nzType="primary" (click)="queryPartList(true)" style="margin-left: 20px;">查询</button>&nbsp;
+  </div>
+</nz-card>
+<div style="height: calc(100% - 55px); overflow: auto; padding-bottom: 53px; ">
+  <nz-card>
+    <nz-table nzShowSizeChanger
+              nzShowPagination
+              nzBordered
+              [nzPageSize]="page.pageSize"
+              [nzScroll]="{ x: '1770px',y: '360px' }"
+              [nzFrontPagination]="false"
+              [nzData]="partList"
+              [nzLoading]="loading"
+              [nzTotal]="page.total"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              [nzLoadingDelay]="100"
+              (nzPageIndexChange)="queryPartList()"
+              (nzPageSizeChange)="queryPartList(true)">
+      <thead>
+      <tr>
+        <th nzShowCheckbox
+            nzWidth="50px"
+            [(nzChecked)]="checkBox.isAllChecked"
+            [nzIndeterminate]="checkBox.isIndeterminate"
+            (nzCheckedChange)="checkBox.checkAll($event)"></th>
+        <th nzWidth="50px">序号</th>
+        <th nzWidth="150px">申请单号</th>
+        <th nzWidth="150px">出库地点</th>
+        <th nzWidth="100px">申请人</th>
+        <th nzWidth="150px">出库类别</th>
+        <th nzWidth="150px">申请时间</th>
+        <th nzWidth="150px">物料分类</th>
+        <th nzWidth="150px">物料型号</th>
+        <th nzWidth="200px">物料规格</th>
+        <th nzWidth="100px">物料状态</th>
+        <th nzWidth="100px">唯一编码</th>
+        <th nzWidth="50px">总数</th>
+        <th nzWidth="110px" nzRight="110px">出库数量</th>
+        <th nzWidth="110px"nzRight="0px">分箱号</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of partList;let i = index;">
+        <td nzWidth="50px" nzShowCheckbox [(nzChecked)]="checkBox.mapOfCheckedId[data.id]"
+            (nzCheckedChange)="checkBox.refreshStatus()" ></td>
+        <td nzWidth="50px">{{page.getNo(i)}}</td>
+        <td nzWidth="150px">{{data.outcomeCode}}</td>
+        <td nzWidth="150px">{{data.depotName}}</td>
+        <td nzWidth="100px">{{data.createNameBy}}</td>
+        <td nzWidth="150px">{{data.smallClassName}}</td>
+        <td nzWidth="150px">{{data.createTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+        <td nzWidth="150px">{{data.catalogName}}</td>
+        <td nzWidth="150px">{{data.modelName}}</td>
+        <td nzWidth="200px">{{data.normsValue}}</td>
+        <td nzWidth="100px">{{data.statusName}}</td>
+        <td nzWidth="100px">{{data.barcode}}</td>
+        <td nzWidth="50px">{{data.sum}}</td>
+        <td nzWidth="110px" nzRight="110px">
+          <nz-input-number nzSize="small" [(ngModel)]="data.quantity" [nzMin]="0" [nzMax]="data.sum" [nzStep]="1"
+                           (ngModelChange)="numChange(data)"></nz-input-number>
+        </td>
+        <td nzWidth="110px" nzRight="0px">
+          <nz-input-number nzSize="small" [(ngModel)]="data.subBoxNum" [nzMin]="1" [nzMax]="totalBoxNum" [nzStep]="1"
+                           (ngModelChange)="numChange(data)"></nz-input-number>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <div class="footer">
+    <button nz-button class="ant-btn" style="margin-right: 8px;" (click)="goBack()">返回
+    </button>&nbsp;
+    <button nz-button nzType="primary" (click)="addPartList()">添加</button>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<nz-spin [nzSpinning]="spinning" style="padding-top: 4px;padding-bottom: 4px"  >
+    <div >
+      <div nz-row style="width:300px"> 
+        <div nz-col  style=" float:right; margin-bottom:0px; ;" >
+          <!-- <nz-avatar  style="width: 60px;height: 60px; cursor:pointer; " [nzSrc]="avatarUrl" pro-image-viewer
+                      [images]="[avatarUrlBig]" [currentImgIndex]="1"></nz-avatar> -->
+          <nz-avatar  style="width: 60px;height: 60px; " [nzSrc]="avatarUrl" ></nz-avatar>
+        </div>       
+        <div nz-col style="float:left; ">
+          <div nz-row style="width: 240px; height:20px;">
+            <div nz-col nzSpan="10" class="title" >姓名</div>
+            <div nz-col nzSpan="14" class="description" >{{detail.userName}}</div>
+          </div>
+          <div nz-row class="user-detail-row;" style="height:20px;width: 240px; margin-top: 10px; " >
+            <div nz-col nzSpan="10" class="title">昵称</div>
+            <div nz-col nzSpan="14" class="description" >{{detail.nickname}}</div>
+          </div>
+          <div nz-row class="user-detail-row" *ngIf="isSameCorp" style="height:20px;width: 240px; margin-top: 10px; ">
+            <div nz-col nzSpan="10" class="title">手机号</div>
+            <div nz-col nzSpan="14" class="description">{{detail.mobile}}</div>
+          </div>         
+          <div nz-row  class="user-detail-row" *ngIf="detail.serviceBranchNames" style="height:20px; width:240px; margin-top: 10px;">
+            <div nz-col nzSpan="10"  class="title">服务网点</div>
+            <div nz-col nzSpan="14"  class="description">{{detail.serviceBranchNames}}</div>
+          </div>
+          <div nz-row  class="user-detail-row" style="width: 200px; margin-top: 10px;">
+            <div nz-col nzSpan="10"  class="title">个性签名</div>
+            <div nz-col nzSpan="14"  class="description" >{{detail.signature}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+</nz-spin>

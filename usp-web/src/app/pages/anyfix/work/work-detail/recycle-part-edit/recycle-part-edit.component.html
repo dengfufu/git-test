@@ -1,0 +1,75 @@
+<form style="width: 500px" [formGroup]="form">
+  <nz-form-item>
+    <nz-form-label nzSpan="6">部件分类</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <input style="width: 400px;"
+             placeholder="请选择分类或输入一个新的分类"
+             nz-input
+             (input)="catalogInput($event.target)"
+             formControlName="catalogName"
+             [nzAutocomplete]="catalogComplete"/>
+      <nz-autocomplete nzBackfill #catalogComplete (selectionChange)="selectCatalog($event)">
+        <nz-auto-option *ngFor="let option of catalogOptions" [nzLabel]="option.catalogName" [nzValue]="option.catalogName">
+          {{ option.catalogName }}
+        </nz-auto-option>
+      </nz-autocomplete>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6">部件品牌</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <input style="width: 400px;"
+             placeholder="请选择品牌或输入一个新的品牌"
+             nz-input
+             (input)="brandInput($event.target)"
+             formControlName="brandName"
+             [nzAutocomplete]="brandComplete"/>
+      <nz-autocomplete nzBackfill #brandComplete (selectionChange)="selectBrand($event)">
+        <nz-auto-option *ngFor="let option of brandOptions" [nzLabel]="option.brandName" [nzValue]="option.brandName">
+          {{ option.brandName }}
+        </nz-auto-option>
+      </nz-autocomplete>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6" nzRequired>部件型号</nz-form-label>
+    <nz-form-control nzSpan="16" [nzErrorTip]="modelErrorTip">
+      <input style="width: 400px;"
+             placeholder="请选择型号或输入一个新的型号"
+             nz-input
+             (input)="modelInput($event.target)"
+             formControlName="modelName"
+             [nzAutocomplete]="modelComplete"/>
+      <nz-autocomplete nzBackfill #modelComplete (selectionChange)="selectModel($event)">
+        <nz-auto-option *ngFor="let option of modelOptions" [nzLabel]="option.modelName" [nzValue]="option.modelName">
+          {{ option.modelName }}
+        </nz-auto-option>
+      </nz-autocomplete>
+      <ng-template #modelErrorTip let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请选择型号或输入一个新的型号！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6">厂商序列号</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <input nz-input formControlName="wareSerial" maxlength="50" placeholder="请输入序列号">
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label nzSpan="6" nzRequired>数量</nz-form-label>
+    <nz-form-control nzSpan="16">
+      <nz-input-number nzMin="1" nzStep="1" style="width: 200px" formControlName="quantity"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid">
+    提交
+  </button>
+</div>
+

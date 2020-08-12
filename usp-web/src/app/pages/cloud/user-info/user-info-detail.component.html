@@ -1,0 +1,226 @@
+<div class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon" >
+    <nz-page-header-title style="margin-left: -10px;">用户详情</nz-page-header-title>
+    <!--<nz-page-header-extra>
+      <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"
+              style="margin-right: 20px;border: none;">
+        <img src="assets/drop-menu.svg">
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu nzSelectable>
+          <li nz-menu-item *ngFor="let option of  menuOptions"  (click)="menuClick(option.name)" >{{option.name}}</li>
+        </ul>
+      </nz-dropdown-menu>
+    </nz-page-header-extra>-->
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+
+  <nz-spin [nzSpinning]="spinning">
+    <nz-layout>
+      <nz-sider [nzWidth]="320">
+        <nz-card style="width:320px;" [nzBordered]="false" [nzBodyStyle]="{paddingTop: '16px', paddingBottom: '0px'}">
+          <br>
+          <div nz-row style="margin-bottom: 14px">
+            <div nz-col class="label-item" nzSpan="8">头像：</div>
+            <div nz-col nzSpan="16">
+              <nz-avatar *ngIf="detail.faceImg && (detail.faceImg != 0)"
+                         [nzShape]="'square'" [nzSize]="100"
+                         style="margin-left: 10px;margin-bottom: 10px;"
+                         [nzSrc]="showFileUrl + detail.faceImg"
+                         pro-image-viewer
+                         [images]="faceImgList">
+              </nz-avatar>
+            </div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">姓名：</div>
+            <div nz-col nzSpan="16">
+                <username-info [userId]="detail.userId" [username]="detail.userName"></username-info>
+            </div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">昵称：</div>
+            <div nz-col nzSpan="16">{{detail.nickname}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">性别：</div>
+            <div nz-col nzSpan="16" *ngIf="detail.sex == '1'">男</div>
+            <div nz-col nzSpan="16" *ngIf="detail.sex == '2'">女</div>
+            <div nz-col nzSpan="16" *ngIf="detail.sex == ''"> </div>
+          </div>
+          <!--<div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">角色：</div>
+            <div nz-col nzSpan="16">{{roleName || '暂无角色信息'}}</div>
+          </div>-->
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">邮箱：</div>
+            <div nz-col nzSpan="16">{{detail.email}}</div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">手机号：</div>
+            <div nz-col nzSpan="16">{{detail.mobile}}</div>
+          </div>
+
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">是否实名：</div>
+            <div nz-col nzSpan="16">{{ detail.isUserReal === 'Y' ? '已实名' : '未实名'}}</div>
+          </div>
+
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">行政区划：</div>
+            <div nz-col nzSpan="16">{{detail.regionName}}</div>
+          </div>
+
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">注册时间：</div>
+            <div nz-col nzSpan="16">{{detail.regTime | date:'yyyy-MM-dd HH:mm'}}</div>
+          </div>
+
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">个性签名：</div>
+            <div nz-col nzSpan="16">
+              <div nz-col nzSpan="16">{{detail.signature}}</div>
+            </div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">服务网点：</div>
+            <div nz-col nzSpan="16">
+              <div nz-col nzSpan="16">{{detail.serviceBranchNames}}</div>
+            </div>
+          </div>
+        </nz-card>
+
+      </nz-sider>
+      <nz-content>
+        <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;">
+          <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+            <nz-tab nzTitle="企业信息">
+              <div>
+                <ng-template #corpTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+                <nz-table #corpTable
+                          nzShowSizeChanger
+                          nzBordered
+                          [nzFrontPagination]="false"
+                          [nzData]="corpList"
+                          [nzLoading]="corpLoading"
+                          [nzTotal]="corpPage.total"
+                          [(nzPageIndex)]="corpPage.pageNum"
+                          [(nzPageSize)]="corpPage.pageSize"
+                          [nzShowTotal]="corpTotalTemplate"
+                          (nzPageIndexChange)="queryCorpList()"
+                          (nzPageSizeChange)="queryCorpList()">
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th >企业名</th>
+                    <th >地区</th>
+                    <th nzWidth="300px">详细地址</th>
+                    <th>电话</th>
+                    <th>角色</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of corpTable.data;let index = index"  style="cursor: pointer" >
+                    <td>{{ corpPage.getNo(index) }}</td>
+                    <td>{{ data.corpName }}</td>
+                    <td>{{ data.region }}</td>
+                    <td>{{ data.address }}</td>
+                    <td>{{ data.telephone }}</td>
+                    <td>{{this.roleMap[data.corpId]}}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+
+            <nz-tab nzTitle="登录日志">
+              <div>
+                <ng-template #loginLogTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+                <nz-table
+                  nzShowSizeChanger
+                  nzBordered
+                  [(nzPageIndex)]="loginPage.pageNum"
+                  [(nzPageSize)]="loginPage.pageSize"
+                  [nzShowTotal]="loginLogTotalTemplate"
+                  [nzTotal]="loginPage.total"
+                  [nzLoading]="loginLoading"
+                  [nzFrontPagination]="false"
+                  [nzData]="loginList"
+                  (nzPageIndexChange)="queryLoginList()"
+                  (nzPageSizeChange)="queryLoginList()">
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>操作类型</th>
+                    <th>登录类型</th>
+                    <th>登录结果</th>
+                    <th>操作详情</th>
+                    <th>经度</th>
+                    <th>纬度</th>
+                    <th>设备类型</th>
+                    <th>操作时间</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of loginList;let index = index">
+                    <td>{{ loginPage.getNo(index) }}</td>
+                    <td>{{ data.operateTypeName }}</td>
+                    <td>{{ data.logonTypeName }}</td>
+                    <td>{{ data.logonResultName }}</td>
+                    <td>{{ data.details }}</td>
+                    <td>{{ data.lon }}</td>
+                    <td>{{ data.lat }}</td>
+                    <td>{{ data.deviceTypeName }}</td>
+                    <td>{{ data.operateTime | date:'yyyy-MM-dd HH:mm'}}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+            <nz-tab nzTitle="操作日志">
+              <div>
+                <ng-template #operationLogTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+                <nz-table
+                  nzShowSizeChanger
+                  nzBordered
+                  [(nzPageIndex)]="operationPage.pageNum"
+                  [(nzPageSize)]="operationPage.pageSize"
+                  [nzShowTotal]="operationLogTotalTemplate"
+                  [nzTotal]="operationPage.total"
+                  [nzLoading]="operationLoading"
+                  [nzFrontPagination]="false"
+                  [nzData]="operationList"
+                  (nzPageIndexChange)="queryOperationList()"
+                  (nzPageSizeChange)="queryOperationList()">
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th nzWidth="100px">操作类型</th>
+                    <th nzWidth="150px">操作详情</th>
+                    <th nzWidth="100px">应用标识</th>
+                    <th nzWidth="100px">操作时间</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of operationList;let index = index">
+                    <td>{{ operationPage.getNo(index) }}</td>
+                    <td>{{ data.operTypeName }}</td>
+                    <td>{{ data.details }}</td>
+                    <td>{{ data.clientId }}</td>
+                    <td>{{ data.operTime | date:'yyyy-MM-dd HH:mm'}}</td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+          </nz-tabset>
+        </nz-card>
+      </nz-content>
+    </nz-layout>
+  </nz-spin>
+</div>

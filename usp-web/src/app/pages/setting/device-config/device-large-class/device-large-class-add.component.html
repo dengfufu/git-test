@@ -1,0 +1,65 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>委托商</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="validateForm.controls.corp.errors?.explain">
+        <nz-select nzShowSearch formControlName="corp" nzPlaceHolder="请选择委托商" style="width: 400px;"
+                   (ngModelChange)="demanderCorpChange($event)">
+          <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.demanderCorp"
+                     [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>设备大类名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+        <input nz-input formControlName="name" style="width: 400px;" placeholder="请输入设备大类名称"/>
+        <ng-template #nameErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors?.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>顺序号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="sortErrorTpl">
+        <input nz-input type="number" max="10" formControlName="sortNo" style="width: 400px;" placeholder="请输入顺序号">
+        <ng-template #sortErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入顺序号！
+          </ng-container>
+          <ng-container *ngIf="control.hasError('max')">
+            顺序号过长！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">描述</nz-form-label>
+      <nz-form-control nzValidateStatus="false" [nzSpan]="16" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+        <textarea nz-input formControlName="description" maxlength="200" style="width: 400px;"
+                  [nzAutosize]="{minRows: 2,maxRows: 5}"  placeholder="请输入描述"></textarea>
+        <ng-template #descriptionErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过200个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <text-area-word-number currentNumber="{{validateForm.value.description.length}}"
+                           totalCount="200" ></text-area-word-number>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)"  [disabled]="!validateForm.valid"  class="button-modal-submit" >提交</button>
+</div>
+

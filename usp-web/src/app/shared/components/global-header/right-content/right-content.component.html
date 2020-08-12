@@ -1,0 +1,64 @@
+<div class="right" [ngClass]="{'dark':theme === 'dark' && layout === 'topmenu'}">
+  <!-- notice -->
+  <span class="action">
+    <nz-badge nzDot
+              [nzShowDot]="websocketService.hasNewNotice"
+              [nzStyle]="{ 'box-shadow': 'none','font-size': '16px' }"
+              (click)="toNoticePage()">
+      <img class="notice-icon" src="assets/notice.svg">
+    </nz-badge>
+  </span>
+  <ng-template #noticeTitle>
+    <div style="display: inline-block; float: left; background: #FF9F00;
+    height: 20px; width: 5px; margin-right: 10px; margin-top: 6px;"></div>
+    <div style="display: inline-block;font-size: 16px!important;margin-top: 6px;">消息中心(按 Esc 关闭)</div>
+  </ng-template>
+
+  <nz-drawer [nzVisible]="visible" [nzWidth]="800" nzMask="false" [nzTitle]="noticeTitle" nzClosable="true"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding': 0 }"
+             (nzOnClose)="closeNoticeDrawer()">
+    <app-notice-list></app-notice-list>
+  </nz-drawer>
+
+  <!-- 选择当前企业,未加入企业则不显示 -->
+  <nz-select class="corp-selector"
+             *ngIf="userService.corpList?.length"
+             nzShowSearch
+             nzPlaceHolder="选择企业"
+             [(ngModel)]="selectedCorp"
+             [compareWith]="compareWithFun"
+             [nzFilterOption]="filterOptionFun"
+             (ngModelChange)="changeCorp($event)">
+    <nz-option *ngFor="let c of userService.corpList" [nzLabel]="c.shortName" [nzValue]="c"> </nz-option>
+  </nz-select>
+
+  <!--avatar-dropdown-->
+  <ng-container *ngIf="userService.userInfo">
+    <span class="action account" nz-dropdown [nzDropdownMenu]="menu">
+      <nz-avatar [nzSize]="'small'"
+                 [nzSrc]="userService.userInfo.faceImgUrl"
+                 [ngClass]="['avatar']"
+                 [nzAlt]="'avatar'">
+      </nz-avatar>
+      <span class="name" style="margin-right: 4px;">{{userService.userInfo.userName || userService.userInfo.nickname}}</span>
+      <i nz-icon nzType="down" nzTheme="outline"></i>
+    </span>
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu nzSelectable>
+        <li nz-menu-item [routerLink]="['/uas/account-center']">
+          <i nz-icon nzType="user"></i>
+          <span>个人中心</span>
+        </li>
+        <li nz-menu-item (click)="logout()">
+          <i nz-icon nzType="logout"></i>
+          <span>退出登录</span>
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+  </ng-container>
+  <ng-container *ngIf="!userService.userInfo">
+    <div class="action">
+      <nz-spin nzSimple nzSize="small"></nz-spin>
+    </div>
+  </ng-container>
+</div>

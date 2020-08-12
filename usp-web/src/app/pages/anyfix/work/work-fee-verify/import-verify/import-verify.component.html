@@ -1,0 +1,40 @@
+<nz-card nzBordered="false">
+  <form nz-form style="padding: 0">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">明细</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <button nz-button
+                pro-down-file
+                class="button-width"
+                [httpUrl]="'/api/anyfix/work-fee-verify-detail/export?verifyId=' + verifyId">
+          <i nz-icon nzType="download" nzTheme="outline"></i>导出明细
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">导入</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-upload [nzFileList]="fileList" [nzAccept]="fileTypes" [nzCustomRequest]="uploadRequest">
+          <button nz-button><i nz-icon nzType="upload"></i><span>Excel上传</span></button>
+        </nz-upload>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">说明</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <span style="color:red;">请先导出明细，填写【对账后费用】及【对账说明】两列后，再导入。</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="msg.length > 0">
+      <nz-form-control [nzSpan]="16" nzOffset="4">
+        <div>
+          <div [innerHTML]="msg" class="error-msg"></div>
+          <button nz-button nzShape="round" class="button-width" (click)="doCopy(msg)">复制报错信息</button>
+        </div>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-card>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">关闭</button>
+</div>

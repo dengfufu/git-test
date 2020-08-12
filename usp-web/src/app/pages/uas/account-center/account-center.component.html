@@ -1,0 +1,61 @@
+<div nz-row>
+  <div nz-col nzSpan="6"  >
+    <div nz-row>
+      <div>
+        <nz-card [nzBordered]="false">
+          <nz-card-meta
+            [nzDescription]="userService.userInfo.mobile"
+            [nzTitle]="titleTemplate"
+            [nzAvatar]="avatarTemplate">
+          </nz-card-meta>
+        </nz-card>
+        <ng-template #avatarTemplate>
+          <nz-avatar [nzSrc]="userService.userInfo.faceImgUrl"></nz-avatar>
+        </ng-template>
+        <ng-template #titleTemplate>
+          <ng-container *ngIf="userService.userInfo?.userName">
+            {{userService.userInfo.userName}}
+            <nz-tag [nzColor]="'green'">已实名</nz-tag>
+          </ng-container>
+          <ng-container *ngIf="!userService.userInfo?.userName">
+            <nz-tag [nzColor]="'red'">未实名</nz-tag>
+          </ng-container>
+        </ng-template>
+      </div>
+    </div>
+
+    <div nz-row style="margin-top: 24px">
+      <div nz-col>
+        <ul nz-menu nzMode="inline">
+          <li nz-menu-item [nzSelected]="selectedKey==='个人资料'" (click)="changeSelected('个人资料')">个人资料</li>
+          <li nz-menu-item [nzSelected]="selectedKey==='企业信息'" (click)="changeSelected('企业信息')">企业信息</li>
+          <!-- <li nz-menu-item [nzSelected]="selectedKey==='个人角色'" (click)="changeSelected('个人角色')">个人角色</li> -->
+          <!--<li nz-menu-item [nzSelected]="selectedKey==='工作状态'" (click)="changeSelected('工作状态')">工作状态</li>-->
+          <li nz-menu-item [nzSelected]="selectedKey==='个人轨迹'" (click)="changeSelected('个人轨迹')">个人轨迹</li>
+          <li nz-menu-item [nzSelected]="selectedKey==='安全设置'" (click)="changeSelected('安全设置')">安全设置</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div nz-col nzSpan="18" style="padding-left: 24px">
+    <div *ngIf="selectedKey==='个人资料'">
+      <app-user-info></app-user-info>
+    </div>
+    <div *ngIf="selectedKey==='企业信息'">
+      <app-corp-info></app-corp-info>
+    </div>
+    <div *ngIf="selectedKey==='工作状态'">
+      <app-working-status></app-working-status>
+    </div>
+    <!-- <div *ngIf="selectedKey==='个人角色'">
+      <app-user-role></app-user-role>
+    </div> -->
+    <div *ngIf="selectedKey==='个人轨迹'">
+      <app-pos-track></app-pos-track>
+    </div>
+    <div *ngIf="selectedKey==='安全设置'">
+      <app-security></app-security>
+    </div>
+  </div>
+</div>

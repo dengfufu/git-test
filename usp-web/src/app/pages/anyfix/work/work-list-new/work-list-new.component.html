@@ -1,0 +1,322 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <!-----------------------------------工单列表-------------------------------------------------->
+    <div>
+    </div>
+    <!--<col-selector></col-selector>-->
+    <!--<st #st [data]="users" [columns]="columns1" [page]="{ position: 'both' }"></st>-->
+
+    <st-pro #stPro [quickFilter]="quickFilter"
+            [columns]="columns"
+            [data]="url"
+            [req]="req"
+            [res]="res"
+            [page]="page"
+            [sortInd]="sortInd"
+            [scrollX]="scrollX"
+            [overflow]="overflowMode"
+            [defaultButtons]="defaultButtons"
+            [batchButtons]="batchButtons"
+            (dblClick)="dbClick($event)"
+            (selectRow)="selectRow($event)"
+    ></st-pro>
+    <ng-template #quickFilter>
+      <a (click)="getAllWork()" style="font-size: 14px;font-weight: 400;"
+         [ngStyle]="changeColorBig(0)">全部({{showWorkStatusCount(workStatusCountList.ALL_WORK)}})</a>
+      <nz-divider nzType="vertical" nzDashed *ngIf="isDemanderCorp"></nz-divider>
+      <a (click)="changeTag(anyfixService.TO_DISTRIBUTE)" style="font-size: 14px;font-weight: 400;"
+         *ngIf="isDemanderCorp"
+         [ngStyle]="changeColorBig(anyfixService.TO_DISTRIBUTE)">待提单({{showWorkStatusCount(workStatusCountList.TO_DISTRIBUTE)}}
+        )</a>
+      <nz-divider nzType="vertical" nzDashed *ngIf="isDemanderCorp"></nz-divider>
+      <a (click)="changeTag(anyfixService.RETURNED)" style="font-size: 14px;font-weight: 400;"
+         *ngIf="isDemanderCorp"
+         [ngStyle]="changeColorBig(anyfixService.RETURNED)">已退单({{showWorkStatusCount(workStatusCountList.RETURNED)}}
+        )</a>
+      <nz-divider nzType="vertical" nzDashed></nz-divider>
+      <a (click)="getHandledWork()" style="font-size: 14px;font-weight: 400;"
+         [ngStyle]="changeColorBig(1)">处理中({{showWorkStatusCount(workStatusCountList.HANDLED_WORK)}})</a>
+      <a (click)="changeTag(anyfixService.TO_HANDLE)" style="font-size: 11px;margin-left: 12px;"
+         [ngStyle]="changeColorSmall(anyfixService.TO_HANDLE)">待分配({{showWorkStatusCount(workStatusCountList.TO_HANDLE)}}
+        )</a>
+      <a (click)="changeTag(anyfixService.TO_ASSIGN)" style="font-size: 11px;margin-left: 12px;"
+         [ngStyle]="changeColorSmall(anyfixService.TO_ASSIGN )">待派单({{showWorkStatusCount(workStatusCountList.TO_ASSIGN)}}
+        )</a>
+      <a (click)="changeTag(anyfixService.TO_CLAIM)" style="font-size: 11px;margin-left: 12px;"
+         [ngStyle]="changeColorSmall(anyfixService.TO_CLAIM )">待接单({{showWorkStatusCount(workStatusCountList.TO_CLAIM)}}
+        )</a>
+      <a (click)="changeTag(anyfixService.TO_SIGN)" style="font-size: 11px;margin-left: 12px;"
+         [ngStyle]="changeColorSmall(anyfixService.TO_SIGN )">待签到({{showWorkStatusCount(workStatusCountList.TO_SIGN)}}
+        )</a>
+      <a (click)="changeTag(anyfixService.IN_SERVICE)" style="font-size: 11px;margin-left: 12px;"
+         [ngStyle]="changeColorSmall(anyfixService.IN_SERVICE)">服务中({{showWorkStatusCount(workStatusCountList.IN_SERVICE)}}
+        )</a>
+    </ng-template>
+
+    <ng-template #defaultButtons>
+      <button nz-button nzShape="round" nzSize="small" (click)="addWork()" [acl]="{ability: [aclRight.WORK_ADD]}">新建
+      </button>
+      <button nz-button nzShape="round" nzSize="small" (click)="openDrawer()">筛选</button>
+      <button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu" nzSize="small" nz-button nzType="default"
+              nzShape="circle">
+        <i nz-icon nzType="ellipsis" nzTheme="outline"></i>
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item (click)="importWork()" [acl]="{ability: [aclRight.WORK_ADD]}">导入建单</li>
+          <li nz-menu-item (click)="exportWork()" [acl]="{ability: [aclRight.WORK_ADD]}">导出工单(前端)</li>
+          <li>
+            <button nz-menu-item
+                    style="border: none;outline: none"
+                    pro-down-file
+                    [acl]="{ability: [aclRight.WORK_EXPORT]}"
+                    httpMethod="post"
+                    [httpUrl]="'/api/anyfix/work-excel/export'"
+                    [msg]="'正在导出工单...'"
+                    [fileNum]="this.workNum"
+                    [httpBody]="getParams()">导出工单(后端)
+            </button>
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </ng-template>
+
+    <ng-template #batchButtons>
+      <button [nzSize]="'small'" nz-button>批量关闭</button>
+    </ng-template>
+
+  </nz-card>
+
+  <!-----------------------------------工单列表查询条件抽屉-------------------------------------------------->
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">工单筛选</span>
+  </ng-template>
+
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="visible" [nzWidth]="360" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form [formGroup]="searchForm">
+
+      <nz-form-item>
+        <nz-form-label>委托单号</nz-form-label>
+        <nz-form-control>
+          <nz-input-group [nzSuffix]="checkWorkCodeSuffixTemplate">
+            <input type="text" nz-input formControlName="checkWorkCode" [(ngModel)]="params.checkWorkCode"
+                   placeholder="请输入委托单号"/>
+          </nz-input-group>
+          <ng-template #checkWorkCodeSuffixTemplate
+          ><i
+            nz-icon
+            nz-tooltip
+            class="ant-input-clear-icon"
+            nzTheme="fill"
+            nzType="close-circle"
+            *ngIf="searchForm.value.checkWorkCode"
+            (click)="searchForm.controls.checkWorkCode.setValue('');"
+          ></i
+          ></ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>工单编号</nz-form-label>
+        <nz-form-control>
+          <nz-input-group [nzSuffix]="workCodeSuffixTemplate">
+            <input type="text" nz-input formControlName="workCode" [(ngModel)]="params.workCode" placeholder="请输入工单号"/>
+          </nz-input-group>
+          <ng-template #workCodeSuffixTemplate
+          ><i
+            nz-icon
+            nz-tooltip
+            class="ant-input-clear-icon"
+            nzTheme="fill"
+            nzType="close-circle"
+            *ngIf="searchForm.value.workCode"
+            (click)="searchForm.controls.workCode.setValue('');"
+          ></i
+          ></ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>工单类型</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true" formControlName="workTypes" [(ngModel)]="params.workTypes" nzShowSearch
+                     nzAllowClear
+                     nzPlaceHolder="请选择工单类型">
+            <nz-option *ngFor="let option of optionList.workTypeOption" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>工单状态</nz-form-label>
+        <label class="label-checkbox" nz-checkbox
+               [(ngModel)]="allChecked"
+               [nzIndeterminate]="indeterminate"
+               (ngModelChange)="updateAllChecked()"
+               [ngModelOptions]="{standalone: true}">全选</label>
+        <nz-form-control>
+          <nz-checkbox-group formControlName="workStatuses" nzPlaceHolder="工单状态"
+                             (ngModelChange)="updateSingleChecked() "></nz-checkbox-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>提单日期</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="dispatchTime" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>委托商名称</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true"
+                     formControlName="demanderCorp"
+                     (ngModelChange)="changeDemanderCorp($event)"
+                     [(ngModel)]="params.demanderCorp" nzShowSearch nzPlaceHolder="请选择委托商名称">
+            <nz-option *ngFor="let option of optionList.demanderOption" [nzValue]="option.demanderCorp"
+                       [nzLabel]="option.demanderCorpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>客户名称</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true" formControlName="customId" [(ngModel)]="params.customId" nzShowSearch
+                     nzPlaceHolder="请选择客户名称">
+            <nz-option *ngFor="let option of optionList.customOption" [nzValue]="option.customId"
+                       [nzLabel]="option.customCorpName"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>服务网点</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzFilterOption
+            nzPlaceHolder="可输入名称搜索服务网点"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="getBranchOption($event)"
+            formControlName="serviceBranches">
+            <nz-option *ngFor="let o of branchOption" [nzLabel]="o.branchName"
+                       [nzValue]="o.branchId"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>出厂序列号</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="serial" [(ngModel)]="params.serial" placeholder="请输入出厂序列号"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>设备类型</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true" formControlName="smallClassId" [(ngModel)]="params.smallClassId" nzShowSearch
+                     nzPlaceHolder="请选择设备类型">
+            <nz-option *ngFor="let option of optionList.deviceSmallClassOption" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>设备型号</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true" formControlName="deviceModel" [(ngModel)]="params.deviceModel" nzShowSearch
+                     nzPlaceHolder="请选择设备型号">
+            <nz-option *ngFor="let option of optionList.deviceModelOption" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>设备品牌</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true" formControlName="deviceBrand" [(ngModel)]="params.deviceBrand" nzShowSearch
+                     nzPlaceHolder="请选择设备品牌">
+            <nz-option *ngFor="let option of optionList.deviceBrandOption" [nzValue]="option.id"
+                       [nzLabel]="option.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>省份</nz-form-label>
+        <nz-form-control>
+          <nz-select [nzAllowClear]="true" formControlName="provinceCode" nzShowSearch nzPlaceHolder="请选择省份">
+            <nz-option *ngFor="let option of optionList.provinceOption" [nzValue]="option.value"
+                       [nzLabel]="option.label"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>行政区划</nz-form-label>
+        <nz-form-control>
+          <nz-cascader
+            nzPlaceHolder="请选择行政区划"
+            formControlName="area" [(ngModel)]="params.area"
+            [nzChangeOnSelect]="true"
+            [nzAllowClear]="true"
+            [nzOptions]="this.optionList.areaInfoOption"
+            (ngModelChange)="areaChange($event)">
+          </nz-cascader>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>服务方式</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            formControlName="serviceModes" [(ngModel)]="params.serviceModes"
+            nzPlaceHolder="请选择服务方式" nzShowSearch>
+            <nz-option [nzLabel]="'现场服务'" [nzValue]="1"></nz-option>
+            <nz-option [nzLabel]="'远程处理'" [nzValue]="2"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>联系人</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="contactName" [(ngModel)]="params.contactName" placeholder="请输入联系人"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>联系电话</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="contactPhone" [(ngModel)]="params.contactPhone" placeholder="请输入联系电话"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>创建时间</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="createTime" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+    <div class="footer">
+      <!--      <button nz-button (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;">清空筛选-->
+      <!--      </button>-->
+      <button (click)="closeDrawer();queryWork();" nz-button nzType="primary">确定</button>
+    </div>
+  </nz-drawer>
+
+</my-pro-page-header-wrapper>
+
+
+
+
+

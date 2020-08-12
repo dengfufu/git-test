@@ -1,0 +1,102 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+
+        <div class="edit-button-div">
+          <!--<i  nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addModal()" nz-tooltip
+              nzTooltipTitle="新建" [acl]="{ability: [aclRight.SERVICE_ARCHIVE_ADD]}"></i>
+          <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+             nzTooltipTitle="筛选"></i>-->
+          <button nz-button  class="icon-add" nzShape="round"  (click)="addModal()" [acl]="{ability: [aclRight.SERVICE_ARCHIVE_ADD]}">新建</button>
+          <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+        </div>
+
+        <nz-table #headerTable
+                  nzShowSizeChanger
+                  nzBordered
+                  [nzFrontPagination]="false"
+                  [nzData]="list"
+                  [nzLoading]="loading"
+                  [nzTotal]="page.total"
+                  [(nzPageIndex)]="page.pageNum"
+                  [(nzPageSize)]="page.pageSize"
+                  (nzPageIndexChange)="queryDemanderService()"
+                  (nzPageSizeChange)="queryDemanderService(true)">
+          <thead>
+          <tr>
+            <th nzWidth="50px">序号</th>
+            <th>服务商名称</th>
+            <th>注册地区</th>
+            <th>详细地址</th>
+            <th>联系电话</th>
+            <th nzWidth="200px">描述</th>
+            <th nzWidth="100px">是否可用</th>
+            <th nzWidth="100px" [acl]="{ability: [aclRight.SERVICE_ARCHIVE_MOD, aclRight.SERVICE_ARCHIVE_DEL]}">操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of headerTable.data;let index = index">
+            <td>{{ page.getNo(index) }}</td>
+            <td>{{ data.serviceCorpName }}</td>
+            <td>{{ data.region }}</td>
+            <td>{{ data.address }}</td>
+            <td>{{ data.telephone }}</td>
+            <td nzBreakWord>{{ data.serviceDescription }}</td>
+            <td *ngIf="data.enabled === 'Y'">是</td>
+            <td *ngIf="data.enabled !== 'Y'"><span style="color: red">否</span></td>
+            <td [acl]="{ability: [aclRight.SERVICE_ARCHIVE_MOD, aclRight.SERVICE_ARCHIVE_DEL]}">
+              <a [acl]="{ability: [aclRight.SERVICE_ARCHIVE_MOD]}" (click)="editModal(data)">编辑</a>
+              <nz-divider [acl]="{ability: [aclRight.SERVICE_ARCHIVE_MOD, aclRight.SERVICE_ARCHIVE_DEL], mode: 'allOf'}"
+                          nzType="vertical"></nz-divider>
+              <a [acl]="{ability: [aclRight.SERVICE_ARCHIVE_DEL]}" (click)="showDeleteConfirm(data.id)">删除</a>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </nz-content>
+    <nz-drawer [nzTitle]="'服务商筛选'" [nzVisible]="visible" [nzWidth]="300" [nzClosable]="true"
+               (nzOnClose)="closeDrawer()">
+      <form nz-form [formGroup]="searchForm">
+        <nz-form-item>
+          <nz-form-label nzFor="name">服务商</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              style="width: 200px;"
+              formControlName="serviceCorp"
+              nzAllowClear="true"
+              nzShowSearch
+              (nzOnSearch)="matchService($event)"
+              nzPlaceHolder="请选择服务商">
+              <nz-option *ngFor="let o of serviceCorpOptions" [nzLabel]="o.serviceCorpName"
+                         [nzValue]="o.serviceCorp"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>是否可用</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              style="width: 200px;"
+              formControlName="enabled"
+              nzAllowClear="true"
+              nzPlaceHolder="是/否">
+              <nz-option nzValue="Y" nzLabel="是"></nz-option>
+              <nz-option nzValue="N" nzLabel="否"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+      <div style="text-align: right; margin-top: 40px;">
+        <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;margin-right: 10px;">
+          <span>清空筛选</span>
+        </button>
+        <button type="button" (click)="closeDrawer();queryDemanderService(this.getParams())"
+                class="ant-btn ant-btn-primary">
+          <span>查询</span>
+        </button>
+      </div>
+    </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>

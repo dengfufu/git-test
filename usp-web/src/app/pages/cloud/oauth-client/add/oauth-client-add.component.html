@@ -1,0 +1,41 @@
+<form nz-form [formGroup]="validateForm">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>clientId</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="clientIdErrorTpl">
+        <input nz-input formControlName="clientId">
+        <ng-template #clientIdErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请填写！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>clientSecret</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="clientSecretErrorTpl">
+        <input nz-input type="password" formControlName="clientSecret" placeholder="请安全保存clientSecret">
+        <ng-template #clientSecretErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请填写！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">redirectUri</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="redirectUriErrorTpl">
+        <input nz-input formControlName="webServerRedirectUri">
+        <ng-template #redirectUriErrorTpl let-control>
+          URL格式不对！
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [disabled]="!validateForm.valid" class="button-modal-submit">提交
+  </button>
+</div>
+

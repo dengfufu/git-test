@@ -1,0 +1,94 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" >快递单号</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="keyErrorTpl">
+      <input nz-input formControlName="expressNo" maxlength="100" style="width: 400px;" placeholder="请输入快递单号" />
+      <ng-template #keyErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请输入快递单号！
+        </ng-container>
+        <ng-container *ngIf="control.hasError('maxlength')">
+          不能超过100个字符！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+
+
+  <nz-spin [nzSpinning]="spinning">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" nzRequired>快递公司</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback  >
+      <nz-select
+        style="width: 200px;"
+        nzShowSearch
+        nzServerSearch
+        nzPlaceHolder="快递公司"
+        [(ngModel)]="expressCorpSelectedValue"
+        [nzShowArrow]="false"
+        formControlName="expressCorp"
+      >
+        <nz-option *ngFor="let o of expressCorpOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" >此单分箱号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="keyErrorTpl">
+        <input nz-input type="number" formControlName="subBoxNum" maxlength="100" style="width: 200px;" placeholder="请输入此单分箱号"/>
+        <ng-template #keyErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入此单分箱号！
+          </ng-container>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过100个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+
+
+    <nz-form-item>
+      <nz-form-control [nzOffset]="10" [nzSpan]="12">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+        <button nz-button type="button" (click)="destroyModal()">取消</button>
+      </nz-form-control>
+    </nz-form-item>
+
+<!--    <div>-->
+<!--      选择已有的邮寄信息-->
+<!--    </div>-->
+
+<!--    <nz-table #basicTable [nzData]="listOfData">-->
+<!--      <thead>-->
+<!--      <tr>-->
+<!--        <th>快递单号</th>-->
+<!--        <th>快递公司</th>-->
+<!--        <th>此箱分单号</th>-->
+<!--        <th>选择</th>-->
+<!--      </tr>-->
+<!--      </thead>-->
+<!--      <tbody>-->
+<!--      <tr *ngFor="let data of basicTable.data">-->
+<!--        <td>{{ data.name }}</td>-->
+<!--        <td>{{ data.age }}</td>-->
+<!--        <td>{{ data.address }}</td>-->
+<!--        <td>-->
+<!--          <a>Action 一 {{ data.name }}</a>-->
+<!--          <nz-divider nzType="vertical"></nz-divider>-->
+<!--          <a>Delete</a>-->
+<!--        </td>-->
+<!--      </tr>-->
+<!--      </tbody>-->
+<!--    </nz-table>-->
+
+
+
+
+  </nz-spin>
+</form>

@@ -1,0 +1,217 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+
+    <div class="edit-button-div">
+      <!--<i  nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addModal()" nz-tooltip
+          nzTooltipTitle="新建" [acl]="{ability: [aclRight.USER_SKILL_ADD]}"></i>
+      <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+         nzTooltipTitle="筛选"></i>-->
+      <button nz-button class="icon-add" nzShape="round" (click)="addModal()"
+              [acl]="{ability: [aclRight.USER_SKILL_ADD]}">新建
+      </button>
+      <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+    </div>
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="list"
+              [nzLoading]="loading"
+              [nzTotal]="page.total"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="querySkill()"
+              (nzPageSizeChange)="querySkill(true)">
+      <thead>
+      <tr>
+        <th nzWidth="50px">序号</th>
+        <th>人员姓名</th>
+        <th>工单类型</th>
+        <th>设备大类</th>
+        <th>设备类型</th>
+        <th>设备品牌</th>
+        <th>设备型号</th>
+        <th nzWidth="100px" [acl]="{ability: [aclRight.USER_SKILL_MOD, aclRight.USER_SKILL_DEL]}">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data;let index = index">
+        <td>{{ page.getNo(index) }}</td>
+        <td>
+          <username-info [userId]="data.userId" [username]="data.userName"></username-info>
+        </td>
+        <td>{{ data.workTypeNames }}</td>
+        <td>{{ data.largeClassName }}</td>
+        <td>{{ data.smallClassNames }}</td>
+        <td>{{ data.brandNames }}</td>
+        <td>{{ data.modelNames }}</td>
+        <td [acl]="{ability: [aclRight.USER_SKILL_MOD, aclRight.USER_SKILL_DEL]}">
+          <a [acl]="{ability: [aclRight.USER_SKILL_MOD]}" (click)="editModal(data)">编辑</a>
+          <nz-divider [acl]="{ability: [aclRight.USER_SKILL_MOD, aclRight.USER_SKILL_DEL], mode: 'allOf'}"
+                      nzType="vertical"></nz-divider>
+          <a [acl]="{ability: [aclRight.USER_SKILL_DEL]}" (click)="showDeleteConfirm(data.id);">删除</a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <nz-drawer [nzTitle]="'人员技能筛选'" [nzVisible]="drawerVisible" [nzWidth]="300" [nzClosable]="true"
+             (nzOnClose)="closeDrawer()">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label nzFor="userName">人员姓名</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 200px;"
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzPlaceHolder="根据姓名、手机号搜索"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchUser($event)"
+            formControlName="userId">
+            <nz-option *ngFor="let o of userOptions" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+            <nz-option *ngIf="userOptionLoading" nzDisabled nzCustomContent>
+              <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>委托商</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            formControlName="demanderCorp"
+            style="width: 200px;"
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择委托商"
+            [nzFilterOption]="nzFilterOption"
+            (nzFocus)="listDemanderCorp()"
+            (ngModelChange)="changeCorp()">
+            <nz-option *ngFor="let o of demanderCorpOptions" [nzLabel]="o.demanderCorpName"
+                       [nzValue]="o.demanderCorp"></nz-option>
+            <nz-option *ngIf="demanderCorpOptionLoading" nzDisabled nzCustomContent>
+              <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>工单类型</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzAllowClear
+            nzPlaceHolder="请选择工单类型"
+            formControlName="workType"
+            style="width: 200px"
+            [nzFilterOption]="nzFilterOption"
+            (nzFocus)="listWorkType()">
+            <nz-option *ngFor="let option of workTypeOptions" [nzLabel]="option.name"
+                       [nzValue]="option.id"></nz-option>
+            <nz-option *ngIf="workTypeOptionLoading" nzDisabled nzCustomContent>
+              <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>设备大类</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 200px;"
+            nzShowSearch
+            nzServerSearch
+            nzAllowClear
+            nzPlaceHolder="请选择设备大类"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchDeviceLargeClass($event)"
+            formControlName="largeClassId"
+            (ngModelChange)="changeDeviceLargeClass()">
+            <nz-option *ngFor="let o of deviceLargeClassOptions" [nzLabel]="o.name" [nzValue]="o.id"></nz-option>
+            <nz-option *ngIf="deviceLargeClassOptionLoading" nzDisabled nzCustomContent>
+              <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>设备类型</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzPlaceHolder="请选择设备类型"
+            formControlName="smallClassId"
+            style="width: 200px"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchDeviceSmallClass($event)"
+            (ngModelChange)="changeDeviceSmallClass()">
+            <nz-option *ngFor="let option of deviceSmallClassOptions" [nzLabel]="option.name"
+                       [nzValue]="option.id"></nz-option>
+            <nz-option *ngIf="deviceSmallClassOptionLoading" nzDisabled nzCustomContent>
+              <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>设备品牌</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzPlaceHolder="请选择设备品牌"
+            formControlName="brandId"
+            style="width: 200px"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchDeviceBrand($event)"
+            (ngModelChange)="changeDeviceBrand()">
+            <nz-option *ngFor="let option of deviceBrandOptions" [nzLabel]="option.name"
+                       [nzValue]="option.id"></nz-option>
+            <nz-option *ngIf="deviceBrandOptionLoading" nzDisabled nzCustomContent>
+              <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>设备型号</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzAllowClear
+            nzShowSearch
+            nzServerSearch
+            nzPlaceHolder="请选择设备型号"
+            formControlName="modelId"
+            style="width: 200px"
+            [nzFilterOption]="nzFilterOption"
+            (nzOnSearch)="matchDeviceModel($event)">
+            <nz-option *ngFor="let option of deviceModelOptions" [nzLabel]="option.name"
+                       [nzValue]="option.id"></nz-option>
+            <nz-option *ngIf="deviceModelOptionLoading" nzDisabled nzCustomContent>
+              <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+    <div style="text-align: right; margin-top: 40px;">
+      <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;margin-right: 10px;">
+        <span>清空筛选</span>
+      </button>
+      <button type="button" (click)="closeDrawer();querySkill(this.getParams())"
+              class="ant-btn ant-btn-primary">
+        <span>查询</span>
+      </button>
+    </div>
+  </nz-drawer>
+</my-pro-page-header-wrapper>

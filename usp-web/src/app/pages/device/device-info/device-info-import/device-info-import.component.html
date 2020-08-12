@@ -1,0 +1,44 @@
+<nz-card nzBordered="false">
+  <form nz-form style="padding: 0">
+    <nz-form-item *ngIf="demanderCorpList.length > 1">
+      <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>委托商</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <nz-select nzShowSearch [(ngModel)]="demanderCorp" [ngModelOptions]="{standalone: true}" nzPlaceHolder="请选择委托商">
+          <nz-option *ngFor="let corp of demanderCorpList" [nzValue]="corp"
+                     [nzLabel]="corp.demanderCorpName"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzSpan="4">模板</nz-form-label>
+      <nz-form-control nzSpan="16">
+        <button nz-button [disabled]="!demanderCorp"
+                pro-down-file
+                class="button-width"
+                [httpUrl]="'/api/device/device-excel/template?demanderCorp=' + (demanderCorp?demanderCorp.demanderCorp:'')">
+          <i nz-icon nzType="download" nzTheme="outline"></i>下载模板
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzSpan="4">导入</nz-form-label>
+      <nz-form-control nzSpan="16">
+        <nz-upload [nzFileList]="fileList" [nzAccept]="fileTypes" [nzCustomRequest]="uploadRequest">
+          <button nz-button [disabled]="!demanderCorp"><i nz-icon nzType="upload"></i><span>Excel上传</span></button>
+        </nz-upload>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <p></p>
+  <div nz-row>
+    <div nz-col nzSpan="4"style="text-align: right">说明：</div>
+    <div nz-col nzSpan="16">每次最多导入10000行。</div>
+  </div>
+  <div nz-row>
+    <div nz-col nzSpan="24"  [innerHTML]="msg | safeHtml"></div>
+  </div>
+</nz-card>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">关闭</button>
+</div>
+

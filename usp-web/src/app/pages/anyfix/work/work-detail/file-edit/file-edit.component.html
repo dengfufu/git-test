@@ -1,0 +1,52 @@
+<form style="width: 500px" [formGroup]="form">
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24">附件</nz-form-label>
+    <nz-form-control>
+      <nz-upload nzListType="picture"
+                 nzName="file"
+                 [(nzFileList)]="imgFileList"
+                 [nzAction]="uploadAction" [nzBeforeUpload]="beforeUpload"
+                 (nzChange)="handleChange($event)"
+                 [nzPreview]="handlePreview">
+        <button nz-button><i nz-icon nzType="upload"></i><span>上传</span></button>
+      </nz-upload>
+      <nz-upload [(nzFileList)]="notImgFileList" (nzChange)="handleChange($event)"
+                 [nzPreview]="downloadFile"></nz-upload>
+      <nz-modal
+        [nzVisible]="previewVisible"
+        [nzContent]="modalContent"
+        [nzFooter]="null"
+        (nzOnCancel)="previewVisible = false">
+        <ng-template #modalContent>
+          <img [src]="previewImage" [ngStyle]="{ width: '100%' }"/>
+        </ng-template>
+      </nz-modal>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="!forFinish">
+    <nz-form-label [nzSm]="6" [nzXs]="24">注</nz-form-label>
+    <nz-form-control >
+      <div nz-col [nzSpan]="18">
+        至少需要上传{{groupFilesDto.minNum}}张，最多{{groupFilesDto.maxNum}}张。{{groupFilesDto.description}}
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="forFinish">
+    <nz-form-label [nzSm]="6" [nzXs]="24">注</nz-form-label>
+    <nz-form-control >
+      <div nz-col [nzSpan]="18" style="width: 300px">
+         {{description}}
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid">
+    提交
+  </button>
+</div>
+

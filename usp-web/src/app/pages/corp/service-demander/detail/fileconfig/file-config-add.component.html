@@ -1,0 +1,101 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>委托商</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="refIdTip">
+        <nz-select nzDisabled nzAllowClear nzShowSearch formControlName="refId" nzPlaceHolder="请选择委托商" style="width: 400px;">
+          <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.id"
+                     [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+        </nz-select>
+        <ng-template #refIdTip let-control>
+          <ng-container *ngIf="control.hasError">
+            请选择委托商！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>类型名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="groupNameErrorTpl">
+        <input  [disabled]="isForUpdate" nz-input formControlName="groupName" style="width: 400px;" placeholder="请输入类型名称"/>
+        <ng-template #groupNameErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors?.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>工单类型</nz-form-label>
+      <nz-form-control  [nzSpan]="16" [nzErrorTip]="workTypeTip"  >
+        <nz-select   nzDisabled="{{isForUpdate}}" nzAllowClear
+                   formControlName="workType"
+                   style="width: 400px;"  nzPlaceHolder="请选择工单类型" >
+          <nz-option *ngFor="let workType of  workTypeOptions"
+                     [nzValue]="workType.id" [nzLabel]="workType.name"></nz-option>
+        </nz-select>
+        <ng-template #workTypeTip let-control>
+          <ng-container *ngIf="control.hasError">
+            请选择工单类型！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>表单</nz-form-label>
+      <nz-form-control  [nzSpan]="16"  [nzErrorTip]="formTypeTip">
+        <nz-select nzAllowClear
+                   formControlName="formType"
+                   nzDisabled="{{isForUpdate}}"
+                   style="width: 400px;"  nzPlaceHolder="请选择表单" >
+          <nz-option *ngFor="let item of  formTypeOptions"
+                     [nzValue]="item.value" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+        <ng-template #formTypeTip let-control>
+          <ng-container *ngIf="control.hasError">
+            请选择用于哪个表单！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label  [nzSpan]="4" nzRequired>最少附件数量</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="minNumTip">
+        <input style="width: 150px" nz-input formControlName="minNum"  placeholder="最少附件数量" type="number"/>
+      </nz-form-control>
+      <ng-template #minNumTip let-control>
+        <ng-container *ngIf="control.hasError">
+          {{control.errors?.explain}}
+        </ng-container>
+      </ng-template>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label  [nzSpan]="4"  nzRequired>最大附件数量</nz-form-label>
+      <nz-form-control  [nzSpan]="16" [nzErrorTip]="maxNumTip">
+        <input style="width: 150px" nz-input formControlName="maxNum"  placeholder="最大附件数量" type="number"/>
+      </nz-form-control>
+      <ng-template #maxNumTip let-control>
+        <ng-container *ngIf="control.hasError">
+          {{control.errors?.explain}}
+        </ng-container>
+      </ng-template>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">描述</nz-form-label>
+      <nz-form-control nzValidateStatus="false" [nzSpan]="16" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+        <textarea nz-input formControlName="description" maxlength="200" style="width: 400px;" placeholder="请输入描述"
+                  [nzAutosize]="{minRows: 2,maxRows: 5}"></textarea>
+        <ng-template #descriptionErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过200个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm()"  [disabled]="!validateForm.valid"  class="button-modal-submit" >提交</button>
+</div>

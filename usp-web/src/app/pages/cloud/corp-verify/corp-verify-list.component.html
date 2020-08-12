@@ -1,0 +1,115 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+        <div class="edit-button-div">
+          <!--<i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+             nzTooltipTitle="筛选"></i>-->
+          <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+        </div>
+        <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+        <nz-table
+          nzShowSizeChanger
+          nzBordered
+          [nzTotal]="page.total"
+          [nzPageIndex]="page.pageNum"
+          [nzPageSize]="page.pageSize"
+          [nzShowTotal]="totalTemplate"
+          [nzLoading]="loading"
+          [nzData]="corpVerifyApplyList"
+          (nzPageIndexChange)="queryCorpVerifyApp()"
+          (nzPageSizeChange)="queryCorpVerifyApp(true)">
+          <thead>
+          <tr>
+            <th nzWidth="50px">序号</th>
+            <th>申请公司名称</th>
+            <th>注册地区</th>
+            <th>法人代表姓名</th>
+            <th>申请人</th>
+            <th>申请时间</th>
+            <th>申请状态</th>
+            <th nzWidth="80px" [acl]="{ability: [aclRight.CORP_VERIFY_AUDIT]}">操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let item of corpVerifyApplyList;let index = index">
+            <td align="center">{{ page.getNo(index) }}</td>
+            <td>{{ item.corpName }}</td>
+            <td>{{ item.region }}</td>
+            <td>{{ item.larName }}</td>
+            <td>{{ item.applyUserName }}</td>
+            <td>{{ item.applyTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>
+              <span *ngIf="item.status == 2" style="color: green;">已通过</span>
+              <span *ngIf="item.status == 3" style="color: red;">不通过</span>
+              <span *ngIf="item.status <= 1">申请中</span>
+            </td>
+            <td [acl]="{ability: [aclRight.CORP_VERIFY_AUDIT]}">
+              <a *ngIf="item.status == 1 || item.status == 0" (click)="audit(item)">审核</a>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </nz-content>
+    <nz-drawer [nzTitle]="'企业认证审核筛选'" [nzVisible]="visible" [nzWidth]="400" [nzClosable]="true"
+               (nzOnClose)="closeDrawer()" [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '75px' }">
+      <form nz-form [formGroup]="searchForm">
+        <nz-form-item>
+          <nz-form-label>申请公司名称</nz-form-label>
+          <nz-form-control>
+            <input type="text" nz-input formControlName="corpName" placeholder="请输入申请公司名称"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>申请状态</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="statusList" nzMode="multiple" nzPlaceHolder="请选择申请状态">
+              <nz-option *ngFor="let option of statusOptionList" [nzLabel]="option.label"
+                         [nzValue]="option.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>行政区划</nz-form-label>
+          <nz-form-control>
+            <nz-cascader
+              style="width: 250px;"
+              [nzExpandTrigger]="'click'"
+              [nzChangeOnSelect]="true"
+              [nzOptions]="areaList" [nzShowSearch]="ZorroUtils.showSearchOptions"
+              (ngModelChange)="onChanges($event)"
+              formControlName="area">
+            </nz-cascader>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>法人代表姓名</nz-form-label>
+          <nz-form-control>
+            <input type="text" nz-input formControlName="larName" placeholder="请输入法人代表姓名"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>申请人</nz-form-label>
+          <nz-form-control>
+            <input type="text" nz-input formControlName="applyUserName" placeholder="请输入法人代表姓名"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>申请日期</nz-form-label>
+          <nz-form-control>
+            <nz-range-picker formControlName="applyTimeRange" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+      <div class="footer" style="text-align: right;margin-top: 40px">
+        <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;"><span>清空筛选</span>
+        </button>
+        <button type="button" (click)="closeDrawer();queryCorpVerifyApp(true);"
+                class="ant-btn ant-btn-primary"><span>查询</span>
+        </button>
+      </div>
+    </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>
+

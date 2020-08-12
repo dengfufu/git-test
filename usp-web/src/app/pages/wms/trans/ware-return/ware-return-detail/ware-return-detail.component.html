@@ -1,0 +1,177 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>待修物料返还详情</nz-page-header-title>
+  <nz-page-header-extra>
+<!--    <button nz-button nzType="primary" nzShape="round" (click)="goBack()">返回</button>-->
+<!--    <button nz-button nzType="primary" nzShape="round" (click)="operate(label)" [disabled]="disable">{{label}}</button>-->
+<!--    <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu" style="border: none; padding: 0">-->
+<!--      <i nz-icon nzType="ellipsis" nzTheme="outline" style="font-size: 20px; vertical-align: top;"></i>-->
+<!--    </button>-->
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item (click)="customRecall()">客户撤单</li>
+        <li nz-menu-item (click)="serviceReturn()">客服退单</li>
+        <li nz-menu-item (click)="turnHandleWork()">转处理</li>
+      </ul>
+    </nz-dropdown-menu>
+  </nz-page-header-extra>
+</nz-page-header>
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 10px;">
+</ng-template>
+
+<nz-layout>
+  <nz-sider [nzWidth]="320">
+    <nz-card style="width:320px;"[nzBordered]="false">
+      <nz-divider nzText=""></nz-divider>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">发货单号：</div>
+        <div nz-col nzSpan="16">{{work.workTypeName}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">发货人：</div>
+        <div nz-col nzSpan="16">{{work.customCorpName}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">发货日期：</div>
+        <div nz-col nzSpan="16">{{work.deviceBranchName}}</div>
+      </div>
+      <div class="div-row" class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">发货备注：</div>
+        <div nz-col nzSpan="16">{{work.contactName}}</div>
+      </div>
+      <div class="div-row" class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">收货人：</div>
+        <div nz-col nzSpan="16">{{work.contactName}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">收货地址：</div>
+        <div nz-col nzSpan="16">{{work.address}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">托运方式：</div>
+        <div nz-col nzSpan="16">{{work.address}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">运输方式：</div>
+        <div nz-col nzSpan="16">{{work.address}}</div>
+      </div>
+
+    </nz-card>
+  </nz-sider>
+
+
+  <nz-content>
+    <nz-card style="width: 100%;height: 100%;border-top: 0;border-bottom: 0;border-right: 0;">
+
+      <nz-card style="width: 100%;height: 100%;border-width: 0 0 0 0">
+        <nz-steps [nzCurrent]="1" [nzLabelPlacement]="'vertical'">
+          <nz-step
+            *ngFor="let item of flowInstanceTraceList"
+            [nzTitle]="item.templateNoteName"
+            [nzIcon]="item.completed == 'Y' ? finishTemplate : waitTemplate"
+            [nzDescription]="item.completeTime"
+            [nzStatus]="item.completed == 'Y' ? 'finish' : 'wait'"
+          ></nz-step>
+          <ng-template #finishTemplate><i nz-icon style="font-size: 40px" nzType="wms:green-round"></i></ng-template>
+          <ng-template #waitTemplate><i nz-icon style="font-size: 40px" nzType="wms:grey-round"></i></ng-template>
+        </nz-steps>
+      </nz-card>
+
+      <nz-tabset>
+
+        <nz-tab nzTitle="发货清单" >
+          <nz-table #editRowTable  [nzData]="receiveDeliveryList">
+            <thead>
+            <tr>
+              <th>物料名称</th>
+              <th>规格</th>
+              <th>型号</th>
+              <th>物料编号</th>
+              <th>一维码</th>
+              <th>物料状态</th>
+              <th>数量</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of receiveDeliveryList" class="editable-row">
+              <td>{{ data.propertyName }}</td>
+              <td>{{ data.normsName }}</td>
+              <td>{{ data.modelName }}</td>
+              <td>{{ data.propertyId }}</td>
+              <td>{{ data.barcode }}</td>
+              <td>{{ data.statusName }}</td>
+              <td>{{data.count}}</td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-tab>
+
+
+        <nz-tab nzTitle="收货清单">
+          <button nz-button style="margin-right: 20px" (click)="addDelivery('')" *ngIf="node == 2">添加</button>
+          <button nz-button style="margin-right: 20px" (click)="deleteDelivery()" *ngIf="node == 2">删除</button>
+          <button nz-button style="margin-right: 20px" (click)="editDeliveryInfo()" *ngIf="node == 2">设置邮寄信息</button>
+          <div>
+            <nz-table
+              #rowSelectionTable
+              nzShowSizeChanger
+              [nzData]="deliveryList"
+            >
+              <thead>
+              <tr>
+<!--                <th-->
+<!--                    nzShowCheckbox-->
+<!--                    [(nzChecked)]="isAllDisplayDataChecked"-->
+<!--                    [nzIndeterminate]="isIndeterminate"-->
+<!--                    (nzCheckedChange)="checkAll($event)"-->
+<!--                >全选</th>-->
+                <th>物料名称</th>
+                <th>规格</th>
+                <th>型号</th>
+                <th>物料编号</th>
+                <th>一维码</th>
+                <th>物料状态</th>
+                <th>数量</th>
+                <th>此单分箱号</th>
+                <th>快递单号</th>
+                <th>快递公司</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let data of deliveryList; let index = index" >
+<!--                <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[data.id]"-->
+<!--                    (nzCheckedChange)="refreshStatus()" ></td>-->
+                <td>{{ data.propertyName }}</td>
+                <td>{{ data.normsName }}</td>
+                <td>{{ data.modelName }}</td>
+                <td>{{ data.propertyId }}</td>
+                <td>{{ data.barcode }}</td>
+                <td>{{ data.statusName }}</td>
+                <td>{{ data.count }}</td>
+                <td>{{ data.subBoxNum }}</td>
+                <td>{{data.expressNo}}</td>
+                <td>{{data.expressCorpName}}</td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </div>
+        </nz-tab>
+
+
+      </nz-tabset>
+
+      <div style="margin-top: 30px">
+        <nz-row style="text-align: center">
+          <button nz-button style="margin-right: 20px">保存</button>
+          <button nz-button [nzType]="'primary'">提交</button>
+        </nz-row>
+      </div>
+
+    </nz-card>
+
+
+
+  </nz-content>
+
+
+</nz-layout>

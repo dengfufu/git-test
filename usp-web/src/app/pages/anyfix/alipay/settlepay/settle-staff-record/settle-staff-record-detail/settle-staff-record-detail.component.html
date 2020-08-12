@@ -1,0 +1,38 @@
+<nz-descriptions style="background-color: #FFFFFF">
+  <nz-descriptions-item nzTitle="记录标题">{{settleStaffRecord.recordName}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="结算周期">{{settleStaffRecord.startDate | date:'yyyy-MM-dd' }} ~ {{settleStaffRecord.endDate | date:'yyyy-MM-dd'}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="结算人员">{{settleStaffRecord.operatorName}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="结算时间">{{settleStaffRecord.operateTime | date:'yyyy-MM-dd' }}</nz-descriptions-item>
+</nz-descriptions>
+<nz-table
+
+  nzShowSizeChanger
+  nzBordered
+  [nzFrontPagination]="false"
+  [nzData]="settleStaffList"
+  [nzLoading]="loading"
+  [nzTotal]="total"
+  [(nzPageIndex)]="pageNum"
+  [(nzPageSize)]="pageSize"
+  (nzPageIndexChange)="querySettleStaffRecordDetail()"
+  (nzPageSizeChange)="querySettleStaffRecordDetail()">
+  <thead nzSingleSort>
+  <tr>
+    <th>序号</th>
+    <th>员工姓名</th>
+    <th>手机号</th>
+    <th>所在网点</th>
+    <th>角色</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of settleStaffList;let index = index">
+    <td nzAlign="center">{{ (pageNum - 1) * pageSize + index + 1 }}</td>
+    <td>{{ data.userName }}</td>
+    <td>{{ data.mobile}}</td>
+    <td>{{ data.serviceBranchNames }}</td>
+    <td>{{ data.roleNames }}</td>
+  </tr>
+  </tbody>
+</nz-table>
+

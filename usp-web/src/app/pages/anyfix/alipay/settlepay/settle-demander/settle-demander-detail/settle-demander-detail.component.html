@@ -1,0 +1,327 @@
+<nz-spin [nzSpinning]="loading">
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">
+      结算单详情 {{settleDemander.settleCode}}
+    </nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button nzShape="round" (click)="goBack()" class="edit-button">返回</button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_MOD]}"
+              *ngIf="corpId == settleDemander.serviceCorp && (settleDemander.status != 2)"
+              (click)="mod()"
+              class="edit-button">修改
+      </button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_CHECK]}"
+              *ngIf="corpId == settleDemander.demanderCorp && (settleDemander.status != 2)"
+              (click)="check()"
+              class="edit-button">确认
+      </button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_FEE_INVOICE]}"
+              *ngIf="showInvoice()"
+              (click)="invoice()"
+              class="edit-button">开票
+      </button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_FEE_PAY]}"
+              *ngIf="showPay()"
+              (click)="pay()"
+              class="edit-button">付款
+      </button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_FEE_RECEIPT]}"
+              *ngIf="showReceipt()"
+              (click)="receipt()"
+              class="edit-button">收款
+      </button>
+      <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_DEL]}"
+              *ngIf="corpId === settleDemander.serviceCorp"
+              style="margin-left: 20px; margin-right: 10px; border: none; padding: 0">
+        <img src="assets/drop-menu.svg">
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_DEL]}"
+              *ngIf="corpId === settleDemander.serviceCorp && settleDemander.status != 2"
+              (click)="deleteConfirm()">删除
+          </li>
+          <li nz-menu-divider></li>
+          <li nz-menu-item nzDisabled>无更多操作</li>
+        </ul>
+      </nz-dropdown-menu>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+  <nz-layout>
+    <nz-sider [nzWidth]="320">
+      <nz-card style="width:320px;" [nzBordered]="false">
+        <div nz-row>
+          <div nz-col nzSpan="16"
+               style="font-weight: bold;">{{settleDemander.operateTime | date:'yyyy-MM-dd HH:mm'}}</div>
+          <div nz-col class="work-status" style="margin-top: 2px ">{{settleDemander.statusName}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">服务商名称：</div>
+          <div nz-col nzSpan="16">{{settleDemander.serviceCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">委托商名称：</div>
+          <div nz-col nzSpan="16">{{settleDemander.demanderCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">结算周期：</div>
+          <div nz-col nzSpan="16">
+            {{settleDemander.startDate | date:'yyyy-MM-dd'}}
+            ~{{settleDemander.endDate | date:'yyyy-MM-dd'}}
+          </div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">行政区划：</div>
+          <div nz-col nzSpan="16">{{settleDemander.districtName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">协议合同号：</div>
+          <div nz-col nzSpan="16">{{settleDemander.contNo}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">工单总数：</div>
+          <div nz-col nzSpan="16">{{settleDemander.workQuantity}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">总金额：</div>
+          <div nz-col nzSpan="16">￥{{settleDemander.settleFee}}</div>
+        </div>
+<!--        <div class="div-row" nz-row>-->
+<!--          <div nz-col class="label-item" nzSpan="8">优惠金额：</div>-->
+<!--          <div nz-col nzSpan="16">￥{{settleDemander.discountAmount}}</div>-->
+<!--        </div>-->
+<!--        <div class="div-row" nz-row>-->
+<!--          <div nz-col class="label-item" nzSpan="8">应付金额：</div>-->
+<!--          <div nz-col nzSpan="16">￥{{settleDemander.settleFee - settleDemander.discountAmount}}</div>-->
+<!--        </div>-->
+<!--        <div class="div-row" nz-row *ngIf="settleDemander.payStatus === 2 || settleDemander.payStatus === 3">-->
+<!--          <div nz-col class="label-item" nzSpan="8">实付金额：</div>-->
+<!--          <div nz-col nzSpan="16">￥{{settleDemander.paid}}</div>-->
+<!--        </div>-->
+<!--        <div class="div-row" nz-row>-->
+<!--          <div nz-col class="label-item" nzSpan="8">税率：</div>-->
+<!--          <div nz-col nzSpan="16">{{settleDemander.taxRate * 100}}%</div>-->
+<!--        </div>-->
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">收款账户：</div>
+          <div nz-col nzSpan="16">{{settleDemander.accountNumber}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">户名：</div>
+          <div nz-col nzSpan="16">{{settleDemander.accountName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">开户银行：</div>
+          <div nz-col nzSpan="16">{{settleDemander.accountBank}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">开票状态：</div>
+          <div nz-col nzSpan="16">{{settleDemander.invoiceStatusName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">付款状态：</div>
+          <div nz-col nzSpan="16">{{settleDemander.payStatusName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">添加人：</div>
+          <div nz-col nzSpan="16">
+            <username-info [userId]="settleDemander.operator" [username]="settleDemander.operatorName"></username-info>
+          </div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">备注：</div>
+          <div nz-col nzSpan="16">{{settleDemander.note}}</div>
+        </div>
+      </nz-card>
+    </nz-sider>
+    <nz-content>
+      <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;"
+               [nzBodyStyle]="{paddingTop: '6px', paddingBottom: '0px'}">
+        <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+          <nz-tab nzTitle="结算对账单">
+            <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+            <nz-table nzShowSizeChanger
+                      [nzPageSizeOptions]="userService.pageSizeOptions"
+                      nzBordered
+                      [nzFrontPagination]="false"
+                      [nzData]="detailList"
+                      [nzLoading]="tableLoading"
+                      [nzTotal]="page.total"
+                      [(nzPageIndex)]="page.pageNum"
+                      [(nzPageSize)]="page.pageSize"
+                      [nzShowTotal]="totalTemplate"
+                      (nzPageIndexChange)="querySettleDemanderDetail(false)"
+                      (nzPageSizeChange)="querySettleDemanderDetail(true)"
+            >
+              <thead>
+              <tr >
+                <th nzWidth="50px">序号</th>
+                <th>对账单号</th>
+                <th>起始日期</th>
+                <th>截止日期</th>
+                <th>行政区划</th>
+                <th>对账总工单数</th>
+                <th>对账后总金额</th>
+                <th>对账单状态</th>
+              </tr>
+              </thead>
+              <tbody >
+              <tr *ngFor="let data of detailList;let i = index;" (dblclick)="toVerifyDetail(data.verifyId)">
+                <td>{{page.getNo(i)}}</td>
+                <td><a (click)="toVerifyDetail(data.verifyId)">{{data.verifyName}}</a></td>
+                <td>{{data.startDate | date: 'yyyy-MM-dd'}}</td>
+                <td>{{data.endDate | date: 'yyyy-MM-dd'}}</td>
+                <td>{{data.districtName}}</td>
+                <td>{{data.workQuantity}}</td>
+                <td nzAlign="right">￥{{data.verifyAmount}}</td>
+                <td><a (click)="toVerifyDetail(data.verifyId)">{{data.statusName}}</a></td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+          <nz-tab nzTitle="财务信息">
+            <nz-table
+              nzTitle="{{ invoiceTableTitle }}"
+              nzBordered="true"
+              nzFrontPagination="false"
+              nzSize="small"
+              [nzData]="[{}]">
+              <tbody>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>开票人</td>
+                <td nzAlign="left" width="35%">
+                  <username-info [userId]="settleDemanderPay.invoiceUser"
+                                 [username]="settleDemanderPay.invoiceUserName"></username-info>
+                </td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>开票时间</td>
+                <td nzAlign="left" width="35%">{{settleDemanderPay.invoiceTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>操作时间</td>
+                <td nzAlign="left" colspan="3">{{settleDemanderPay.invoiceOperateTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>开票附件</td>
+                <td nzAlign="left" colspan="3">
+                  <nz-avatar *ngFor="let file of this.invoiceImgList;let i = index"
+                             [nzShape]="'square'" [nzSize]="50"
+                             style="margin-left: 10px;margin-bottom: 10px;"
+                             [nzSrc]="showFileUrl + file.fileId"
+                             pro-image-viewer
+                             [images]="getImageUrls(invoiceImgList)"
+                             [currentImgIndex]="i+1">
+                  </nz-avatar>
+                  <br *ngIf="this.invoiceImgList && this.invoiceImgList.length > 0"/>
+                  <a *ngFor="let file of invoiceNotImgList" pro-down-file [httpUrl]="downFileUrl + file.fileId"
+                     [fileName]="file.fileName" httpMethod="post"
+                     style="margin-left: 10px;margin-bottom: 10px;">{{file.fileName}}<br/></a>
+                </td>
+              </tr>
+              </tbody>
+            </nz-table>
+
+            <nz-table
+              nzTitle="{{ payTableTitle }}"
+              nzBordered="true"
+              nzFrontPagination="false"
+              nzSize="small"
+              [nzData]="[{}]">
+              <tbody>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>付款人</td>
+                <td nzAlign="left" width="35%">
+                  <span *ngIf="settleDemanderPay.payer === '0'">{{ settleDemanderPay.payerName }}</span>
+                  <username-info [userId]="settleDemanderPay.payer"
+                                 *ngIf="settleDemanderPay.payer !== '0'"
+                                 [username]="settleDemanderPay.payerName"></username-info>
+                </td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>付款时间</td>
+                <td nzAlign="left" width="35%">{{settleDemanderPay.payTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>操作人</td>
+                <td nzAlign="left" width="35%">
+                  <username-info [userId]="settleDemanderPay.payOperator"
+                                 [username]="settleDemanderPay.payOperatorName"></username-info>
+                </td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>操作时间</td>
+                <td nzAlign="left" width="35%">
+                  {{settleDemanderPay.payOperateTime | date:'yyyy-MM-dd HH:mm'}}
+                </td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>付款附件</td>
+                <td nzAlign="left" colspan="3">
+                  <nz-avatar *ngFor="let file of this.payImgList;let i = index"
+                             [nzShape]="'square'" [nzSize]="50"
+                             style="margin-left: 10px;margin-bottom: 10px;"
+                             [nzSrc]="showFileUrl + file.fileId"
+                             pro-image-viewer
+                             [images]="getImageUrls(payImgList)"
+                             [currentImgIndex]="i+1">
+                  </nz-avatar>
+                  <br *ngIf="this.payImgList && this.payImgList.length > 0"/>
+                  <a *ngFor="let file of payNotImgList" pro-down-file [httpUrl]="downFileUrl + file.fileId"
+                     [fileName]="file.fileName" httpMethod="post"
+                     style="margin-left: 10px;margin-bottom: 10px;">{{file.fileName}}<br/></a>
+                </td>
+              </tr>
+              </tbody>
+            </nz-table>
+
+            <nz-table
+              nzTitle="{{ receiptTableTitle }}"
+              nzBordered="true"
+              nzFrontPagination="false"
+              nzSize="small"
+              [nzData]="[{}]">
+              <tbody>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>收款人</td>
+                <td nzAlign="left" width="35%">
+                  <username-info [userId]="settleDemanderPay.receiptUser"
+                                 [username]="settleDemanderPay.receiptUserName"></username-info>
+                </td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>收款时间</td>
+                <td nzAlign="left" width="35%">{{settleDemanderPay.receiptTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>操作时间</td>
+                <td nzAlign="left" colspan="3">{{settleDemanderPay.receiptOperateTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>收款附件</td>
+                <td nzAlign="left" colspan="3">
+                  <nz-avatar *ngFor="let file of this.receiptImgList;let i = index"
+                             [nzShape]="'square'" [nzSize]="50"
+                             style="margin-left: 10px;margin-bottom: 10px;"
+                             [nzSrc]="showFileUrl + file.fileId"
+                             pro-image-viewer
+                             [images]="getImageUrls(receiptImgList)"
+                             [currentImgIndex]="i+1">
+                  </nz-avatar>
+                  <br *ngIf="this.receiptImgList && this.receiptImgList.length > 0"/>
+                  <a *ngFor="let file of receiptNotImgList" pro-down-file [httpUrl]="downFileUrl + file.fileId"
+                     [fileName]="file.fileName" httpMethod="post"
+                     style="margin-left: 10px;margin-bottom: 10px;">{{file.fileName}}<br/></a>
+                </td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+        </nz-tabset>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</nz-spin>

@@ -1,0 +1,6 @@
+<my-pro-page-header-wrapper [tabActiveKey]="tabActiveKey"
+                         [tabList]="tabList"
+                         [title]="tabActiveTitle"
+                         (onTabChange)="handleTabChange($event)">
+  <router-outlet></router-outlet>
+</my-pro-page-header-wrapper>

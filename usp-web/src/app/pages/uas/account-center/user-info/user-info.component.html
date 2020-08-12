@@ -1,0 +1,76 @@
+<nz-card nzTitle="个人资料">
+
+  <div class="baseView">
+    <div class="left">
+      <form nz-form nzLayout="vertical" [formGroup]="form">
+        <nz-form-item>
+          <nz-form-label>昵称</nz-form-label>
+          <nz-form-control nzHasFeedback>
+            <input nz-input formControlName="nickname"/>
+          </nz-form-control>
+        </nz-form-item>
+
+<!--        <nz-form-item>-->
+<!--          <nz-form-label>登录名</nz-form-label>-->
+<!--          <nz-form-control nzHasFeedback>-->
+<!--            <input nz-input formControlName="logonId"/>-->
+<!--          </nz-form-control>-->
+<!--        </nz-form-item>-->
+
+        <nz-form-item>
+          <nz-form-label>性别</nz-form-label>
+          <nz-form-control>
+            <nz-radio-group formControlName="sex">
+              <label nz-radio nzValue="1">男</label>
+              <label nz-radio nzValue="2">女</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <!-- <nz-form-item>
+          <nz-form-label>角色</nz-form-label>
+          <nz-form-control>
+            {{roleName || '暂无角色信息'}}
+          </nz-form-control>
+        </nz-form-item> -->
+
+<!--        <nz-form-item>-->
+<!--          <nz-form-label>我的邮箱</nz-form-label>-->
+<!--          <nz-form-control nzHasFeedback>-->
+<!--            <input nz-input formControlName="email"/>-->
+<!--          </nz-form-control>-->
+<!--        </nz-form-item>-->
+
+        <nz-form-item>
+          <nz-form-label>个性签名</nz-form-label>
+          <nz-form-control nzHasFeedback>
+            <textarea nz-input formControlName="signature" [nzAutosize]="{ minRows: 4, maxRows: 8 }"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control>
+            <button nz-button nzType="primary" (click)="submit()" [disabled]="form.invalid" [nzLoading]="isLoading">提交
+            </button>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+
+    <div class="right">
+      <div class="avatar_title">
+        <div>头像</div>
+      </div>
+      <div class="avatar">
+        <img [src]="getFaceImgUrl()">
+      </div>
+      <nz-upload [nzBeforeUpload]="beforeUpload" nzAccept="image/*" [nzLimit]="1">
+        <div class="button_view">
+          <button nz-button [nzLoading]="uploadLoading">
+            <i nz-icon nzType="upload"></i>
+            <span>更换头像</span>
+          </button>
+        </div>
+      </nz-upload>
+    </div>
+  </div>
+</nz-card>

@@ -1,0 +1,41 @@
+<nz-card [nzBordered]="false">
+  <div>
+    <ng-container *ngFor="let yearMonth of yearMonthList; let i=index">
+      <a (click)="changeMonth(yearMonth.value)"
+         [style.color]="yearMonth.value == currentYearMonth?'#20BF8E': '#999999'">
+        {{yearMonth.name}}
+      </a>
+      <nz-divider nzType="vertical" *ngIf="i !==2 "></nz-divider>
+    </ng-container>
+  </div>
+  <nz-table #basicTable
+            nzShowSizeChanger
+            nzBordered
+            style="padding-top: 20px;"
+            [nzFrontPagination]="false"
+            [nzData]="noticeList"
+            [nzLoading]="loading"
+            [nzTotal]="page.total"
+            [(nzPageIndex)]="page.pageNum"
+            [(nzPageSize)]="page.pageSize"
+            (nzPageIndexChange)="loadData(false)"
+            (nzPageSizeChange)="loadData(true)">
+    <thead>
+    <tr>
+      <th width="10%" nowrap>序号</th>
+      <th width="30%" nowrap>标题</th>
+      <th width="40%" nowrap>消息内容</th>
+      <th width="20%" nowrap>提交时间</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of basicTable.data; let i=index">
+      <td nowrap>{{page.getNo(i)}}</td>
+      <td>{{data.title}}</td>
+      <td nzAlign="left">
+        <div [innerHTML]="data.content | safeHtml "></div>
+      </td>
+      <td>{{ data.sentTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+    </tbody>
+  </nz-table>
+</nz-card>

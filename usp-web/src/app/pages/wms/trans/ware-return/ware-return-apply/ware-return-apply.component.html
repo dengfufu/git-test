@@ -1,0 +1,213 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>待续备件返还</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button (click)="goBack()" nzType="primary" nzShape="round" >返回</button>
+    <button nz-button nzType="primary" nzShape="round"  (click)="addSubmit()" [disabled]="!submitForm.valid" >提交</button>
+  </nz-page-header-extra>
+</nz-page-header>
+
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+
+<nz-layout>
+    <nz-card [nzBordered]="false">
+      <form [formGroup]="submitForm">
+        <div nz-row>
+          <div nz-col nzSpan="8">
+            <nz-form-item>
+              <nz-form-label nzSpan="4" nzRequired>发货人</nz-form-label>
+              <nz-form-control nzSpan="8" [nzErrorTip]="applicantErrorTip">
+                <nz-select style="width: 120px" nzShowSearch nzAllowClear formControlName="consignBy" nzPlaceHolder="请选择发货人" >
+                  <nz-option *ngFor="let item of selectOptions.applicantOptions" [nzValue]="item.id"
+                             [nzLabel]="item.name"></nz-option>
+                </nz-select>
+                <ng-template #applicantErrorTip let-control>
+                  <ng-container *ngIf="control.hasError('required')">
+                    请选择发货人！
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+
+              <nz-form-control nzSpan="10" [nzErrorTip]="">
+                <input nz-input formControlName="consignMobile" placeholder="输入发货人联系方式"/>
+              </nz-form-control>
+
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzSpan="8">
+            <nz-form-item>
+              <nz-form-label  nzSpan="6" nzRequired>发货日期</nz-form-label>
+              <nz-form-control nzSpan="14"  [nzErrorTip]="">
+                <nz-date-picker formControlName="consignDate"  [nzFormat]="'yyyy-MM-dd'"
+                ></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div  nz-col nzSpan="8">
+            <div nz-row>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24"  >发货备注</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+                  <input nz-input formControlName="description"/>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </div>
+
+
+        <div nz-row>
+          <div nz-col nzSpan="8">
+            <nz-form-item>
+              <nz-form-label nzSpan="4" nzRequired>收货人</nz-form-label>
+              <nz-form-control nzSpan="8" [nzErrorTip]="applicantErrorTip">
+                <nz-select style="width: 120px" nzShowSearch nzAllowClear formControlName="receiverId" nzPlaceHolder="请选择收货人" >
+                  <nz-option *ngFor="let item of selectOptions.applicantOptions" [nzValue]="item.id"
+                             [nzLabel]="item.name"></nz-option>
+                </nz-select>
+                <ng-template #applicantErrorTip let-control>
+                  <ng-container *ngIf="control.hasError('required')">
+                    请选择发货人！
+                  </ng-container>
+                </ng-template>
+              </nz-form-control>
+
+              <nz-form-control nzSpan="10" [nzErrorTip]="">
+                <input nz-input formControlName="receiverMobile" placeholder="输入收货人联系方式"/>
+              </nz-form-control>
+
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label [nzSpan]="6"  nzRequired>收货地址</nz-form-label>
+              <nz-form-control [nzSpan]="12" [nzErrorTip]="">
+                <nz-cascader
+                  style="width: 180px;"
+                  [nzExpandTrigger]="'hover'"
+                  [nzOptions]="nzOptions"
+                  formControlName="receiveDistrict"
+                >
+                </nz-cascader>
+              </nz-form-control>
+
+              <nz-form-control [nzSpan]="6" [nzErrorTip]="">
+                <input nz-input formControlName="receiveAddress" maxlength="100" style="width: 300px;" placeholder="请输入详细地址" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
+        <div nz-row >
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4"  nzRequired>运送方式</nz-form-label>
+              <nz-form-control   [nzErrorTip]="">
+                <nz-radio-group (ngModelChange)="transTypeChange()"    formControlName="consignTypeId">
+                  <label nz-radio [nzValue]="o.value" *ngFor="let o of transTypeOptions">{{ o.label }}</label>
+                </nz-radio-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label [nzSpan]="4"  nzRequired>总箱数</nz-form-label>
+              <nz-form-control  [nzSpan]="6"   [nzErrorTip]="">
+                <nz-input-number
+                  [nzMin]="1"
+                  [nzMax]="1000000"
+                  [nzStep]="1"
+                  formControlName="totalBoxNum"
+                ></nz-input-number>
+              </nz-form-control>
+              <div *ngIf="isExpressType">
+                <nz-form-label [nzSpan]="6"  nzRequired>快递类型</nz-form-label>
+                <nz-form-control   [nzSpan]="8"  [nzErrorTip]="">
+                  <nz-select style="width: 114px" nzShowSearch nzAllowClear formControlName="transportTypeId" nzPlaceHolder="请选择快递类型">
+                    <nz-option *ngFor="let item of selectOptions.transportTypeOptions" [nzValue]="item"
+                               [nzLabel]="item.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </div>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="8" >
+            <div *ngIf="isExpressType">
+              <nz-form-item>
+                <nz-form-label [nzSpan]="4"  nzRequired>快递公司</nz-form-label>
+                <nz-form-control [nzSpan]="8" [nzErrorTip]="">
+                  <nz-select style="width: 120px" nzShowSearch nzAllowClear formControlName="expressCorpId" nzPlaceHolder="请选择收货地址">
+                    <nz-option *ngFor="let item of selectOptions.wareOptions" [nzValue]="item"
+                               [nzLabel]="item.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+
+                <nz-form-label [nzSpan]="4"  nzRequired>快递单号</nz-form-label>
+                <nz-form-control [nzSpan]="8" [nzErrorTip]="">
+                  <input nz-input formControlName="expressNo" maxlength="100" style="width: 135px;" placeholder="请输入快递单号" />
+                </nz-form-control>
+
+              </nz-form-item>
+            </div>
+          </div>
+        </div>
+      </form>
+    </nz-card>
+
+  <div nz-row>
+    <nz-card style="border-width: 1px 0 0 0">
+      <p class="p-title">备件待修返还列表
+      <i nz-icon nzType="wms:add-circle" nzTheme="outline" class="i-add" nz-tooltip
+         nzTooltipTitle="添加备件" (click)="addPartList()" ></i></p>
+      <nz-table
+        nzBordered
+        nzHideOnSinglePage
+        nzFrontPagination="true"
+        nzShowSizeChanger
+        [nzPageIndex]="page.pageNum"
+        [nzPageSize]="page.pageSize"
+        [nzData]="showList"
+        [nzTotal]="showList.length"
+        nzLoadingDelay="100"
+        nzNoResult="无"
+      >
+        <thead>
+        <tr>
+          <th nzWidth="50px">序号</th>
+          <th>备件名称</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>规格</th>
+          <th>出库库房</th>
+          <th>入库库房</th>
+          <th>数量</th>
+          <th>唯一编码</th>
+          <th>备件状态</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of showList; let index = index">
+          <td nzAlign="center">{{ page.getNo(index) }}</td>
+          <td nzAlign="left">{{ data.wareName }}</td>
+          <td nzAlign="left">{{ data.brandName }}</td>
+          <td nzAlign="left">{{ data.modelName }}</td>
+          <td nzAlign="left">{{ data.normsName }}</td>
+          <td nzAlign="left">{{ data.applyQuantity }}</td>
+          <td nzAlign="left">{{ data.uniqueCode }}</td>
+          <td nzAlign="left">{{ data.statusName }}</td>
+          <td nzAlign="center"><img src="/assets/wms/close-circle.svg" (click)="deleteDetail(index)" style="width: 20px;height: 20px;"></td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </div>
+
+</nz-layout>
+

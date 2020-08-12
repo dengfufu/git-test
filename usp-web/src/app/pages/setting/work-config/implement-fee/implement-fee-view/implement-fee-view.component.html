@@ -1,0 +1,48 @@
+<form style="width: 700px">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">服务商</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      {{implementFee.serviceCorpName}}
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">委托商</nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      {{implementFee.demanderCorpName}}
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzSpan="4">费用名称</nz-form-label>
+    <nz-form-control nzSpan="16">
+      {{implementFee.implementName}}
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzSpan="4">类别</nz-form-label>
+    <nz-form-control nzSpan="16">
+      {{implementFee.implementTypeName}}
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzSpan="4">是否可用</nz-form-label>
+    <nz-form-control nzSpan="16">
+      {{implementFee.enabled === 'Y' ? '是' : '否'}}
+    </nz-form-control>
+  </nz-form-item>
+
+
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4">描述</nz-form-label>
+    <nz-form-control nzValidateStatus="false">
+        {{implementFee.note}}
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">关闭</button>
+</div>
+

@@ -1,0 +1,55 @@
+<button nz-button nzType="default" [nzSize]="'small'"
+        nz-popover
+        nzPopoverTrigger="click"
+        [(nzVisible)]="open"
+        (nzVisibleChange)="handle($event)"
+        [nzPopoverContent]="contentTemplate"
+        [nzOverlayClassName]="'col-selector'"
+        nzPopoverPlacement="leftTop">
+  <i nz-icon nzType="unordered-list" nzTheme="outline"></i>
+  列设置
+</button>
+
+<ng-template #contentTemplate>
+  <div class="col-selector-header">
+    <nz-input-group [nzSuffix]="suffixIconSearch">
+      <input type="text" nz-input nzSize="small" placeholder="搜索字段" [(ngModel)]="kw" (ngModelChange)="search()"/>
+    </nz-input-group>
+    <ng-template #suffixIconSearch>
+      <i nz-icon nzType="search"></i>
+    </ng-template>
+  </div>
+  <div class="list-wrapper">
+    <ul class="list fixed-list">
+      <ng-container *ngFor="let column of fixLeftColumns">
+        <li class="item fixed-item">
+          <nz-switch nzSize="small" [ngModel]="column.__show" [nzDisabled]="true"></nz-switch>
+          <span class="item-label">{{column.__title}}</span>
+        </li>
+      </ng-container>
+    </ul>
+    <ul cdkDropList class="list sortable-list" (cdkDropListDropped)="drop($event)">
+      <ng-container *ngFor="let column of middleColumns">
+        <li class="item sortable-item" [ngClass]="{'search-matched':column.isMatched}"
+            cdkDrag
+            cdkDragLockAxis="y">
+          <nz-switch nzSize="small" [(ngModel)]="column.__show" (ngModelChange)="select()"></nz-switch>
+          <span class="item-label">{{column.__title}}</span>
+        </li>
+      </ng-container>
+    </ul>
+    <ul class="list fixed-list">
+      <ng-container *ngFor="let column of fixRightColumns">
+        <li class="item fixed-item">
+          <nz-switch nzSize="small" [ngModel]="column.__show" [nzDisabled]="true"></nz-switch>
+          <span class="item-label">{{column.__title}}</span>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+  <div class="col-selector-footer">
+    <button nz-button nzType="primary" nzSize="small" (click)="submit()">确定</button>
+    <button nz-button  nzSize="small" (click)="reset()">重置</button>
+  </div>
+
+</ng-template>

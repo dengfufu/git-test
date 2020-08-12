@@ -1,0 +1,45 @@
+<nz-table #basicTable
+          [nzFrontPagination]="false"
+          [nzData]="list"
+          [nzLoading]="loading"
+          [nzTotal]="page.total"
+          [(nzPageIndex)]="page.pageNum"
+          [(nzPageSize)]="page.pageSize"
+          [nzShowTotal]="totalTemplate"
+          (nzPageIndexChange)="queryList(false)"
+          (nzPageSizeChange)="queryList(true)">
+  <thead>
+  <tr>
+    <th>序号</th>
+    <th>商品名称</th>
+    <th>金额</th>
+    <th>支付方式</th>
+    <th>状态</th>
+    <th>申请时间</th>
+    <th>操作</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of basicTable.data;let i = index">
+    <td nzLeft="0px">{{page.getNo(i)}}</td>
+    <td>{{ data.orderName }}</td>
+    <td>{{ data.orderAmount | currency:'CNY' }}</td>
+    <td>{{ data.payWayName }}</td>
+    <td>{{ data.statusName }}</td>
+    <td>{{ data.applyTime | date:'yyyy-MM-dd HH:mm'}}</td>
+    <td>
+      <a (click)="view(data)">查看</a>
+      <ng-container
+        *ngIf="data.status === payApplyStatusCode.CREATE || data.status === payApplyStatusCode.IN_PAY;">
+            <span [acl]="{ability: [payRight.PAY_ONLINE]}">
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="pay(data)">继续支付</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="cancelPay(data)">取消支付</a>
+            </span>
+      </ng-container>
+    </td>
+  </tr>
+  </tbody>
+</nz-table>
+<ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>

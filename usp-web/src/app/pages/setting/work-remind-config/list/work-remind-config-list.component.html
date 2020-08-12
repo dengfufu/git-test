@@ -1,0 +1,195 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+        <div class="edit-button-div">
+          <button nz-button class="icon-add" nzShape="round" (click)="addWorkRemindModal()"
+                  [acl]="{ability: [aclRight.WORK_REMIND_ADD]}">新建
+          </button>
+          <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+        </div>
+        <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+        <nz-table nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+                  nzBordered
+                  style="padding-top: 5px;"
+                  [nzFrontPagination]="false"
+                  [nzData]="list"
+                  [nzLoading]="loading"
+                  [nzTotal]="page.total"
+                  [(nzPageIndex)]="page.pageNum"
+                  [(nzPageSize)]="page.pageSize"
+                  [nzShowTotal]="totalTemplate"
+                  (nzPageIndexChange)="queryWorkRemind(false)"
+                  (nzPageSizeChange)="queryWorkRemind(true)"
+                  [nzScroll]="{ x: '2080px' }">
+          <thead>
+          <tr>
+            <th nzWidth="50px" nzLeft="0px">序号</th>
+            <th nzWidth="100px" nzLeft="50px">预警类型</th>
+            <th nzWidth="80px" nzLeft="150px">预警条件<br/>(分钟)</th>
+            <th nzWidth="100px">服务商</th>
+            <th nzWidth="100px">委托商</th>
+            <th nzWidth="120px">服务网点</th>
+            <th nzWidth="120px">设备网点</th>
+            <th nzWidth="100px">工单类型</th>
+            <th nzWidth="150px">设备大类</th>
+            <th nzWidth="150px">设备类型</th>
+            <th nzWidth="100px">品牌</th>
+            <th nzWidth="150px">型号</th>
+            <th nzWidth="80px">省</th>
+            <th nzWidth="80px">市</th>
+            <th nzWidth="100px">区</th>
+            <th nzWidth="80px">是否可用</th>
+            <th nzWidth="150px">预警名称</th>
+            <th nzWidth="120px" nzRight="-1px" [acl]="{ability: [aclRight.WORK_REMIND_MOD, aclRight.WORK_REMIND_DEL]}">操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of list;let i = index;">
+            <td nzLeft="0px">{{ page.getNo(i) }}</td>
+            <td nzAlign="center" nzLeft="50px">{{data.remindTypeName}}</td>
+            <td nzAlign="center" nzLeft="150px">{{data.expireTimeMin}}</td>
+            <td nzAlign="center">{{data.serviceCorpName}}</td>
+            <td nzAlign="center">{{data.demanderCorpName}}</td>
+            <td>{{data.serviceBranchName}}</td>
+            <td>{{data.deviceBranchName}}</td>
+            <td>{{data.workTypeName}}</td>
+            <td>{{data.largeClassName}}</td>
+            <td>{{data.smallClassName}}</td>
+            <td>{{data.brandName}}</td>
+            <td>{{data.modelName}}</td>
+            <td>{{data.provinceName}}</td>
+            <td>{{data.cityName}}</td>
+            <td>{{data.districtName}}</td>
+            <td *ngIf="data.enabled === 'Y'">是</td>
+            <td *ngIf="data.enabled !== 'Y'"><span style="color: red">否</span></td>
+            <td>{{data.remindName}}</td>
+            <td nzRight="-1px" [acl]="{ability: [aclRight.WORK_REMIND_MOD, aclRight.WORK_REMIND_DEL]}">
+              <a [acl]="{ability: [aclRight.WORK_REMIND_MOD]}" (click)="editWorkRemindModal(data)">编辑</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a [acl]="{ability: [aclRight.WORK_REMIND_DEL]}" (click)="showDeleteConfirm(data.remindId);">删除</a>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </nz-content>
+
+    <nz-drawer nzTitle="工单预警筛选" [nzVisible]="drawerVisible" [nzWidth]="360" [nzClosable]="false"
+                 (nzOnClose)="closeDrawer()"
+                 [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+      <form nz-form [formGroup]="searchForm">
+        <nz-form-item>
+          <nz-form-label >委托商</nz-form-label>
+          <nz-form-control [nzErrorTip]="searchForm.controls.demanderCorp.errors?.explain">
+            <nz-select nzShowSearch formControlName="demanderCorp"
+                       (ngModelChange)="changeDemanderCorp($event)"
+                       nzAllowClear nzPlaceHolder="请选择委托商">
+              <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.demanderCorp"
+                         [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>工单类型</nz-form-label>
+          <nz-form-control>
+            <nz-select nzAllowClear="true" formControlName="workType"
+                       nzPlaceHolder="请选择工单类型">
+              <nz-option *ngFor="let o of workSysTypeList" [nzLabel]="o.name" [nzValue]="o.code"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>预警类型</nz-form-label>
+          <nz-form-control>
+            <nz-select nzMode="multiple" nzAllowClear="true" formControlName="remindTypes"
+                       nzPlaceHolder="请选择预警类型">
+              <nz-option *ngFor="let o of optionList.workRemindTypeOption" [nzLabel]="o.name" [nzValue]="o.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>客户名称</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="customId" [(ngModel)]="params.customId" nzShowSearch nzPlaceHolder="请选择客户名称">
+              <nz-option *ngFor="let option of optionList.customOption" [nzValue]="option.customId"
+                         [nzLabel]="option.customCorpName"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>服务网点</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              nzAllowClear
+              nzShowSearch
+              nzServerSearch
+              nzFilterOption
+              nzPlaceHolder="可输入名称搜索服务网点"
+              [nzFilterOption]="nzFilterOption"
+              (nzOnSearch)="getBranchOption($event)"
+              formControlName="serviceBranches"  >
+              <nz-option *ngFor="let o of branchOption" [nzLabel]="o.branchName"
+                         [nzValue]="o.branchId"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>设备类型</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="smallClassId" [(ngModel)]="params.smallClassId" nzShowSearch nzPlaceHolder="请选择设备类型">
+              <nz-option *ngFor="let option of optionList.deviceSmallClassOption" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>设备型号</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="deviceModel" [(ngModel)]="params.deviceModel" nzShowSearch nzPlaceHolder="请选择设备型号">
+              <nz-option *ngFor="let option of optionList.deviceModelOption" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>设备品牌</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="deviceBrand" [(ngModel)]="params.deviceBrand" nzShowSearch nzPlaceHolder="请选择设备品牌">
+              <nz-option *ngFor="let option of optionList.deviceBrandOption" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>行政区划</nz-form-label>
+          <nz-form-control>
+            <nz-cascader
+              nzPlaceHolder="请选择行政区划"
+              formControlName="area" [(ngModel)]="params.area"
+              [nzChangeOnSelect]="true"
+              [nzAllowClear]="true"
+              [nzOptions]="this.optionList.areaInfoOption"
+              (ngModelChange)="areaChange($event)">
+            </nz-cascader>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>是否可用</nz-form-label>
+          <nz-form-control>
+            <nz-select nzAllowClear="true" formControlName="enabled"
+                       nzPlaceHolder="是/否">
+              <nz-option nzLabel="是" nzValue="Y"></nz-option>
+              <nz-option nzLabel="否" nzValue="N"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <div style="text-align: right;margin-top: 40px">
+          <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+          </button>
+          <button nz-button [nzType]="'primary'" (click)="closeDrawer();queryWorkRemind(true)">查询</button>
+        </div>
+      </form>
+    </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>

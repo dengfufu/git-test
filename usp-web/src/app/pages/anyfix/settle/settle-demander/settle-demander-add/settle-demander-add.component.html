@@ -1,0 +1,183 @@
+<form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="form">
+  <div nz-row>
+    <div nz-col nzSpan="12">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>委托商名称</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.demanderCorp.errors?.explain">
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择委托商"
+            formControlName="demanderCorp"
+            (ngModelChange)="demanderChange($event)"
+          >
+            <nz-option *ngFor="let demander of demanderOptions" [nzLabel]="demander.demanderCorpName"
+                       [nzValue]="demander.demanderCorp"></nz-option>
+          </nz-select>
+          <nz-option *ngIf="demanderOptionLoading" nzDisabled nzCustomContent>
+            <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+          </nz-option>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>结算方式</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.demanderCorp.errors?.explain">
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择结算方式"
+            formControlName="settleWay"
+          >
+            <nz-option *ngFor="let settleWay of settleService.settleWayList" [nzLabel]="settleWay.label"
+                       [nzValue]="settleWay.value"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">行政区划</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.district.errors?.explain">
+          <nz-cascader nzPlaceHolder="省/市/区"
+                       [nzExpandTrigger]="'hover'"
+                       [nzOptions]="districtsOptions"
+                       [nzChangeOnSelect]="true"
+                       [nzShowSearch]="true"
+                       formControlName="district">
+          </nz-cascader>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">备注</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.note.errors?.explain">
+          <textarea
+            nz-input
+            placeholder="请输入备注"
+            formControlName="note"
+            [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="12" style="border-left: 1px dashed #dad8d8;">
+      <!--    <nz-form-item>-->
+      <!--      <nz-form-label nzSpan="4">结算工单总数</nz-form-label>-->
+      <!--      <nz-form-control nzSpan="16">-->
+      <!--        {{workQuantity}}  (已确认工单数: {{checkedNum}}，未确认工单数: {{uncheckedNum}})-->
+      <!--      </nz-form-control>-->
+      <!--    </nz-form-item>-->
+      <!--  <nz-form-item>-->
+      <!--    <nz-form-label nzSpan="4">优惠金额</nz-form-label>-->
+      <!--    <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.discountAmount.errors?.explain">-->
+      <!--      ￥-->
+      <!--      <nz-input-number-->
+      <!--        formControlName="discountAmount"-->
+      <!--        nzMin="0"-->
+      <!--        nzMax="999999999.99"-->
+      <!--        [nzPrecision]="2"-->
+      <!--        [nzStep]="10"-->
+      <!--        style="width: 200px"-->
+      <!--      ></nz-input-number>-->
+      <!--    </nz-form-control>-->
+      <!--  </nz-form-item>-->
+      <!--      <nz-form-item>-->
+      <!--        <nz-form-label nzSpan="6">应付金额</nz-form-label>-->
+      <!--        <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.discountAmount.errors?.explain">-->
+      <!--          ￥{{settleFee - form.value.discountAmount}}-->
+      <!--        </nz-form-control>-->
+      <!--      </nz-form-item>-->
+      <!--  <nz-form-item>-->
+      <!--    <nz-form-label nzSpan="4">税率</nz-form-label>-->
+      <!--    <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.taxRate.errors?.explain">-->
+      <!--      <nz-input-number-->
+      <!--        formControlName="taxRate"-->
+      <!--        nzMin="0"-->
+      <!--        nzMax="100"-->
+      <!--        [nzPrecision]="2"-->
+      <!--        [nzStep]="1"-->
+      <!--        style="width: 100px"-->
+      <!--      ></nz-input-number>-->
+      <!--      %-->
+      <!--    </nz-form-control>-->
+      <!--  </nz-form-item>-->
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">收款账户</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24">
+          <span>{{form.controls.accountNumber.value}}</span>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">户名</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24">
+          <span>{{form.controls.accountName.value}}</span>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">开户行</nz-form-label>
+        <nz-form-control [nzSm]="16" [nzXs]="24">
+          <span>{{form.controls.accountBank.value}}</span>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+  <div nz-row>
+    <nz-form-item *ngIf="form.value.settleWay === settleService.SETTLE_PERIOD">
+      <nz-form-label [nzSm]="3" [nzXs]="24">对账单列表</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <nz-tag *ngFor="let verify of verifyList" nzMode="closeable" [nzColor]="'green'"
+                (nzOnClose)="deleteVerify(verify)">{{ verify.verifyName }}</nz-tag>
+        <button nz-button class="edit-button" nzShape="round"
+                (click)="selectVerifyList()"
+                [disabled]="(this.form.value.demanderCorp || '').length <= 0">选择
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="form.value.settleWay === settleService.SETTLE_WORK">
+      <nz-form-label [nzSm]="3" [nzXs]="24">工单列表</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <nz-tag *ngFor="let work of workList" nzMode="closeable" [nzColor]="'green'"
+                (nzOnClose)="deleteWork(work)">{{ work.workCode }}</nz-tag>
+        <button nz-button class="edit-button" nzShape="round"
+                (click)="selectWorkList()"
+                [disabled]="(this.form.value.demanderCorp || '').length <= 0">选择
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="3" [nzXs]="24">委托协议</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <a *ngIf="contNo && contNo.length > 0" (click)="showCont()">{{contNo}}</a>
+        <!--          <button nz-button class="edit-button" nzShape="round"-->
+        <!--                  (click)="showCont()" [disabled]="(form.value.demanderCorp || '').length <= 0">查看-->
+        <!--          </button>-->
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="startDate && endDate">
+      <nz-form-label [nzSm]="3" [nzXs]="24">结算周期</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+<!--        <nz-range-picker formControlName="settleTimeRange" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>-->
+        {{startDate | date: 'yyyy-MM-dd'}}~{{endDate | date: 'yyyy-MM-dd'}}
+      </nz-form-control>
+    </nz-form-item>
+<!--    <nz-form-item>-->
+<!--      <nz-form-label nzSpan="3">结算单号</nz-form-label>-->
+<!--      <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.settleCode.errors?.explain">-->
+<!--        <input nz-input formControlName="settleCode" placeholder="请输入结算单号" style="width: 300px"/>-->
+<!--        <button nz-button class="edit-button" nzShape="round" style="margin-left: 10px"-->
+<!--                (click)="createSettleCode()">重新生成-->
+<!--        </button>-->
+<!--      </nz-form-control>-->
+<!--    </nz-form-item>-->
+    <nz-form-item>
+      <nz-form-label nzSpan="3">总金额</nz-form-label>
+      <nz-form-control nzSpan="16">
+        {{settleFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid"
+          style="margin-left: 20px;">提交
+  </button>
+</div>

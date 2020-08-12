@@ -1,0 +1,308 @@
+<nz-spin [nzSpinning]="isLoading" class="detail-div">
+<nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;font-size: 18px">新建工单
+    </nz-page-header-title>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img style=" height: 20px;width: 30px;margin-top: -5px;padding-right: 20px" src="assets/go-back.svg">
+  </ng-template>
+  <form nz-form nz-row  [nzGutter]="{ md: 8, lg: 24, xl: 48 }"   [formGroup]="form">
+    <nz-layout>
+      <nz-card [nzBordered]="false">
+        <div nz-row style="max-width: 1000px">
+          <div nz-col nzSpan="12">
+            <nz-form-item *ngIf="ifShowDemander">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>委托商</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.demanderCorp.errors?.explain">
+                <nz-select nzShowSearch formControlName="demanderCorp" (ngModelChange)="demanderCorpChange($event)"
+                           nzPlaceHolder="请选择委托商">
+                  <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.demanderCorp"
+                             [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label *ngIf="configItem[workConfigService.WORK_ADD_REQUIRE_CHECK_WORK_CODE].isShow"
+                             [nzSm]="6" [nzXs]="24" nzRequired >委托单号</nz-form-label>
+              <nz-form-label *ngIf="!configItem[workConfigService.WORK_ADD_REQUIRE_CHECK_WORK_CODE].isShow"
+                             [nzSm]="6" [nzXs]="24"  >委托单号</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.checkWorkCode.errors?.explain">
+                <input nz-input formControlName="checkWorkCode" placeholder="请输入委托单号" maxlength="20"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>客户名称</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.customCorp.errors?.explain">
+                <nz-select nzShowSearch nzAllowClear [(ngModel)]="custom" [ngModelOptions]="{standalone: true}"
+                           (ngModelChange)="onCustomChange($event)" nzPlaceHolder="请选择客户名称"
+                           (nzOnSearch)="onSearchCustom($event)">
+                  <nz-option *ngFor="let corp of customCorpFilters" [nzValue]="corp"
+                             [nzLabel]="corp.customCorpName"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label *ngIf="configItem[workConfigService.WORK_ADD_REQUIRE_DEVICE_BRANCH].isShow"
+                             [nzSm]="6" [nzXs]="24" nzRequired >设备网点</nz-form-label>
+              <nz-form-label *ngIf="!configItem[workConfigService.WORK_ADD_REQUIRE_DEVICE_BRANCH].isShow"
+                             [nzSm]="6" [nzXs]="24"  >设备网点</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.deviceBranch.errors?.explain">
+                <nz-select nzShowSearch
+                           nzAllowClear
+                           nzServerSearch
+                           nzFilterOption
+                           [nzFilterOption]="nzFilterOption"
+                           (nzOnSearch)="matchDeviceBranch(custom.customId, $event)"
+                           [(ngModel)]="deviceBranch" [ngModelOptions]="{standalone: true}"
+                           (ngModelChange)="deviceBranchChange($event)"
+                           nzPlaceHolder="请选择设备网点">
+                  <nz-option *ngFor="let deviceBranch of deviceBranchList"
+                             [nzValue]="deviceBranch.branchId" [nzLabel]="deviceBranch.branchName"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>联系人</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.contactName.errors?.explain">
+                <input nz-input formControlName="contactName" placeholder="请输入联系人"
+                       (ngModelChange)="contactNameChange()"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>联系电话</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.contactPhone.errors?.explain">
+                <input nz-input formControlName="contactPhone" placeholder="请输入联系电话"
+                       (ngModelChange)="contactPhoneChange()"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>行政区划</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.district.errors?.explain">
+                <nz-cascader nzPlaceHolder="省/市/区"
+                             [nzExpandTrigger]="'click'"
+                             [nzOptions]="districtsList" [nzShowSearch]="ZorroUtils.showSearchOptions"
+                             (nzSelectionChange)="districtChange($event)"
+                             [nzChangeOnSelect]="true"
+                             formControlName="districts">
+                </nz-cascader>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>详细地址</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.address.errors?.explain">
+            <textarea rows="2" nz-input formControlName="address" placeholder="请输入详细地址，200字以内"
+                      style="padding-right: 25px;"
+                      exeHighlight></textarea>
+                <img src="assets/anyfix/address-parser.svg" (click)="addressParse()" style="margin-left: -24px;
+            margin-top: 5px; position: absolute; width: 18px;" title="从地址中解析行政区划">
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24">分布</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.zone.errors?.explain">
+                <nz-select formControlName="zone" nzAllowClear nzPlaceHolder="市区/郊县">
+                  <nz-option [nzValue]="1" nzLabel="市区"></nz-option>
+                  <nz-option [nzValue]="2" nzLabel="郊县"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24">维保方式</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.warrantyMode.errors?.explain">
+                <nz-select nzPlaceHolder="维保方式" formControlName="warrantyMode">
+                  <nz-option [nzValue]="10" nzLabel="整机保"></nz-option>
+                  <nz-option [nzValue]="20" nzLabel="单次保"></nz-option>
+                  <nz-option [nzValue]="30" nzLabel="人天保"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>工单来源</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.source.errors?.explain">
+                <nz-select nzShowSearch formControlName="source" nzAllowClear nzPlaceHolder="请选择工单来源">
+                  <nz-option [nzValue]="2" nzLabel="微信"></nz-option>
+                  <nz-option [nzValue]="3" nzLabel="网页"></nz-option>
+                  <nz-option [nzValue]="4" nzLabel="电话"></nz-option>
+                  <nz-option [nzValue]="5" nzLabel="邮件"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>设备数量</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="deviceNumTip">
+                <input nz-input formControlName="deviceNum" placeholder="请输入设备数量" type="number"/>
+              </nz-form-control>
+              <ng-template #deviceNumTip let-i>
+                <ng-container *ngIf="i.errors.min">设备数量不能小于填写的出厂序列号数量！</ng-container>
+              </ng-template>
+            </nz-form-item>
+          </div>
+          <div nz-col nzSpan="12"  style="border-left: 1px dashed #dad8d8;">
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="!isInstallWorkSysType">设备类型</nz-form-label>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired *ngIf="isInstallWorkSysType">设备类型</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.smallClass.errors?.explain">
+                <nz-tree-select nzShowSearch nzAllowClear
+                                nzPlaceHolder="请选择设备类型"
+                                formControlName="smallClass"
+                                [nzNodes]="deviceClassNodes"
+                                (ngModelChange)="deviceClassChange($event)">
+                </nz-tree-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="!isInstallWorkSysType">设备规格</nz-form-label>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired *ngIf="isInstallWorkSysType">设备规格</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.specification.errors?.explain">
+                <nz-select nzShowSearch nzAllowClear [(ngModel)]="specification" [ngModelOptions]="{standalone: true}"
+                           nzPlaceHolder="请选择设备规格"
+                           (nzOnSearch)="onSearchDeviceSpecification($event)">
+                  <nz-option *ngFor="let deviceSpecification of deviceSpecificationFilters" [nzValue]="deviceSpecification.id"
+                             [nzLabel]="deviceSpecification.name"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24">设备品牌</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.brand.errors?.explain">
+                <nz-select nzShowSearch nzAllowClear [(ngModel)]="brand" [ngModelOptions]="{standalone: true}"
+                           (ngModelChange)="onBrandChange()" nzPlaceHolder="请选择设备品牌" (nzOnSearch)="matchBrand($event)">
+                  <nz-option *ngFor="let brand of brandFilters" [nzValue]="brand.id"
+                             [nzLabel]="brand.name"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24">设备型号</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.model.errors?.explain">
+                <nz-select nzShowSearch nzAllowClear [(ngModel)]="model" [ngModelOptions]="{standalone: true}"
+                           (ngModelChange)="onModelChange()" nzPlaceHolder="请选择设备型号"
+                           (nzOnSearch)="matchModel($event)">
+                  <nz-option *ngFor="let model of modelFilters" [nzValue]="model.id"
+                             [nzLabel]="model.name"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24">出厂序列号</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="mobileErrorTip1">
+                <input nz-input formControlName="serials" (ngModelChange)="serialsChange()" placeholder="多个号请以逗号分隔"/>
+              </nz-form-control>
+              <ng-template #mobileErrorTip1 let-i>
+                <ng-container *ngIf="i.errors">{{form.controls.serials.errors.explain}}</ng-container>
+                <ng-container *ngIf="i.errors.pattern">出厂序列号格式错误！</ng-container>
+              </ng-template>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" >设备描述</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.deviceDescription.errors?.explain">
+
+                <textarea rows="2" nz-input formControlName="deviceDescription" placeholder="请输入设备性能或注意事项等说明。100字以内"></textarea>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>工单类型</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.workType.errors?.explain">
+                <nz-select nzAllowClear
+                           [(ngModel)]="workTypeSelect" [ngModelOptions]="{standalone: true}"
+                           nzPlaceHolder="请选择工单类型" (ngModelChange)="workTypeChange($event)">
+                  <nz-option *ngFor="let workType of  workTypeOptions"
+                             [nzValue]="workType" [nzLabel]="workType.name"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="ifShowFaultCode">
+              <nz-form-label [nzSm]="6" [nzXs]="24">故障代码</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.faultCode.errors?.explain">
+                <input nz-input formControlName="faultCode" placeholder="请输入故障代码"/>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="ifShowFaultDate">
+              <nz-form-label [nzSm]="6" [nzXs]="24">故障时间</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.faultTime.errors?.explain">
+                <nz-date-picker [(ngModel)]="faultDate" [nzFormat]="'yyyy-MM-dd'" nzPlaceHolder="日期" style="width: 140px;"
+                                [ngModelOptions]="{standalone: true}"></nz-date-picker>
+                &nbsp;
+                <nz-time-picker [(ngModel)]="faultTime"
+                                [ngModelOptions]="{standalone: true}"
+                                nzPlaceHolder="时间"
+                                nzFormat="HH:mm"
+                                style="width: 100px;"></nz-time-picker>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>服务请求</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.serviceRequest.errors?.explain">
+                <nz-select *ngIf="ifShowFaultType" nzAllowClear formControlName="faultTypeList"
+                           nzPlaceHolder="请选择故障现象分类。其他类请在以下填写" nzMode="multiple" (ngModelChange)="faultTypeChange()">
+                  <nz-option *ngFor="let faultType of faultTypeList"
+                             [nzValue]="faultType" [nzLabel]="faultType.name"></nz-option>
+                </nz-select>
+                <textarea rows="2" nz-input formControlName="serviceRequest" placeholder="请输入详细故障现象或服务要求等说明。500字以内"></textarea>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24">预约时间</nz-form-label>
+              <nz-form-control [nzSm]="16" [nzXs]="24">
+                <nz-date-picker [(ngModel)]="bookDate" [nzFormat]="'yyyy-MM-dd'" style="width: 140px;" nzPlaceHolder="日期"
+                                [ngModelOptions]="{standalone: true}"></nz-date-picker>
+                &nbsp;
+                <nz-time-picker [(ngModel)]="bookEndTime"
+                                [ngModelOptions]="{standalone: true}"
+                                nzPlaceHolder="时间"
+                                [nzDisabledHours]="disabledHoursFunc"
+                                nzFormat="HH:mm"
+                                style="width: 100px;"></nz-time-picker>
+              </nz-form-control>
+            </nz-form-item>
+
+        <nz-form-item *ngIf="configItem[workConfigService.WORK_ADD_NEED_QUOTE].isShow">
+          <nz-form-label [nzSm]="6" [nzXs]="24">费用报价</nz-form-label>
+          <nz-form-control [nzSm]="16" [nzXs]="24">
+            ￥<nz-input-number
+              style="width: 100px"
+              formControlName="basicServiceFee"
+              nzPrecision="2"
+              nzStep="10"
+              nzMin="0"
+              nzMax="99999999"
+              nzPlaceHolder="请输入费用报价"
+            ></nz-input-number> /每台设备
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24">附件</nz-form-label>
+          <nz-form-control>
+            <nz-upload [nzCustomRequest]="fileCustomRequest">
+              <button nz-button><i nz-icon nzType="upload"></i><span>上传</span></button>
+            </nz-upload>
+          </nz-form-control>
+        </nz-form-item>
+
+            <custom-field [corpId]="this.demanderCorpId"
+                          [formType]="10"
+                          (customFieldDataList)="customFormChange($event)">
+            </custom-field>
+            <nz-form-item>
+              <div nz-col [nzSm]="22" [nzXs]="24"  style="text-align: right;margin-top: 10px"  >
+                <button nz-button nzShape="round" (click)="goBack()" class="edit-button">取消</button>
+                <button nz-button nzShape="round" (click)="submit()" class="edit-button" [disabled]="!form.valid">提交</button>
+              </div>
+            </nz-form-item>
+          </div>
+        </div>
+      </nz-card>
+    </nz-layout>
+  </form>
+</nz-spin>

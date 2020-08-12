@@ -1,0 +1,38 @@
+@import "../../components/my-page-header-wrapper/my-pro-page-header-wrapper";
+
+@primary-color: #FFBD50;
+// 修改layout的全局覆盖样式
+
+// https://github.com/NG-ZORRO/ng-zorro-antd/pull/4363
+.ant-page-header-has-footer {
+  padding-bottom: 0px;
+}
+
+.pro-layout-title {
+  color: @primary-color;
+}
+
+.ant-pro-global-header-trigger {
+  color: @primary-color;
+}
+
+// 所有主体页面间隙
+.ant-pro-page-header-wrap-children-content {
+  margin: @pro-page-header-children-content-margin-top 8px 0 !important;
+}
+.ant-page-header-heading-title{
+  font-size: 16px!important;
+}
+.ant-page-header-heading-title div {
+  width: 4px!important;
+}
+
+.ant-pro-basicLayout-content {
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+}
+
+pro-basic-layout > .ant-design-pro.basicLayout > .ant-layout {
+  height: 100vh;
+}

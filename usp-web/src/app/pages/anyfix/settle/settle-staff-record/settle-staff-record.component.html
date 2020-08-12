@@ -1,0 +1,69 @@
+<nz-layout>
+  <nz-content>
+    <nz-card>
+        <div class="edit-button-div">
+        <!--<i nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addSettleStaffRecord()" nz-tooltip
+           nzTooltipTitle="新建"></i>
+        <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+           nzTooltipTitle="筛选"></i>-->
+          <button nz-button  class="icon-add" nzShape="round"  (click)="addSettleStaffRecord()">新建</button>
+          <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+        </div>
+
+
+      <nz-table
+        nzShowSizeChanger
+        nzBordered
+        [nzFrontPagination]="false"
+        [nzData]="settleStaffRecordList"
+        [nzLoading]="loading"
+        [nzTotal]="total"
+        [(nzPageIndex)]="pageNum"
+        [(nzPageSize)]="pageSize"
+        (nzPageSizeChange)="querySettleStaffRecord(getParams(), true)"
+        (nzPageIndexChange)="querySettleStaffRecord(getParams(), false)"
+      >
+        <thead>
+          <tr>
+            <th style="width: 70px">序号</th>
+            <th>结算名称</th>
+            <th>结算周期</th>
+            <th>备注</th>
+            <th>结算人</th>
+            <th>结算日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr (click)="showDetail(data)" *ngFor="let data of settleStaffRecordList;let index = index">
+            <td nzAlign="center">{{ (pageNum - 1) * pageSize + index + 1 }}</td>
+            <td>{{ data.recordName }}</td>
+            <td>{{ data.startDate | date:'yyyy-MM-dd' }} ~ {{data.endDate | date:'yyyy-MM-dd'}}</td>
+            <td>{{ data.note }}</td>
+            <td>{{ data.operatorName }}</td>
+            <td>{{ data.operateTime | date:'yyyy-MM-dd'}}</td>
+            <td><a
+              nz-popconfirm
+              nzPopconfirmTitle="确定删除该记录?"
+              [nzPopconfirmTrigger]="'click'"
+              (click)="$event.stopPropagation()"
+              (nzOnConfirm)="delete(data.recordId);"
+            >删除</a></td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+  <nz-drawer [nzTitle]="'人员结算记录筛选'" [nzVisible]="visible" [nzWidth]="300" [nzClosable]="true"
+             (nzOnClose)="closeDrawer()">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label>结算标题</nz-form-label>
+        <nz-form-control>
+          <input type="text" nz-input (change)="querySettleStaffRecord(getParams(), false)" formControlName="recordName" placeholder="请输入结算标题" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </nz-drawer>
+</nz-layout>
+

@@ -1,0 +1,130 @@
+<my-pro-page-header-wrapper>
+<nz-layout>
+  <nz-content>
+  <nz-card [nzBordered]="false">
+
+    <div class="edit-button-div">
+      <!--<i  nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addConfigModal()" nz-tooltip
+          nzTooltipTitle="新建" ></i>
+      <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+         nzTooltipTitle="筛选"></i>-->
+      <button nz-button  class="icon-add" nzShape="round"  (click)="addConfigModal()">新建</button>
+      <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+    </div>
+
+    <nz-table nzShowSizeChanger
+              nzBordered
+              nzSize="middle"
+              style="padding-top: 20px;"
+              [nzFrontPagination]="false"
+              [nzData]="list"
+              [nzLoading]="loading"
+              [nzTotal]="total"
+              [(nzPageIndex)]="pageNum"
+              [(nzPageSize)]="pageSize"
+              (nzPageIndexChange)="queryConfig()"
+              [nzPageSize]="10">
+      <thead>
+      <tr >
+        <!--<th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">序号</th>-->
+        <th style="width: 70px">序号</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">字段名称</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">字段类型</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否必填</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否公共</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">业务表单类型</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of list;let index = index">
+        <td nzAlign="center">{{ (pageNum - 1) * pageSize + index + 1 }}</td>
+        <td nzAlign="center">{{ data.fieldName }}</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 10">单行文本</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 20">多行文本</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 30">下拉单选列表</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 40">下拉多选列表</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 50">单选框</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 60">多选框</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 70">日期</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 80">时间</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 90">纯数字</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 100">小数</td>
+        <td  nzAlign="center"*ngIf="data.fieldType === 110">邮箱</td>
+        <td *ngIf="data.required === 'Y'">是</td>
+        <td *ngIf="data.required !== 'Y'"><span style="color: red">否</span></td>
+        <td *ngIf="data.common === 'Y'">是</td>
+        <td *ngIf="data.common !== 'Y'"><span style="color: red">否</span></td>
+        <td  nzAlign="center"*ngIf="data.formType === 0"></td>
+        <td  nzAlign="center"*ngIf="data.formType === 10">建立工单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 20">分配工单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 30">撤回派单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 40">认领工单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 50">拒绝工单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 60">退回派单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 70">预约工单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 80">现场签到</td>
+        <td  nzAlign="center"*ngIf="data.formType === 90">完成工单</td>
+        <td  nzAlign="center"*ngIf="data.formType === 100">设备档案</td>
+        <td nzAlign="center">
+          <img src="assets/config/edit.png" (click)="editConfigModal(data)" >
+         <!-- <nz-divider nzType="vertical"></nz-divider>-->
+          <!--<a (click)="showDeleteConfirm(data.fieldId)">删除</a>-->
+         <!-- <img src="assets/config/delete.png" (click)="showDeleteConfirm(data.fieldId)">-->
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</nz-content>
+
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">自定义字段筛选</span>
+  </ng-template>
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="360" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form name="form" nzLayout="inline" [formGroup]="searchForm" (ngSubmit)="queryConfig(false)">
+      <nz-form-item>
+        <nz-form-label>字段名称</nz-form-label>
+        <nz-form-control>
+          <!--<input nz-input formControlName="fieldName">-->
+          <input nz-input formControlName="fieldName" maxlength="20" [(ngModel)]="fieldName" placeholder="请输入字段名称"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>字段类型</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 150px;"
+            nzAllowClear
+            nzPlaceHolder="选择字段类型"
+            formControlName="fieldType"
+            [(ngModel)]="fieldType"
+          >
+            <nz-option nzLabel="单行文本" nzValue="10"></nz-option>
+            <nz-option nzLabel="多行文本" nzValue="20"></nz-option>
+<!--            <nz-option nzLabel="下拉单选列表" nzValue="30"></nz-option>-->
+<!--            <nz-option nzLabel="下拉多选列表" nzValue="40"></nz-option>-->
+<!--            <nz-option nzLabel="单选框" nzValue="50"></nz-option>-->
+<!--            <nz-option nzLabel="多选框" nzValue="60"></nz-option>-->
+<!--            <nz-option nzLabel="日期" nzValue="70"></nz-option>-->
+<!--            <nz-option nzLabel="时间" nzValue="80"></nz-option>-->
+<!--            <nz-option nzLabel="纯数字" nzValue="90"></nz-option>-->
+<!--            <nz-option nzLabel="小数" nzValue="100"></nz-option>-->
+<!--            <nz-option nzLabel="邮箱" nzValue="110"></nz-option>-->
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div style="text-align: right;margin-top: 40px;">
+        <button nz-button class="ant-btn" (click)="clearForm()">清空筛选</button>
+        &nbsp;
+        <button nz-button nzType="primary">查询</button>
+      </div>
+    </form>
+  </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>

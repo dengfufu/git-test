@@ -1,0 +1,22 @@
+<nz-card [nzBordered]="false" style="margin-bottom: 0px">
+  <div class="extraContent">
+    <div class="statItem">
+      <nz-statistic nzTitle="平台总工单数" [nzValue]="cloudInfo.workAmount || 0"></nz-statistic>
+    </div>
+    <div class="statItem">
+      <nz-statistic nzTitle="服务商总数" [nzValue]="cloudInfo.providerAmount || 0"></nz-statistic>
+    </div>
+    <div class="statItem">
+      <nz-statistic nzTitle="委托商总数" [nzValue]="cloudInfo.demanderAmount || 0"></nz-statistic>
+    </div>
+    <div class="statItem">
+      <nz-statistic nzTitle="总企业数" [nzValue]="cloudInfo.corpAmount || 0"></nz-statistic>
+    </div>
+    <div class="statItem">
+      <nz-statistic nzTitle="总工程师数" [nzValue]="cloudInfo.engineerAmount || 0"></nz-statistic>
+    </div>
+    <div class="statItem">
+      <nz-statistic nzTitle="总设备数" [nzValue]="cloudInfo.deviceAmount || 0"></nz-statistic>
+    </div>
+  </div>
+</nz-card>

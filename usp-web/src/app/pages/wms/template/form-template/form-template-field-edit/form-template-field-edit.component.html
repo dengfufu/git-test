@@ -1,0 +1,111 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" nzRequired>字段名称</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+      <input nz-input formControlName="fieldName" maxlength="100" style="width: 400px;" placeholder="请输入字段名称" />
+      <ng-template #nameErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请输入字段名称！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>字段分类</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzPlaceHolder="选择字段分类"
+          formControlName="fieldClass"
+          [nzDisabled]="true"
+        >
+          <nz-option [nzLabel]="'系统核心字段'" [nzValue]="10"> </nz-option>
+          <nz-option [nzLabel]="'系统可选字段'" [nzValue]="20"> </nz-option>
+          <nz-option [nzLabel]="'用户自定义字段'" [nzValue]="30"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>字段类型</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzPlaceHolder="选择字段类型"
+          formControlName="fieldType"
+          (ngModelChange)="changeFieldType($event)"
+          [nzDisabled]="this.flag"
+        >
+          <nz-option [nzLabel]="'单行文本'" [nzValue]="10"> </nz-option>
+          <nz-option [nzLabel]="'多行文本'" [nzValue]="20"> </nz-option>
+          <nz-option [nzLabel]="'上传图片'" [nzValue]="30"> </nz-option>
+          <nz-option [nzLabel]="'上传文件'" [nzValue]="40"> </nz-option>
+          <nz-option [nzLabel]="'系统列表'" [nzValue]="50"> </nz-option>
+          <nz-option [nzLabel]="'自定义列表'" [nzValue]="60"> </nz-option>
+          <nz-option [nzLabel]="'日期'" [nzValue]="70"> </nz-option>
+          <nz-option [nzLabel]="'数字'" [nzValue]="80"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>引用列表</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback >
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzPlaceHolder="选择引用列表"
+          formControlName="referenceList"
+          [nzDisabled]="this.referFlag"
+        >
+          <nz-option *ngFor="let field of fieldOptions" [nzLabel]="field.text" [nzValue]="field.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+  <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback >
+        <nz-radio-group formControlName="enabled" [nzDisabled]="this.flag">
+          <label nz-radio nzValue="Y">是</label>
+          <label nz-radio nzValue="N">否</label>
+        </nz-radio-group>
+      </nz-form-control>
+  </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>是否必填</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback >
+        <nz-radio-group formControlName="notnull" [nzDisabled]="this.flag">
+          <label nz-radio nzValue="Y">是</label>
+          <label nz-radio nzValue="N">否</label>
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>顺序号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="sortNoErrorTpl">
+        <input nz-input formControlName="sortNo" maxlength="100" style="width: 400px;" placeholder="请输入顺序号"  [disabled]="this.flag"/>
+        <ng-template #sortNoErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入顺序号！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-control [nzOffset]="10" [nzSpan]="12">
+      <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+      <button nz-button type="button" (click)="destroyModal()">取消</button>
+    </nz-form-control>
+  </nz-form-item>
+
+  </nz-spin>
+</form>

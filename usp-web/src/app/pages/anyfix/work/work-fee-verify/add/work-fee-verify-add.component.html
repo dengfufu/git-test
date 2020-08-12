@@ -1,0 +1,100 @@
+<form nz-form class="add-form" [formGroup]="form">
+  <nz-card nzBordered="false" *ngIf="step === 1">
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>委托商名称</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.demanderCorp.errors?.explain">
+        <nz-select
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="请选择委托商"
+          formControlName="demanderCorp"
+          (ngModelChange)="findCont($event)"
+        >
+          <nz-option *ngFor="let demander of demanderOptions" [nzLabel]="demander.demanderCorpName"
+                     [nzValue]="demander.demanderCorp"></nz-option>
+        </nz-select>
+        <nz-option *ngIf="demanderOptionLoading" nzDisabled nzCustomContent>
+          <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+        </nz-option>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>对账时间</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24"
+                       [nzErrorTip]="(form.controls.startDate.errors?.explain || '') + (form.controls.endDate.errors?.explain || '')">
+        <nz-date-picker formControlName="startDate" [nzFormat]="'yyyy-MM-dd'" style="width: 140px;"
+                        nzPlaceHolder="开始日期" (ngModelChange)="findCont($event)"></nz-date-picker>
+        ~
+        <nz-date-picker formControlName="endDate" [nzFormat]="'yyyy-MM-dd'" style="width: 140px;"
+                        nzPlaceHolder="结束日期" (ngModelChange)="findCont($event)"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">委托协议</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <a *ngIf="contNo && contNo.length > 0" (click)="showCont()">{{contNo}}</a>
+<!--        <button nz-button class="edit-button" nzShape="round"-->
+<!--                (click)="showCont()" [disabled]="(form.value.demanderCorp || '').length <= 0">查看-->
+<!--        </button>-->
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">行政区划</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.district.errors?.explain">
+        <nz-cascader nzPlaceHolder="省/市/区"
+                     [nzExpandTrigger]="'hover'"
+                     [nzOptions]="districtOptions"
+                     [nzChangeOnSelect]="true"
+                     [nzShowSearch]="true"
+                     formControlName="district">
+        </nz-cascader>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">备注</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.note.errors?.explain">
+          <textarea
+            nz-input
+            placeholder="请输入备注"
+            formControlName="note"
+            [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+          ></textarea>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-card>
+  <nz-card nzBordered="false" *ngIf="step === 2">
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">对账工单列表</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <button nz-button class="edit-button" nzShape="round"
+                (click)="selectWork()"
+                [disabled]="!this.form.valid">选择
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzSpan="4">对账工单总数</nz-form-label>
+      <nz-form-control nzSpan="16">
+        {{workQuantity}}  (委托商已确认: {{confirmNum}}，委托商未确认: {{unConfirmNum}}; 费用未审核:{{uncheckNum}})
+      </nz-form-control>
+    </nz-form-item>
+  </nz-card>
+  <nz-form-item class="btn-form-item">
+    <nz-form-control [nzOffset]="10" [nzSpan]="12">
+      <button nz-button nzType="primary" (click)="changeStep()" *ngIf="step === 1"
+              [disabled]="!form.valid">
+        下一步
+      </button>
+      <button nz-button nzType="primary" (click)="changeStep()" *ngIf="step === 2">
+        上一步
+      </button>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="submitLoading"
+          [disabled]="!form.valid || step !== 2"
+          style="margin-left: 20px;">生成
+  </button>
+</div>

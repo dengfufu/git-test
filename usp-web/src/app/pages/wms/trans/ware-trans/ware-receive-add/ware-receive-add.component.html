@@ -1,0 +1,143 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="2" >物料名称</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择物料名称"
+          [(ngModel)]="propertySelectedValue"
+          [nzShowArrow]="false"
+          formControlName="propertyNameCode"
+        >
+          <nz-option *ngFor="let o of propertySelectOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+
+      <nz-form-label [nzSpan]="2" nzRequired>规格</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择规格"
+          [(ngModel)]="normsSelectedValue"
+          [nzShowArrow]="false"
+          formControlName="norms"
+        >
+          <nz-option *ngFor="let o of normsOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+
+      <nz-form-label [nzSpan]="2" nzRequired>型号</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择型号"
+          [(ngModel)]="modelSelectedValue"
+          [nzShowArrow]="false"
+          formControlName="model"
+        >
+          <nz-option *ngFor="let o of modelSelectOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="2" >物料编号</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback [nzErrorTip]="keyErrorTpl">
+        <input nz-input style="width: 200px;" formControlName="propertyId" maxlength="100" placeholder="请输入物料编号" />
+        <ng-template #keyErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入物料编号！
+          </ng-container>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过100个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+
+    </nz-form-item>
+
+
+    <div style="margin-top: 30px">
+      <nz-table #editRowTable  [nzData]="receiveDeliveryList">
+        <thead>
+        <tr>
+          <th
+            nzShowCheckbox
+            [(nzChecked)]="isAllDisplayDataChecked"
+            [nzIndeterminate]="isIndeterminate"
+            (nzCheckedChange)="checkReceiveAll($event)"
+          >全选</th>
+          <th>物料名称</th>
+          <th>规格</th>
+          <th>型号</th>
+          <th>物料编号</th>
+          <th>一维码</th>
+          <th>物料状态</th>
+          <th>数量</th>
+          <th>收货日期</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of receiveDeliveryList" class="editable-row">
+          <td nzShowCheckbox [(nzChecked)]="mapOfDeliveryCheckedId[data.id]"
+              (nzCheckedChange)="refreshStatus()" ></td>
+          <td>{{ data.propertyName }}</td>
+          <td>{{ data.normsName }}</td>
+          <td>{{ data.modelName }}</td>
+          <td>{{ data.propertyId }}</td>
+          <td>{{ data.barcode }}</td>
+          <td>{{ data.statusName }}</td>
+          <td>{{ data.statusName }}</td>
+          <td>{{ data.statusName }}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <div style="text-align:right;">
+      <button nz-button style="margin-right: 20px" type="button" (click)="addDelivery()"  >添加</button>
+      <button nz-button style="margin-right: 20px"   type="button" (click)="cancel()"  >取消</button>
+    </div>
+    <!--    <nz-form-item>-->
+    <!--      <nz-form-label [nzSpan]="4" >一维码</nz-form-label>-->
+    <!--      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="keyErrorTpl">-->
+    <!--        <input nz-input formControlName="barcode" maxlength="100" style="width: 400px;" placeholder="请输入一维码" />-->
+    <!--        <ng-template #keyErrorTpl let-control>-->
+    <!--          <ng-container *ngIf="control.hasError('required')">-->
+    <!--            请输入一维码！-->
+    <!--          </ng-container>-->
+    <!--          <ng-container *ngIf="control.hasError('maxlength')">-->
+    <!--            不能超过100个字符！-->
+    <!--          </ng-container>-->
+    <!--        </ng-template>-->
+    <!--      </nz-form-control>-->
+    <!--    </nz-form-item>-->
+
+    <!--    <nz-form-item>-->
+    <!--      <nz-form-label [nzSpan]="4" >物料状态</nz-form-label>-->
+    <!--      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="keyErrorTpl">-->
+    <!--        <nz-select-->
+    <!--          style="width: 200px;"-->
+    <!--          nzShowSearch-->
+    <!--          nzServerSearch-->
+    <!--          nzPlaceHolder="请选择物料状态"-->
+    <!--          [(ngModel)]="statusSelectedValue"-->
+    <!--          [nzShowArrow]="false"-->
+    <!--          formControlName="status"-->
+    <!--        >-->
+    <!--          <nz-option *ngFor="let o of statusOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>-->
+    <!--        </nz-select>-->
+    <!--      </nz-form-control>-->
+    <!--    </nz-form-item>-->
+
+  </nz-spin>
+</form>

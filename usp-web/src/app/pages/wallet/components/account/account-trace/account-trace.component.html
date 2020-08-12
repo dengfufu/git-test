@@ -1,0 +1,95 @@
+<nz-table #basicTable
+          [nzFrontPagination]="false"
+          [nzData]="accountTraceList"
+          [nzLoading]="loading"
+          [nzTotal]="page.total"
+          [(nzPageIndex)]="page.pageNum"
+          [(nzPageSize)]="page.pageSize"
+          [nzShowTotal]="totalTemplate"
+          [nzTitle]="titleTemplate"
+          (nzPageIndexChange)="queryCorpAccountTrace(false)"
+          (nzPageSizeChange)="queryCorpAccountTrace(true)">
+  <thead>
+  <tr>
+    <th>序号</th>
+    <th>金额</th>
+    <th>账户余额</th>
+    <th>流水类型</th>
+    <th>资金方向</th>
+    <th>时间</th>
+    <th>申请信息</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of basicTable.data;let i = index">
+    <td nzLeft="0px">{{page.getNo(i)}}</td>
+    <td style="width: 80px;">{{ data.amount | currency:'CNY'}}</td>
+    <td style="width: 80px;">{{ data.balance  | currency:'CNY'}}</td>
+    <td>{{ data.traceTypeName }}</td>
+    <td>{{ data.directionName }}</td>
+    <td>{{ data.time | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+    <td><a (click)="viewApply(data)">{{data.applySourceName}}-{{ data.applyName }}</a></td>
+  </tr>
+  </tbody>
+</nz-table>
+<ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+<ng-template #titleTemplate>
+  <div nz-row style="display: flex;align-items: center">
+    <div nz-col nzSpan="12">
+      <b>账户流水</b>
+    </div>
+    <div nz-col nzSpan="12" style="text-align: right">
+      <button nz-button nzType="link" (click)="openDrawer()">
+        <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" nz-tooltip nzTooltipTitle="筛选"></i>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<nz-drawer
+  [nzClosable]="false"
+  [nzVisible]="drawerVisible"
+  [nzPlacement]="'right'"
+  nzTitle="筛选"
+  (nzOnClose)="closeDrawer()">
+
+  <form nz-form name="form" nzLayout="inline">
+    <nz-form-item>
+      <nz-form-label>资金方向</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="direction" nzAllowClear style="width: 171px;" [ngModelOptions]="{standalone: true}">
+          <nz-option *ngFor="let item of payDirectionDef" [nzValue]="item.code" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>流水类型</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="traceType" nzAllowClear style="width: 171px;" [ngModelOptions]="{standalone: true}">
+          <nz-option *ngFor="let item of payTraceTypeDef" [nzValue]="item.code" [nzLabel]="item.name"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>起始日期</nz-form-label>
+      <nz-form-control>
+        <nz-date-picker [(ngModel)]="starTime" [nzFormat]="'yyyy-MM-dd'"
+                        [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>截止日期</nz-form-label>
+      <nz-form-control>
+        <nz-date-picker [(ngModel)]="endTime" [nzFormat]="'yyyy-MM-dd'"
+                        [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div style="text-align: right;margin-top: 40px">
+      <button nz-button class="ant-btn" (click)="resetParam()">清空筛选</button>
+      &nbsp;
+      <button nz-button nzType="primary" (click)="closeDrawer();queryCorpAccountTrace(true)">查询</button>
+    </div>
+  </form>
+</nz-drawer>

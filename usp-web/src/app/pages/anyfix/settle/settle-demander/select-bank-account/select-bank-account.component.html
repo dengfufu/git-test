@@ -1,0 +1,46 @@
+<div style="width: 300px">
+  <nz-input-group nzSearch [nzAddOnAfter]="suffixButton" nzCompact>
+    <input type="text" style="width: 300px" nz-input placeholder="可根据账户/户名/银行搜索" [(ngModel)]="account"/>
+  </nz-input-group>
+  <ng-template #suffixButton>
+    <button nz-button nzType="primary" nzSearch (click)="queryAccount()">查询</button>
+  </ng-template>
+</div>
+<nz-table
+  nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+  nzBordered
+  style="margin-top: 10px"
+  [nzFrontPagination]="false"
+  [nzData]="accountList"
+  [nzLoading]="loading"
+  [nzTotal]="page.total"
+  [(nzPageIndex)]="page.pageNum"
+  [(nzPageSize)]="page.pageSize"
+  (nzPageIndexChange)="queryAccount()"
+  (nzPageSizeChange)="queryAccount(true)">
+  <thead>
+  <tr>
+    <th nzWidth="50px" nzShowCheckbox="false"></th>
+    <th nzWidth="50px">序号</th>
+    <th>收款账号</th>
+    <th>户名</th>
+    <th>开户银行</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of accountList;let i = index">
+    <td nzShowCheckbox [nzChecked]="data.checked" (nzCheckedChange)="checkChange($event, i)"></td>
+    <td>{{page.getNo(i)}}</td>
+    <td>{{data.accountNumber}}</td>
+    <td>{{data.accountName}}</td>
+    <td>{{data.accountBank}}</td>
+  </tr>
+  </tbody>
+</nz-table>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="submit()"
+          [disabled]="!this.selectedAccount"
+          style="margin-left: 20px;">确定
+  </button>
+</div>

@@ -1,0 +1,8 @@
+{
+  "/ba/plugin/cda/api/doQuery": {
+    "target": "http://10.34.11.124:8080",
+    "changeOrigin": true,
+    "secure": false,
+    "loglevel": "debug"
+  }
+}

@@ -1,0 +1,42 @@
+<nz-content>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>区域名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <input nz-input formControlName="name" placeholder="请输入区域名称">
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>负责人</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-select formControlName="users" nzPlaceHolder="请选择负责人" nzMode="multiple">
+          <nz-option *ngFor="let data of userInfoList" [nzLabel]="data.userName" [nzValue]="data.userId"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">描述</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <textarea nz-input formControlName="description" placeholder="请输入描述" [nzAutosize]="{minRows:2,maxRows:5}"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>顺序号</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-input-number nz-input formControlName="sortNo" nzPlaceHolder="" [nzMin]="0"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback>
+        <nz-switch formControlName="enabled" [(ngModel)]="enabledValue" (ngModelChange)="enabledChange($event)" nzCheckedChildren="启用" nzUnCheckedChildren="禁用"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzOffset]="10" [nzSpan]="12">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+        <button nz-button type="button" (click)="destroyModal()">取消</button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-content>

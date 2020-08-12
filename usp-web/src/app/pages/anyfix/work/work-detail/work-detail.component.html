@@ -1,0 +1,695 @@
+<nz-spin [nzSpinning]="loading" class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;font-size: 18px">{{work.workTypeName}}工单&nbsp; <span
+      style="font-size: 16px;font-weight: bold;">{{work.workCode}}</span>
+      <i nz-icon class="work-attention" *ngIf="isAttention && canAttention"
+         nzType="anyfix:work-attention" nzTheme="outline" (click)="delAttention()"></i>
+      <i nz-icon class="work-attention" *ngIf="!isAttention && canAttention"
+         nzType="anyfix:not_work-attention" nzTheme="outline" (click)="addAttention()"></i>
+      <span *ngIf="!canAttention" style="margin-left: 60px;"></span>
+      <span style="position: absolute; left: 50%;">
+      <button nz-button nzShape="round" class="edit-button" style="margin-left: -50px;" [disabled]="index <= 0"
+              title="上一条" (click)="prev()" *ngIf="workIds.length > 0">
+        <i nz-icon nzType="up" nzTheme="outline" style="font-size: 14px;"></i></button>
+      <span class="page-nav" *ngIf="workIds.length > 1">{{index + 1}} / {{workIds.length}}</span>
+      <button nz-button nzShape="round" class="edit-button" style="margin-left: 15px;" [disabled]="index < 0 || index >= (workIds.length -1)"
+              title="下一条" (click)="next()" *ngIf="workIds.length > 0">
+        <i nz-icon nzType="down" nzTheme="outline" style="font-size: 14px;"></i></button>
+      </span>
+    </nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button nzShape="round" (click)="goBack()" class="edit-button">返回</button>
+      <button nz-button nzShape="round"
+              *ngIf="work.workStatus===anyfixService.TO_DISTRIBUTE && curCorpId == work.demanderCorp"
+              [acl]="{ability: [aclRight.WORK_DISPATCH]}"
+              (click)="operate('提单')"
+              class="edit-button" [ngStyle]="{'width': getWidth('提单'.length)}">提单
+      </button>
+
+      <button nz-button nzShape="round"
+              *ngIf="work.workStatus===anyfixService.TO_HANDLE && curCorpId == work.serviceCorp"
+              [acl]="{ability: [aclRight.WORK_HANDLE]}"
+              (click)="operate('分配')"
+              class="edit-button" [ngStyle]="{'width': getWidth('分配'.length)}">分配
+      </button>
+
+      <button nz-button nzShape="round"
+              *ngIf="work.workStatus===anyfixService.TO_ASSIGN && curCorpId == work.serviceCorp"
+              [acl]="{ability: [aclRight.WORK_ASSIGN]}"
+              (click)="operate('派单')"
+              class="edit-button" [ngStyle]="{'width': getWidth('派单'.length)}">派单
+      </button>
+
+      <button nz-button nzShape="round"
+              *ngIf="canWorkReturnConfirm()"
+              (click)="workReturnConfirm()"
+              class="edit-button" [ngStyle]="{'width': getWidth('确认'.length)}">退单确认
+      </button>
+
+      <button nz-button nzShape="round"
+              *ngIf="canAddWorkFee()"
+              [acl]="{ability: [aclRight.WORK_LOCAL_FINISH, aclRight.WORK_REMOTE_FINISH]}"
+              (click)="addWorkFee()"
+              class="edit-button" [ngStyle]="{'width': getWidth('填写费用'.length)}">填写费用
+      </button>
+
+      <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu" style="padding-bottom: 18px; height: 25px;"
+              class="edit-menu">
+        <img class="menu-img" src="assets/drop-menu-theme.svg">
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item *ngIf="editBtnVisible" (click)="editWork(this.work.workId)">编辑工单
+          </li>
+          <li nz-menu-item *ngIf="(work.workStatus===anyfixService.TO_DISTRIBUTE
+              || work.workStatus===anyfixService.RETURNED) && curCorpId == work.demanderCorp"
+              [acl]="{ability: [aclRight.WORK_CUSTOM_RECALL]}" (click)="customRecall()">客户撤单
+          </li>
+
+          <li nz-menu-item *ngIf="(work.workStatus===anyfixService.TO_HANDLE
+                || this.work.workStatus === anyfixService.TO_ASSIGN) && curCorpId == work.serviceCorp"
+              [acl]="{ability: [aclRight.WORK_SERVICE_RETURN]}" (click)="serviceReturn()">退回委托商
+          </li>
+
+          <li nz-menu-item *ngIf="work.workStatus===anyfixService.TO_ASSIGN && curCorpId == work.serviceCorp"
+              [acl]="{ability: [aclRight.WORK_TURN_HANDLE]}" (click)="turnHandleWork()">转处理
+          </li>
+
+          <li nz-menu-item *ngIf="work.workStatus===anyfixService.TO_CLAIM && curCorpId == work.serviceCorp"
+              [acl]="{ability: [aclRight.WORK_ASSIGN_RECALL]}" (click)="toRecallAssign()">撤回派单
+          </li>
+
+          <li nz-menu-item *ngIf="work.workStatus===anyfixService.TO_ASSIGN && curCorpId == work.serviceCorp"
+              [acl]="{ability: [aclRight.RETURN_ASSIGN_SERVICE]}" (click)="returnAssignByService()">服务网点退回
+          </li>
+
+          <li> <button nz-menu-item
+                       style="border: none;outline: none"
+                       pro-down-file
+                       [acl]="{ability: [aclRight.WORK_PDF]}"
+                       httpMethod="post"
+                       [httpUrl]="'/api/anyfix/work-pdf/exportPDF'"
+                       [msg] ="'正在导出服务报告...'"
+                       [httpBody]="getParams()" >导出服务报告</button></li>
+          <li nz-menu-divider></li>
+          <li nz-menu-item nzDisabled>无更多操作</li>
+        </ul>
+      </nz-dropdown-menu>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img style=" height: 20px;width: 30px;margin-top: -5px;padding-right: 20px" src="assets/go-back.svg">
+  </ng-template>
+
+  <nz-layout>
+    <nz-sider [nzWidth]="320">
+      <nz-card style="width:320px;" [nzBordered]="false" [nzBodyStyle]="{paddingTop: '16px', paddingBottom: '0px'}">
+        <div nz-row>
+          <div nz-col nzSpan="16" style="font-weight: bold;">{{work.dispatchTime | date:'yyyy-MM-dd HH:mm'}}</div>
+          <div nz-col class="work-status" style="margin-top: 2px ">{{work.workStatusName}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row *ngIf="finishCheckStatusLabel && finishCheckStatusName">
+          <div nz-col class="label-item" nzSpan="10">{{finishCheckStatusLabel}}：</div>
+          <div nz-col nzSpan="14" nz-popover *ngIf="!finishCheckNote">{{finishCheckStatusName}}</div>
+          <div nz-col nzSpan="14" nz-popover *ngIf="finishCheckNote"
+               [nzContent]="'备注：' + finishCheckNote">{{finishCheckStatusName}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="anyfixService.settleWorkStatusList.includes(work.workStatus)">
+          <div nz-col class="label-item" nzSpan="8">结算状态：</div>
+          <div nz-col nzSpan="16">{{work.settleDemanderStatusName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">委托商：</div>
+          <div nz-col nzSpan="16">{{work.demanderCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">委托单号：</div>
+          <div nz-col nzSpan="16">{{work.checkWorkCode}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">客户名称：</div>
+          <div nz-col nzSpan="16">{{work.customCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">设备网点：</div>
+          <div nz-col nzSpan="16">{{work.deviceBranchName}}</div>
+        </div>
+        <div class="div-row" class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">创建人：</div>
+          <div nz-col nzSpan="16">
+            <username-info [userId]="work.creator" [username]="work.creatorName"></username-info>
+          </div>
+        </div>
+
+        <div class="div-row" class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">联系人：</div>
+          <div nz-col nzSpan="16">{{work.contactName}} &nbsp;<b>{{work.contactPhone}}</b></div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">行政区划：</div>
+          <div nz-col nzSpan="16">{{work.districtName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">详细地址：</div>
+          <div nz-col nzSpan="16">{{work.address}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">工单来源：</div>
+          <div nz-col nzSpan="16">{{work.sourceName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">维保方式：</div>
+          <div nz-col nzSpan="16" style="color: black;font-weight: bolder">{{work.warrantyModeName}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="work.warrantyMode == 30 && work.manDay">
+          <div nz-col class="label-item" nzSpan="8">人天：</div>
+          <div nz-col nzSpan="16">{{work.manDay}}</div>
+        </div>
+
+        <!--建单的自定义字段数据customFieldDataList-->
+        <div class="div-row" nz-row *ngFor="let customField of customFieldDataList">
+          <div nz-col class="label-item" nzSpan="8">
+            {{customField.fieldName}}：
+          </div>
+          <div nz-col nzSpan="16">
+            {{customField.fieldValue}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">报修附件：</div>
+          <div nz-col nzSpan="16">
+            <nz-avatar *ngFor="let file of this.imgList;let i = index"
+                       [nzShape]="'square'" [nzSize]="50"
+                       style="margin-left: 10px;margin-bottom: 10px;"
+                       [nzSrc]="showFileUrl + file.fileId"
+                       pro-image-viewer
+                       [images]="getImageUrls(imgList)"
+                       [currentImgIndex]="i+1">
+            </nz-avatar>
+            <br *ngIf="this.imgList && this.imgList.length > 0"/>
+            <a *ngFor="let file of fileList" pro-down-file [httpUrl]="downFileUrl + file.fileId"
+               [fileName]="file.fileName" httpMethod="post"
+               style="margin-left: 10px;margin-bottom: 10px;">{{file.fileName}}<br/></a>
+          </div>
+        </div>
+      </nz-card>
+    </nz-sider>
+
+    <nz-content>
+      <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;"
+               [nzBodyStyle]="{paddingTop: '6px', paddingBottom: '0px'}">
+        <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}" [(nzSelectedIndex)]="selectedTabIndex">
+          <nz-tab nzTitle="服务信息">
+            <button nz-button class="edit-button"
+                    nzShape="round"
+                    style="margin-bottom: 10px;margin-right: 16px;"
+                    *ngIf="canServiceCheck()"
+                    (click)="serviceCheck()">{{finishCheckBtnName}}</button>
+            <button nz-button class="edit-button"
+                    nzShape="round"
+                    style="margin-bottom: 10px;margin-right: 16px;"
+                    *ngIf="canServiceConfirm()"
+                    (click)="serviceConfirm()">确认</button>
+              <nz-table
+                [nzTitle]="serviceContentTitle"
+                nzBordered="true"
+                nzFrontPagination="false"
+                nzSize="small"
+                [nzData]="[{}]">
+                <ng-template #serviceContentTitle>
+                  <label>服务内容</label>
+                  <i nz-icon
+                     nzType="form"
+                     nzTheme="outline"
+                     style="margin-left: 16px;color: #FFBD50"
+                     (click)="editServiceContent()"
+                     *ngIf="canServiceModFinish"
+                     nz-tooltip
+                     nzTooltipTitle="修改"></i>
+                </ng-template>
+              <tbody>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>设备类型</td>
+                <td nzAlign="left" width="35%">{{ work.smallClassName }}</td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>设备规格</td>
+                <td nzAlign="left" width="35%">{{work.specificationName}}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>品牌型号</td>
+                <td nzAlign="left" width="35%">{{ work.brandName }} {{ work.modelName }}</td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>出厂序列号</td>
+                <td nzAlign="left" width="35%"><a (click)="serialDetail(work.deviceId)">{{work.serial}}</a></td>
+              </tr>
+              <tr *ngIf="work.faultCode || work.faultTime">
+                <td class="label-item" nzAlign="center" width="15%" nowrap>故障时间</td>
+                <td nzAlign="left" width="35%">{{work.faultTime | date: 'yyyy-MM-dd HH:mm'}}</td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>故障代码</td>
+                <td nzAlign="left" width="35%">{{ work.faultCode }}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>设备描述</td>
+                <td nzAlign="left" width="35%">{{ work.deviceDescription }}</td>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>预约时间</td>
+                <td nzAlign="left" width="35%">{{work.bookTimeEnd | date: 'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center">服务请求</td>
+                <td nzAlign="left" colspan="3">{{ work.serviceRequest }}</td>
+              </tr>
+              <tr>
+                <td class="label-item" nzAlign="center">服务商</td>
+                <td nzAlign="left">{{work.serviceCorpName}}</td>
+                <td class="label-item" nzAlign="center">服务网点</td>
+                <td nzAlign="left">{{ work.serviceBranchName }}</td>
+              </tr>
+              <tr *ngIf="work.workStatus == anyfixService.TO_CLAIM">
+                <td class="label-item" nzAlign="center">待接单人员</td>
+                <td nzAlign="left" colspan="3"><span *ngFor="let data of work.assignEngineerList;let index = index">
+                  <span *ngIf="index!=0">,</span><username-info [userId]="data.userId"
+                                                                [username]="data.userName"></username-info>
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="work.workStatus > anyfixService.TO_CLAIM">
+                <td class="label-item" nzAlign="center">工程师</td>
+                <td nzAlign="left">
+                  <username-info [userId]="work.engineer" [username]="work.engineerName"></username-info>
+                </td>
+                <td class="label-item" nzAlign="center">协同人员</td>
+                <td nzAlign="left">
+                  <span *ngFor="let data of work.togetherEngineerList;let index = index">
+                    <span *ngIf="index != 0">,</span>
+                    <username-info [username]="data.engineerName" [userId]="data.engineerId"></username-info>
+                  </span>&nbsp;
+                  <span *ngIf="work.togetherEngineerList && work.togetherEngineerList.length > 0 && work.helpNames">,</span>
+                  {{work.helpNames}}
+                </td>
+              </tr>
+              <tr *ngIf="work.workStatus > anyfixService.TO_CLAIM && work.serviceMode===1">
+                <td class="label-item" nzAlign="center">交通工具</td>
+                <td nzAlign="left">{{work.trafficName}}<span *ngIf="work.trafficNote">(说明：{{work.trafficNote}})</span></td>
+                <td class="label-item" nzAlign="center">服务方式</td>
+                <td nzAlign="left">{{work.serviceModeName}}{{work.remoteWayName ? '（' + work.remoteWayName+'）' : ''}}</td>
+              </tr>
+              <tr *ngIf="work.workStatus > anyfixService.TO_CLAIM && work.serviceMode===1">
+                <td class="label-item" nzAlign="center">出发时间</td>
+                <td nzAlign="left">{{work.goTime | date:'yyyy-MM-dd HH:mm'}}</td>
+                <td class="label-item" nzAlign="center">到达时间</td>
+                <td nzAlign="left">{{work.signTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr *ngIf="work.workStatus > anyfixService.TO_CLAIM">
+                <td class="label-item" nzAlign="center">服务开始时间</td>
+                <td nzAlign="left">{{work.startTime | date:'yyyy-MM-dd HH:mm'}}</td>
+                <td class="label-item" nzAlign="center">服务完成时间</td>
+                <td nzAlign="left">{{work.endTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              <tr *ngIf="work.workStatus > anyfixService.IN_SERVICE && work.serviceItemName">
+                <td class="label-item" nzAlign="center">服务项目</td>
+                <td nzAlign="left" colspan="3">{{work.serviceItemName}}</td>
+              </tr>
+              <tr *ngIf="work.workStatus > anyfixService.IN_SERVICE">
+                <td class="label-item" nzAlign="center">完成情况</td>
+                <td nzAlign="left">{{work.finishDescription}}</td>
+                <td class="label-item" nzAlign="center">客户签名</td>
+                <td nzAlign="left">
+                  <img *ngIf="work.signature != '0' && work.signature != null"
+                       [src]="showFileUrl + work.signature"
+                       style="height: 48px; margin: -5px 0 -5px 2px"
+                       pro-image-viewer
+                       [images]="[showFileUrl + work.signature]">
+                </td>
+              </tr>
+              <!--服务信息的自定义字段数据customFieldDataList-->
+              <tr *ngFor="let customField of customFieldDataList">
+                <td class="label-item" nzAlign="center"
+                    *ngIf="customField.serviceCorp == curCorpId && customField.formType === 90">
+                  {{customField.fieldName}}</td>
+                <td nzAlign="left" *ngIf="customField.serviceCorp == curCorpId && customField.formType === 90">
+                  {{customField.fieldValue}}</td>
+              </tr>
+              <tr *ngIf="work.workStatus > anyfixService.IN_SERVICE && showFinishFile">
+                <td class="label-item" nzAlign="center">完成附件</td>
+                <td nzAlign="left" colspan="3">
+                  <nz-avatar *ngFor="let file of work.finishFileList; let i = index"
+                             [nzShape]="'square'" [nzSize]="64" style="margin-right: 16px;"
+                             [nzSrc]="showFileUrl + file.fileId"
+                             pro-image-viewer
+                             [images]="getImageUrls(work.finishFileList)"
+                             [currentImgIndex]="i+1">
+                  </nz-avatar>
+                  <button nz-button
+                          nzShape="round"
+                          class="edit-button"
+                          *ngIf="canModGroupFiles"
+                          (click)="editFiles()">上传
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngFor="let item  of fileGroupList"  >
+                <td class="label-item" nzAlign="center" *ngIf="!showFinishFile">{{item.groupName}}</td>
+                <td nzAlign="left" colspan="3" *ngIf="!showFinishFile">
+                  <nz-avatar *ngFor="let fileId of item.fileList; let i = index"
+                             [nzShape]="'square'" [nzSize]="64" style="margin-right: 16px;"
+                             [nzSrc]="showFileUrl + fileId"
+                             pro-image-viewer
+                             [images]="getImageUrls(item.fileList, true)"
+                             [currentImgIndex]="i+1">
+                  </nz-avatar>
+                  <button nz-button
+                          nzShape="round"
+                          class="edit-button"
+                          *ngIf="canModGroupFiles "
+                          (click)="editFiles(item.configId, item.id, item.groupName)">上传
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </nz-table>
+
+            <div *ngIf="work.workStatus > anyfixService.IN_SERVICE && work.serviceMode===1">
+              <nz-table
+                [nzTitle]="wareUsedTitle"
+                *ngIf="work.workSysType == maintenance && (canServiceModWork || work.usedPartList && work.usedPartList.length > 0)"
+                [nzData]="work.usedPartList && work.usedPartList.length > 0 ? work.usedPartList : [{}]"
+                nzBordered="true"
+                nzFrontPagination="false"
+                nzSize="small"
+                nzNoResult="无"
+              >
+                <ng-template #wareUsedTitle>
+                  <label>使用部件</label>
+                  <i nz-icon
+                     nzType="plus-circle"
+                     nzTheme="outline"
+                     style="margin-left: 16px;color: #FFBD50"
+                     (click)="addUsedPart()"
+                     [acl]="{ability: [aclRight.WORK_WARE_USED_ADD]}"
+                     *ngIf="canServiceModWork"
+                     nz-tooltip
+                     nzTooltipTitle="添加"></i>
+                </ng-template>
+                <thead>
+                <tr *ngIf="work.usedPartList && work.usedPartList.length > 0">
+                  <th style="width: 50px">序号</th>
+                  <th>分类</th>
+                  <th>品牌</th>
+                  <th>型号</th>
+                  <th>序列号</th>
+                  <th>单价</th>
+                  <th>数量</th>
+                  <th>税率</th>
+                  <th
+                    [acl]="{ability: [aclRight.WORK_WARE_USED_MOD, aclRight.WORK_WARE_USED_DEL]}"
+                    *ngIf="canServiceModWork"
+                  >操作
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of work.usedPartList;let index = index">
+                  <td nzAlign="center">{{ index + 1 }}</td>
+                  <td nzAlign="left">{{data.catalogName}}</td>
+                  <td nzAlign="left">{{data.brandName}}</td>
+                  <td nzAlign="left">{{data.modelName}}</td>
+                  <td nzAlign="left">{{data.wareSerial}}</td>
+                  <td nzAlign="right">{{data.unitPrice | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                  <td nzAlign="right">{{data.quantity}}</td>
+                  <td nzAlign="right">{{data.taxRate}}</td>
+                  <td [acl]="{ability: [aclRight.WORK_WARE_USED_MOD, aclRight.WORK_WARE_USED_DEL]}"
+                      *ngIf="canServiceModWork">
+                    <i nz-icon nzType="form" nzTheme="outline" style="color: #FFBD50"
+                       [acl]="{ability: [aclRight.WORK_WARE_USED_MOD]}" (click)="editUsedPart(data)"></i>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <i nz-icon nzType="delete" nzTheme="outline" style="color: #FFBD50" type="primary"
+                       *ngIf="canServiceModWork"
+                       [acl]="{ability: [aclRight.WORK_WARE_USED_DEL]}" (click)="delUsedPart(data.usedId)"></i>
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+              <nz-table
+                [nzTitle]="wareRecycleTitle"
+                *ngIf="work.workSysType == maintenance && (canServiceModWork || work.faultPartList && work.faultPartList.length > 0)"
+                [nzData]="work.faultPartList && work.faultPartList.length > 0 ? work.faultPartList : [{}]"
+                nzBordered="true"
+                nzFrontPagination="false"
+                nzSize="small"
+                nzNoResult="无"
+              >
+                <ng-template #wareRecycleTitle>
+                  <label>回收部件</label>
+                  <i nz-icon
+                     nzType="plus-circle"
+                     nzTheme="outline"
+                     style="margin-left: 16px;color: #FFBD50"
+                     (click)="addRecyclePart()"
+                     [acl]="{ability: [aclRight.WORK_WARE_RECYCLE_ADD]}"
+                     *ngIf="canServiceModWork"
+                     nz-tooltip
+                     nzTooltipTitle="添加"></i>
+                </ng-template>
+                <thead>
+                <tr  *ngIf="work.faultPartList && work.faultPartList.length > 0">
+                  <th style="width: 50px">序号</th>
+                  <th>分类</th>
+                  <th>品牌</th>
+                  <th>型号</th>
+                  <th>序列号</th>
+                  <th>数量</th>
+                  <th [acl]="{ability: [aclRight.WORK_WARE_RECYCLE_MOD, aclRight.WORK_WARE_RECYCLE_DEL]}"
+                      *ngIf="canServiceModWork">操作
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of work.faultPartList;let index = index">
+                  <td>{{ index + 1 }}</td>
+                  <td nzAlign="left">{{data.catalogName}}</td>
+                  <td nzAlign="left">{{data.brandName}}</td>
+                  <td nzAlign="left">{{data.modelName}}</td>
+                  <td nzAlign="left">{{data.wareSerial}}</td>
+                  <td nzAlign="right">{{data.quantity}}</td>
+                  <td [acl]="{ability: [aclRight.WORK_WARE_RECYCLE_MOD, aclRight.WORK_WARE_RECYCLE_DEL]}"
+                      *ngIf="canServiceModWork">
+                    <i nz-icon
+                       nzType="form"
+                       nzTheme="outline"
+                       style="color: #FFBD50"
+                       [acl]="{ability: [aclRight.WORK_WARE_RECYCLE_MOD]}"
+                       (click)="editRecyclePart(data)">
+                    </i>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <i nz-icon
+                       nzType="delete"
+                       nzTheme="outline"
+                       style="color: #FFBD50"
+                       type="primary"
+                       [acl]="{ability: [aclRight.WORK_WARE_RECYCLE_DEL]}"
+                       (click)="deleteRecyclePart(data.recycleId)">
+                    </i>
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+            <nz-table
+              [nzTitle]="serviceStandardTitle"
+              nzBordered="true"
+              nzFrontPagination="false"
+              nzSize="small"
+              [nzData]="[{}]"
+              [nzLoading]="serviceStandardLoading"
+              [acl]="{ability: [aclRight.FINISH_SERVICE_CHECK]}"
+            >
+              <ng-template #serviceStandardTitle>
+                <label>服务标准</label>
+              </ng-template>
+              <tbody>
+              <tr>
+                <td class="label-item" nzAlign="center" width="15%" nowrap>服务标准描述</td>
+                <td   width="85%" nzBreakWord nzAlign="left"><pre>{{ serviceStandardData.serviceStandardNote }}</pre></td>
+              </tr>
+              <tr>
+                <td class="label-item" width="15%">服务标准附件</td>
+                <td width="85%" nzAlign="left" colspan="3">
+                  <nz-avatar *ngFor="let fileId of serviceImageList; let i = index"
+                             [nzShape]="'square'" [nzSize]="76" style="margin-right: 16px;"
+                             [nzSrc]="showFileUrl + fileId"
+                             pro-image-viewer
+                             [images]="getImageUrls(serviceImageList, true)"
+                             [currentImgIndex]="i+1">
+                  </nz-avatar>
+                </td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+          <nz-tab nzTitle="处理过程">
+            <nz-timeline>
+              <div *ngFor="let operation of work.workOperateList,let pIndex=index">
+                <nz-timeline-item [nzDot]="pIndex == 0 ? greenDotTemplate : grayDotTemplate">
+                  <strong>{{operation.operateTypeName}}</strong><br>{{operation.summary}}
+                  <br>{{operation.operateTime | date:'yyyy-MM-dd HH:mm:ss'}}
+                  <app-map-scaner *ngIf="operation.operateType===150 && operation.point" [point]="operation.point"></app-map-scaner>
+                </nz-timeline-item>
+                <ng-template #greenDotTemplate><i nz-icon style="font-size: 16px;" nzType="wms:green-round"></i></ng-template>
+                <ng-template #grayDotTemplate><i nz-icon style="font-size: 16px;" nzType="wms:gray-round"></i></ng-template>
+              </div>
+            </nz-timeline>
+          </nz-tab>
+          <nz-tab nzTitle="沟通记录" (nzSelect)="chatwindow.onShow()">
+            <chat-window #chatwindow [workId]="this.workId"></chat-window>
+          </nz-tab>
+
+          <nz-tab nzTitle="支持跟进"  *ngIf="hasWorkSupportRight() || hasFollowRight()">
+            <button nz-button class="edit-button"
+                    nzShape="round"
+                    style="margin-bottom: 10px;margin-right: 16px;"
+                    *ngIf="(canAddSupport() && (work.isSupport == 'N' || supportLength == 0))"
+                    (click)="toWorkSupport()">转技术支持</button>
+            <button nz-button class="edit-button"
+                    nzShape="round"
+                    style="margin-bottom: 10px;margin-right: 16px;"
+                    *ngIf="canAddSupportRecord() && work.isSupport == 'Y' && supportLength > 0"
+                    (click)="addWorkSupportRecord(work.workSupportList[0])">添加支持记录</button>
+            <button nz-button class="edit-button"
+                    nzShape="round"
+                    style="margin-bottom: 10px;margin-right: 16px;"
+                    *ngIf="canAddFollow()"
+                    (click)="addFollow()">添加跟进记录</button>
+            <br>
+            <nz-card nzTitle="技术支持" [nzBordered]="false" nz-col [nzXs]="24" [nzXl]="24/cols"
+                     [nzBodyStyle]="{paddingTop: '12px'}" *ngIf="supportLength > 0 && hasWorkSupportRight()">
+<!--              <div *ngIf="supportLength == 0">-->
+<!--                <p class="support">暂无数据</p>-->
+<!--              </div>-->
+              <div *ngIf="supportLength > 0">
+                <div *ngFor="let workSupport of work.workSupportList,let sIndex=index">
+                  <div style="border-top:1px #e8e8e8 solid; margin-bottom: 10px;" *ngIf="sIndex > 0"></div>
+                  <div style="background-color: #fafafa;">
+                  <div class="support-div-row" nz-row *ngIf="cols==1">
+                    <div nz-col class="support-label-item" nzXs="5" nzLg="4" nzXl="3" nzXXl="2">开启时间：</div>
+                    <div nz-col class="div-note" nzSpan="8">{{workSupport.operateTime | date:'yyyy-MM-dd HH:mm:ss'}}</div>
+                    <div nz-col class="support-label-item" nzXs="5" nzLg="4" nzXl="3" nzXXl="2">严重程度：</div>
+                    <div nz-col class="div-note" nzSpan="5">{{ workSupport.severityName }}</div>
+                  </div>
+                  <div class="support-div-row" nz-row *ngIf="cols==2">
+                    <div nz-col class="support-label-item" nzXs="4" nzXl="6">开启时间：</div>
+                    <div nz-col class="div-note" nzXs="8" nzXl="18">{{workSupport.operateTime | date:'yyyy-MM-dd HH:mm:ss'}}</div>
+                    <div nz-col class="support-label-item" nzXs="4" nzXl="6">严重程度：</div>
+                    <div nz-col class="div-note" nzXs="8" nzXl="18">{{ workSupport.severityName }}</div>
+                  </div>
+                  <div class="support-div-row" nz-row *ngIf="cols==1">
+                    <div nz-col class="support-label-item" nzXs="5" nzLg="4" nzXl="3" nzXXl="2">关闭时间：</div>
+                    <div nz-col class="div-note" nzSpan="8" *ngIf="workSupport.supportType === 'Y'">
+                      <span style="color: black;font-weight: bolder">未关闭</span></div>
+                    <div nz-col class="div-note" nzSpan="8" *ngIf="workSupport.supportType === 'N'">
+                      {{workSupport.closeTime | date:'yyyy-MM-dd HH:mm:ss'}}&nbsp;</div>
+                    <div nz-col class="support-label-item" nzXs="5" nzLg="4" nzXl="3" nzXXl="2">支持人员：</div>
+                    <div nz-col class="div-note" nzSpan="5">
+                      <username-info [userId]="workSupport.handler" [username]="workSupport.handlerName"></username-info>
+                    </div>
+                  </div>
+                  <div class="support-div-row" nz-row *ngIf="cols==2">
+                    <div nz-col class="support-label-item" nzXs="4" nzXl="6">关闭时间：</div>
+                    <div nz-col class="div-note" nzXs="8" nzXl="18" *ngIf="workSupport.supportType === 'Y'">
+                      <span style="color: black;font-weight: bolder">未关闭</span></div>
+                    <div nz-col class="div-note" nzXs="8" nzXl="18" *ngIf="workSupport.supportType === 'N'">
+                      {{workSupport.closeTime | date:'yyyy-MM-dd HH:mm:ss'}}&nbsp;</div>
+                    <div nz-col class="support-label-item" nzXs="4" nzXl="6">支持人员：</div>
+                    <div nz-col class="div-note" nzXs="8" nzXl="18">
+                      <username-info [userId]="workSupport.handler" [username]="workSupport.handlerName"></username-info>
+                    </div>
+                  </div>
+                  <div class="support-div-row" nz-row *ngIf="cols==1">
+                    <div nz-col class="support-label-item" nzXs="5" nzLg="4" nzXl="3" nzXXl="2">问题说明：</div>
+                    <div nz-col class="div-note" nzSpan="19">{{ workSupport.description}}</div>
+                  </div>
+                  <div class="support-div-row" nz-row *ngIf="cols==2">
+                    <div nz-col class="support-label-item" nzXs="4" nzXl="6">问题说明：</div>
+                    <div nz-col class="div-note" nzXs="18" nzXl="18">{{ workSupport.description}}</div>
+                  </div>
+                  </div><br>
+<!--                  <nz-divider nzDashed></nz-divider>-->
+                  <div *ngIf="workSupport.recordList === null || workSupport.recordList.length === 0">
+                    <p style="font-size: 14px; color: rgba(0, 0, 0, 0.25)">暂无支持记录</p>
+                  </div>
+<!--                  <nz-divider nzDashed *ngIf="workSupport.recordList === null|| workSupport.recordList.length === 0"></nz-divider>-->
+                  <nz-timeline>
+                  <div *ngFor="let record of workSupport.recordList,let pIndex=index">
+                    <nz-timeline-item [nzColor]="pIndex == 0 ? 'green' : 'gray'" [nzDot]="dotTemplate">
+                      {{record.operatorName}}&nbsp;&nbsp;
+                      {{record.operateTime | date:'yyyy-MM-dd HH:mm:ss'}}
+                      <br>{{record.trackRecord}}
+                    </nz-timeline-item>
+                  </div>
+                  </nz-timeline>
+                </div>
+              </div>
+            </nz-card>
+
+            <nz-card nzTitle="跟进记录" [nzBordered]="false" nz-col [nzXs]="24" [nzXl]="24/cols"
+                     *ngIf="work.workFollowList && work.workFollowList.length > 0 && hasFollowRight()">
+              <nz-timeline>
+                <div *ngFor="let operation of work.workFollowList,let pIndex=index">
+                  <nz-timeline-item [nzColor]="pIndex == 0 ? 'green' : 'gray'" [nzDot]="dotTemplate">
+                    {{operation.operatorName}}&nbsp;&nbsp;
+                    {{operation.operateTime | date:'yyyy-MM-dd HH:mm:ss'}}
+                    <br>{{operation.followRecord}}
+                  </nz-timeline-item>
+                </div>
+              </nz-timeline>
+            </nz-card>
+            <ng-template #dotTemplate><i nz-icon style="font-size: 16px;" nzType="wms:gray-round"></i></ng-template>
+          </nz-tab>
+
+          <nz-tab nzTitle="工单费用" *ngIf="work.workFeeDto">
+            <work-fee-detail [work]="work" (refreshParent)="query()"></work-fee-detail>
+          </nz-tab>
+          <nz-tab nzTitle="回访记录" *ngIf="hasWorkReviewRight()">
+            <button nz-button class="edit-button" nzShape="round"
+                    style="margin-bottom: 10px;margin-right: 16px;"
+                    *ngIf="hasWorkReviewAddRight()" (click)="addWorkReview()">添加</button>
+            <work-review-list [workId]="this.workId"></work-review-list>
+          </nz-tab>
+          <!--    先隐藏评价tab页    -->
+          <!--        <nz-tab nzTitle="客户评价" [nzDisabled]="workEvaluate == null || workEvaluate == 'undefined'">-->
+          <!--          <label style="color: red" *ngIf="workEvaluate == null || workEvaluate == 'undefined'">无</label>-->
+          <!--          <div *ngIf="workEvaluate">-->
+          <!--            <div *ngFor="let rate of workEvaluate.workEvaluateIndexDtoList" style="margin-bottom: 20px">-->
+          <!--              <span style="width: 10%;margin-left: 0" class="ant-rate-text">{{rate.evaluateName}}:</span>-->
+          <!--              <nz-rate [nzCount]="rate.maxNumber" [ngModel]="rate.number" nzDisabled></nz-rate>-->
+          <!--              <span class="ant-rate-text">{{rate.label}}</span>-->
+          <!--            </div>-->
+          <!--          </div>-->
+          <!--          <nz-row style="margin-bottom: 20px" *ngIf="workEvaluate">-->
+          <!--            <div *ngFor="let tag of workEvaluate.workEvaluateTagDtoList">-->
+          <!--              <nz-col nzSpan="2">-->
+          <!--                <nz-tag [nzColor]="'green'">{{tag.tagName}}</nz-tag>-->
+          <!--              </nz-col>-->
+          <!--            </div>-->
+          <!--          </nz-row>-->
+          <!--          <nz-row *ngIf="workEvaluate" style="margin-bottom: 20px">-->
+          <!--            <nz-col nzSpan="2">-->
+          <!--              <label>评价内容:</label>-->
+          <!--            </nz-col>-->
+          <!--            <nz-col nzSpan="16">-->
+          <!--              <label>{{workEvaluate.remark}}</label>-->
+          <!--            </nz-col>-->
+          <!--          </nz-row>-->
+          <!--          <nz-row *ngIf="workEvaluate" style="margin-bottom: 20px">-->
+          <!--            <nz-col nzSpan="2">-->
+          <!--              <label>评价时间:</label>-->
+          <!--            </nz-col>-->
+          <!--            <nz-col nzSpan="16">-->
+          <!--              <label>{{workEvaluate.operateTime | date: 'yyyy-MM-dd HH:mm:ss'}}</label>-->
+          <!--            </nz-col>-->
+          <!--          </nz-row>-->
+          <!--        </nz-tab>-->
+        </nz-tabset>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</nz-spin>

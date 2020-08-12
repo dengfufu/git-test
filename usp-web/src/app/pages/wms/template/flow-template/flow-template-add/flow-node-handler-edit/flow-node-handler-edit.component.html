@@ -1,0 +1,34 @@
+<form [formGroup]="handlerForm">
+  <nz-spin [nzSpinning]="spinning">
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>处理人类型</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+      <nz-select nzShowSearch nzAllowClear formControlName="handlerTypeId" nzPlaceHolder="请选择处理人类型"
+                 [nzDisabled]="true">
+      <!--(ngModelChange)="changeHandlerType($event)-->
+        <nz-option *ngFor="let data of handlerTypeList" [nzValue]="data.id"
+                   [nzLabel]="data.name"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>{{text}}</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="">
+      <nz-select nzShowSearch nzAllowClear formControlName="handlerId" nzPlaceHolder="{{text}}"
+                 [nzDisabled]="this.flag">
+        <nz-option *ngFor="let data of textList" [nzValue]="data.id"
+                   [nzLabel]="data.name"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>是否主处理人</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24">
+      <nz-radio-group formControlName="isMainDirector" [nzDisabled]="this.flag">
+        <label nz-radio nzValue="Y">是</label>
+        <label nz-radio nzValue="N">否</label>
+      </nz-radio-group>
+    </nz-form-control>
+  </nz-form-item>
+  </nz-spin>
+</form>

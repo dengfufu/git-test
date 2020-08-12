@@ -1,0 +1,95 @@
+<nz-spin [nzSpinning]="spinning">
+  <nz-card [nzBordered]="false" [nzBodyStyle]="{paddingTop: '0px', paddingBottom: '0px'}">
+    <form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="form">
+      <div nz-row>
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzSpan="6">结算单号</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{settleDemander.settleCode}}
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+      <div nz-row>
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzSpan="6">工单总数</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{settleDemander.workQuantity}}
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzSpan="6">总金额</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{settleDemander.settleFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+      <div nz-row>
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzSpan="6">已付款</nz-form-label>
+            <nz-form-control nzSpan="16">
+              {{settleDemander.payStatusName}}
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label nzSpan="6">已收款</nz-form-label>
+            <nz-form-control nzSpan="16">
+              否
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+      <div nz-row>
+        <div nz-col nzSpan="24">
+          <nz-form-item>
+            <nz-form-label nzSpan="3" nzRequired>收款日期</nz-form-label>
+            <nz-form-control nzSpan="16" [nzErrorTip]="form.controls.receiptTime.errors?.explain">
+              <nz-date-picker
+                formControlName="receiptTime"
+                nzShowTime
+                nzFormat="yyyy-MM-dd"
+                nzPlaceHolder="请选择收款日期"></nz-date-picker>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+      <div nz-row>
+        <div nz-col nzSpan="24">
+          <nz-form-item>
+            <nz-form-label nzSpan="3">收款附件</nz-form-label>
+            <nz-form-control nzSpan="16">
+              <nz-upload [nzAction]="uploadAction"
+                         nzListType="picture"
+                         [nzShowButton]="fileList.length <= 5"
+                         [(nzFileList)]="fileList"
+                         (nzChange)="uploadHandleChange($event)"
+                         [nzPreview]="handlePreview">
+                <button nz-button><i nz-icon nzType="upload"></i>上传</button>
+              </nz-upload>
+              <nz-modal [nzVisible]="previewVisible" [nzContent]="modalContent" [nzFooter]="null"
+                        (nzOnCancel)="previewVisible = false">
+                <ng-template #modalContent>
+                  <img [src]="previewImage" [ngStyle]="{ width: '100%' }"/>
+                </ng-template>
+              </nz-modal>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+</nz-spin>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [disabled]="!form.valid || !canSubmit"
+          class="button-modal-submit">提交
+  </button>
+</div>

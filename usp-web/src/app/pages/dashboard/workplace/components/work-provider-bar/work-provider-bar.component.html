@@ -1,0 +1,18 @@
+<nz-card nzTitle="工单按服务商统计{{ workTotalCount >0 ? '('+ workTotalCount+')':'' }}"
+         style="margin-bottom: 0px"
+         [nzBordered]="false"
+         [nzExtra]="extraTemplate"
+         [nzBodyStyle]="{padding:'6px',height: '600px'}">
+  <nz-spin [nzSpinning]="isLoading" style="position: absolute;top: 55%;left: 50%;"></nz-spin>
+  <div class="content-flex-center" *ngIf="isEmptyData">
+    <nz-embed-empty nzComponentName="normal"></nz-embed-empty>
+  </div>
+  <div *ngIf="!isEmptyData" echarts [options]="chartOption" style="width:100%;height: 100%" [theme]="'usp'"></div>
+</nz-card>
+<ng-template #extraTemplate>
+  <nz-range-picker nzSize="small"
+                   [nzRanges]="rangeDates"
+                   [(ngModel)]="rangeDate"
+                   (ngModelChange)="dateRangeChange($event)">
+  </nz-range-picker>
+</ng-template>

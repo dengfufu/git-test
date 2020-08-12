@@ -1,0 +1,402 @@
+<nz-layout>
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">添加寄送单</nz-page-header-title>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+  <nz-spin [nzSpinning]="spinning">
+    <nz-layout>
+      <nz-card [nzBordered]="false">
+        <form nz-form [formGroup]="validateForm">
+          <div nz-row>
+            <div nz-col nzSpan="12">
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>发货企业</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24">{{currentCorp.shortName}}</nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24">发货网点</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignBranch.errors?.explain">
+                  <nz-select
+                    formControlName="consignBranch"
+                    nzPlaceHolder="请选择网点"
+                    nzAllowClear
+                    nzShowSearch
+                    nzServerSearch
+                    nzFilterOption
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="matchConsignBranch($event)"
+                    (ngModelChange)="consignBranchChange()"
+                    [nzDisabled]="!consignBranchVisible">
+                    <nz-option *ngFor="let consignBranch of consignBranchList"
+                               [nzLabel]="consignBranch.branchName"
+                               [nzValue]="consignBranch.branchId"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>发货人</nz-form-label>
+                <nz-form-control [nzSm]="7" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignUser.errors?.explain">
+                  <nz-select
+                    style="width: 140px;"
+                    nzPlaceHolder="请输入发货人"
+                    nzAllowClear
+                    nzShowSearch
+                    nzServerSearch
+                    nzFilterOption
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="matchConsignUser($event)"
+                    (ngModelChange)="consignUserChange()"
+                    formControlName="consignUser">
+                    <nz-option *ngFor="let consignUser of consignUserList"
+                               [nzLabel]="consignUser.userName"
+                               [nzValue]="consignUser.userId"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+                <nz-form-control [nzSm]="8" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignUserPhone.errors?.explain">
+                  <input nz-input formControlName="consignUserPhone"
+                         placeholder="请输入联系电话"
+                         style="width: 140px;"/>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>行政区划</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignAreaList.errors?.explain">
+                  <nz-cascader
+                    nzPlaceHolder="请选择行政区划"
+                    nzAllowClear
+                    nzShowSearch
+                    [nzOptions]="areaList"
+                    [nzShowSearch]="true"
+                    [nzChangeOnSelect]="true"
+                    formControlName="consignAreaList">
+                  </nz-cascader>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>发货地址</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignAddress.errors?.explain">
+                  <textarea nz-input rows="2" formControlName="consignAddress"
+                            placeholder="点击[识]图标可解析出地址中的行政区划"
+                            style="padding-right: 25px;"
+                            exeHighlight></textarea>
+                  <img src="assets/anyfix/address-parser.svg" (click)="consignAddressParse()"
+                       style="margin-left: -24px;margin-top: 5px; position: absolute; width: 18px;"
+                       title="从地址中解析行政区划">
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col nzSpan="12">
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>收货企业</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.receiveCorp.errors?.explain">
+                  <nz-select
+                    formControlName="receiveCorp"
+                    nzPlaceHolder="请选择收货企业"
+                    nzAllowClear
+                    nzShowSearch
+                    (ngModelChange)="receiveCorpChange()">
+                    <nz-option *ngFor="let receiveCorp of receiveCorpList"
+                               [nzValue]="receiveCorp.corpId"
+                               [nzLabel]="receiveCorp.corpName"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24">收货网点</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.receiveBranch.errors?.explain">
+                  <nz-select
+                    formControlName="receiveBranch"
+                    nzPlaceHolder="请选择网点"
+                    nzAllowClear
+                    nzShowSearch
+                    nzServerSearch
+                    nzFilterOption
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="matchReceiveBranch($event)"
+                    (ngModelChange)="receiveBranchChange()"
+                    [nzDisabled]="!receiveBranchVisible">
+                    <nz-option *ngFor="let receiveBranch of receiveBranchList"
+                               [nzLabel]="receiveBranch.branchName"
+                               [nzValue]="receiveBranch.branchId"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>收货人</nz-form-label>
+                <nz-form-control [nzSm]="7" [nzXs]="24" [nzErrorTip]="validateForm.controls.receiver.errors?.explain">
+                  <nz-select
+                    style="width: 140px;"
+                    nzPlaceHolder="请输入收货人"
+                    nzAllowClear
+                    nzShowSearch
+                    nzServerSearch
+                    nzFilterOption
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="matchReceiveUser($event)"
+                    (ngModelChange)="receiveUserChange()"
+                    formControlName="receiver">
+                    <nz-option *ngFor="let receiveUser of receiveUserList"
+                               [nzLabel]="receiveUser.userName"
+                               [nzValue]="receiveUser.userId"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+                <nz-form-control [nzSm]="8" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.receiverPhone.errors?.explain">
+                  <input nz-input formControlName="receiverPhone"
+                         placeholder="请输入联系电话" style="width: 140px;"/>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>行政区划</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.receiveAreaList.errors?.explain">
+                  <nz-cascader
+                    nzPlaceHolder="请选择行政区划"
+                    nzAllowClear
+                    nzShowSearch
+                    [nzOptions]="areaList"
+                    [nzShowSearch]="true"
+                    [nzChangeOnSelect]="true"
+                    formControlName="receiveAreaList">
+                  </nz-cascader>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>收货地址</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.receiveAddress.errors?.explain">
+                  <textarea nz-input rows="2" formControlName="receiveAddress"
+                            placeholder="点击[识]图标可解析出地址中的行政区划"
+                            style="padding-right: 25px;"
+                            exeHighlight></textarea>
+                  <img src="assets/anyfix/address-parser.svg" (click)="receiveAddressParse()"
+                       style="margin-left: -24px;margin-top: 5px; position: absolute; width: 18px;"
+                       title="从地址中解析行政区划">
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+          <nz-divider [nzDashed]="true"></nz-divider>
+          <div nz-row>
+            <div nz-col nzSpan="12">
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>运输方式</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.transportType.errors?.explain">
+                  <nz-select
+                    formControlName="transportType"
+                    nzPlaceHolder="请选择运输方式"
+                    nzShowSearch
+                    nzAllowClear
+                    (ngModelChange)="transportTypeChange()">
+                    <nz-option *ngFor="let transportType of transportTypeList"
+                               [nzValue]="transportType.code"
+                               [nzLabel]="transportType.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item *ngIf="consignTypeVisible">
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>托运方式</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignType.errors?.explain">
+                  <nz-select
+                    formControlName="consignType"
+                    nzPlaceHolder="请选择托运方式"
+                    nzShowSearch
+                    nzAllowClear>
+                    <nz-option *ngFor="let consignType of consignTypeList"
+                               [nzValue]="consignType.code"
+                               [nzLabel]="consignType.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item *ngIf="expressCompanyVisible">
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>快递公司</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.expressCorpName.errors?.explain">
+                  <nz-select
+                    formControlName="expressCorpName"
+                    nzPlaceHolder="请选择/填写快递公司"
+                    nzAllowClear
+                    nzShowSearch
+                    nzServerSearch
+                    nzFilterOption
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="matchExpressCompany($event)">
+                    <nz-option *ngFor="let expressCompany of expressCompanyList"
+                               [nzValue]="expressCompany.name"
+                               [nzLabel]="expressCompany.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item *ngIf="expressNoVisible">
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>快递单号</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="validateForm.controls.expressNo.errors?.explain">
+                  <input nz-input formControlName="expressNo" placeholder="请输入快递单号"/>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item *ngIf="expressTypeVisible">
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>快递类型</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.expressType.errors?.explain">
+                  <nz-select
+                    formControlName="expressType"
+                    nzPlaceHolder="请选择快递类型"
+                    nzShowSearch
+                    nzAllowClear>
+                    <nz-option *ngFor="let expressType of expressTypeList"
+                               [nzValue]="expressType.code"
+                               [nzLabel]="expressType.name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>总箱数</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="validateForm.controls.boxNum.errors?.explain">
+                  <nz-input-number formControlName="boxNum" style="width: 170px;"
+                                   [nzMin]="1" [nzMax]="100" [nzStep]="1"></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>发货时间</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignTime.errors?.explain">
+                  <nz-date-picker formControlName="consignTime"></nz-date-picker>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24">付费方式</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.payWay.errors?.explain">
+                  <nz-select
+                    formControlName="payWay"
+                    nzPlaceHolder="请选择付费方式"
+                    nzShowSearch
+                    nzAllowClear
+                    style="width: 170px;">
+                    <nz-option [nzValue]="1" [nzLabel]="'寄付'"></nz-option>
+                    <nz-option [nzValue]="2" [nzLabel]="'到付'"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24">邮寄费(元)</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.postFee.errors?.explain">
+                  <nz-input-number formControlName="postFee" [nzPrecision]="2" style="width: 170px;"
+                                   [nzMin]="0" [nzMax]="99999999" [nzStep]="1"
+                                   [nzPlaceHolder]="'请输入邮寄费'"></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col nzSpan="12">
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24">工单号</nz-form-label>
+                <nz-form-control [nzSm]="20" [nzXs]="24">
+                  <button nz-button nzType="primary" (click)="selectWork()">选择</button>&nbsp;&nbsp;
+                  <span style="word-wrap:break-word;table-layout:fixed;word-break:break-all;">{{ workCodes }}</span>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24">发货备注</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24"
+                                 [nzErrorTip]="validateForm.controls.consignNote.errors?.explain">
+                  <textarea nz-input rows="2" formControlName="consignNote"
+                            placeholder="请输入发货备注"></textarea>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="4" [nzXs]="24">附件</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24">
+                  <nz-upload nzListType="picture"
+                             [nzAction]="uploadAction"
+                             [(nzFileList)]="fileList"
+                             [nzShowButton]="fileList.length < 5"
+                             (nzChange)="uploadHandleChange($event)"
+                             [nzPreview]="handlePreview">
+                    <button nz-button><i nz-icon nzType="upload"></i>上传</button>
+                  </nz-upload>
+                  <nz-modal [nzVisible]="previewVisible" [nzContent]="modalContent"
+                            [nzFooter]="null" (nzOnCancel)="previewVisible = false">
+                    <ng-template #modalContent>
+                      <img [src]="previewImage" [ngStyle]="{ width: '100%' }"/>
+                    </ng-template>
+                  </nz-modal>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </form>
+      </nz-card>
+      <nz-page-header style="padding: 8px 16px; background-color: white;" [style.padding-bottom.px]="'8'">
+        <nz-page-header-title>
+          <div style="display: inline-block; float: left; background: #FF9F00;
+    height: 20px; width: 5px; margin-right: 10px; margin-top: 6px;"></div>
+          物品清单
+        </nz-page-header-title>
+      </nz-page-header>
+      <nz-card [nzBordered]="false" [nzBodyStyle]="{'padding-top':'0'}">
+        <div style="height: 20px; margin: 16px 0 16px 0; text-align: right;">
+          <button nz-button class="add-button" nzShape="round" (click)="addGoods()">添加</button>
+        </div>
+        <nz-table nzBordered
+                  [nzShowPagination]="false"
+                  [nzData]="goodsList"
+                  nzNoResult="无物品清单">
+          <thead>
+          <tr>
+            <th nzWidth="50px">序号</th>
+            <th nzWidth="250px">物品名称</th>
+            <th nzWidth="150px">序列号</th>
+            <th nzWidth="80px">数量</th>
+            <th nzWidth="80px">分箱号</th>
+            <th nzWidth="250px">附件</th>
+            <th nzWidth="60px">操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of goodsList; let index = index;">
+            <td>{{ index + 1 }}</td>
+            <td nzBreakWord>{{ data.goodsName }}</td>
+            <td nzBreakWord>{{ data.sn }}</td>
+            <td nowrap>{{ data.quantity }}</td>
+            <td nowrap>{{ data.subBoxNum }}</td>
+            <td nzAlign="left">
+              <nz-avatar *ngFor="let file of data.imgList;let i = index"
+                         [nzShape]="'square'" [nzSize]="50"
+                         style="margin-left: 10px;margin-bottom: 10px;"
+                         [nzSrc]="showFileUrl + file.fileId"
+                         pro-image-viewer
+                         [images]="getImageUrls(data.imgList)"
+                         [currentImgIndex]="i+1">
+              </nz-avatar>
+              <br *ngIf="data.imgList && data.imgList.length > 0"/>
+              <a *ngFor="let file of data.notImgList" pro-down-file [httpUrl]="downFileUrl + file.fileId"
+                 [fileName]="file.fileName" httpMethod="post"
+                 style="margin-left: 10px;margin-bottom: 10px;">{{file.fileName}}<br/></a>
+            </td>
+            <td nowrap>
+              <a (click)="editGoods(index)">编辑</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a nz-popconfirm nzTitle="确定删除吗?" (nzOnConfirm)="deleteRow(index)">删除</a>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+        <div style="margin-top: 32px;text-align: center;">
+          <button type="button" nz-button (click)="goBack()">返回</button>&nbsp;&nbsp;
+          <button type="button" nz-button nzType="primary" [disabled]="!canSubmit" (click)="submitForm()">提交</button>
+        </div>
+      </nz-card>
+    </nz-layout>
+  </nz-spin>
+</nz-layout>

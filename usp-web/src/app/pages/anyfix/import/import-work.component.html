@@ -1,0 +1,100 @@
+<nz-card [nzBordered]="false">
+  <nz-card-tab>
+    <nz-tabset nzSize="large" [(nzSelectedIndex)]="selectedIndex">
+      <nz-tab nzTitle="下载模板"></nz-tab>
+      <nz-tab nzTitle="导入工单"></nz-tab>
+    </nz-tabset>
+  </nz-card-tab>
+
+  <form nz-form nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }" [formGroup]="form">
+
+    <div *ngIf="selectedIndex == 0">
+      <div nz-row >
+        <div nz-col>
+          <div nzSpan="24" class="info-header">提示信息:</div>
+          <div nzSpan="24" class="info-content">1、必须先选择[委托商]以后才能下载对应委托商的导入模板。</div>
+        </div>
+      </div>
+      <br>
+      <div nz-row >
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>委托商</nz-form-label>
+            <nz-form-control [nzSm]="6" [nzXs]="24" [nzErrorTip]="form.controls.demanderCorp.errors?.explain">
+              <nz-select nzShowSearch formControlName="demanderCorp"
+                         nzPlaceHolder="请选择委托商" (ngModelChange)="demanderCorpChange()"
+                         style="width: 250px;">
+                <nz-option *ngFor="let demanderCorp of demanderCorpList" [nzValue]="demanderCorp.demanderCorp"
+                           [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+          </nz-form-item>
+        </div>
+        <div nz-col nzSpan="12">
+          <nz-form-item>
+            <nz-form-control [nzSm]="6" [nzXs]="24">
+              <button nz-button
+                      nzShape="round"
+                      pro-down-file
+                      class="button-width"
+                      [httpUrl]="'/api/anyfix/work-excel/template'"
+                      [httpParams]="{demanderCorp: form.value.demanderCorp,demanderCorpName: demanderCorpName}"
+                      [disabled]="!form.valid"><i nz-icon nzType="download" nzTheme="outline"></i>下载模板
+              </button>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedIndex == 1">
+      <div nz-row >
+        <div nz-col nzSpan="24">
+          <div>
+            <div class="info-header">提示信息:</div>
+            <div class="info-content">1、一次导入只能导入同一个委托商的数据。</div>
+            <div class="info-content">2、[是否自动提单]选择[是]时，将根据自动化设置为您自动提单。</div>
+            <div class="info-content">3、导入过程中请不要关闭本页面。</div>
+          </div>
+          <br>
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">是否自动提单</nz-form-label>
+            <nz-form-control [nzSpan]="18">
+              <nz-select formControlName="autoHandel" style=" width: 110px;">
+                <nz-option nzValue="Y" nzLabel="是"></nz-option>
+                <nz-option nzValue="N" nzLabel="否"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6">导入工单</nz-form-label>
+            <nz-form-control [nzSpan]="18">
+              <nz-upload nzAction="/api/anyfix/work-excel/import" [nzAccept]="fileTypes" [nzCustomRequest]="customReq">
+                <button nz-button nzShape="round" class="button-width"><i nz-icon nzType="upload"></i><span>Excel上传</span></button>
+              </nz-upload>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="errorMsg.length > 0">
+            <nz-form-control [nzSpan]="12" nzOffset="6"  *ngIf="num == 0">
+              <div>
+                <div [innerHTML]="errorMsg" class="error-msg"></div>
+                <button nz-button nzShape="round" class="button-width" (click)="doCopy(errorMsg)">复制报错信息</button>
+              </div>
+            </nz-form-control>
+            <nz-form-control [nzSpan]="12" nzOffset="6"  *ngIf="num > 0">
+              <div [innerHTML]="errorMsg" class="success-msg"></div>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </div>
+  </form>
+</nz-card>
+
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">关闭</button>
+</div>
+
+

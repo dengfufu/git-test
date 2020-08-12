@@ -1,0 +1,38 @@
+<nz-descriptions style="background-color: #FFFFFF">
+  <nz-descriptions-item nzTitle="客户名称">{{settleCustom.customName}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="结算周期">{{settleCustom.startDate | date:'yyyy-MM-dd' }} ~ {{settleCustom.endDate | date:'yyyy-MM-dd'}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="结算人员">{{settleCustom.operatorName}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="结算时间">{{settleCustom.operateTime | date:'yyyy-MM-dd' }}</nz-descriptions-item>
+</nz-descriptions>
+<nz-table
+  nzShowSizeChanger
+  nzBordered
+  [nzFrontPagination]="false"
+  [nzData]="settleCustomDetailList"
+  [nzLoading]="loading"
+  [nzTotal]="total"
+  [(nzPageIndex)]="pageNum"
+  [(nzPageSize)]="pageSize"
+  (nzPageIndexChange)="querySettleCustomDetail()"
+  (nzPageSizeChange)="querySettleCustomDetail()">
+  <thead nzSingleSort>
+  <tr>
+    <th>序号</th>
+    <th>工单编号</th>
+    <th>客户名称</th>
+    <th>工单类型</th>
+    <th>在保状态</th>
+    <th>创建日期</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of settleCustomDetailList;let index = index">
+    <td nzAlign="center">{{ (pageNum - 1) * pageSize + index + 1 }}</td>
+    <td>{{ data.workCode }}</td>
+    <td>{{ data.customCorpName}}</td>
+    <td>{{ data.workTypeName }}</td>
+    <td>{{ data.warrantyName }}</td>
+    <td>{{ data.createTime | date:'yyyy-MM-dd' }}</td>
+  </tr>
+  </tbody>
+</nz-table>

@@ -1,0 +1,55 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+
+    <div >
+      <nz-table nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="list"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                [nzLoadingDelay]="100">
+        <thead>
+        <tr>
+          <th>序号</th>
+          <th>库房</th>
+          <th>备件</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>备件状态</th>
+          <th>库存量</th>
+          <th>已批准未发货量</th>
+          <th>安全库存</th>
+          <th>可发货数量</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of list;let index = index" class="editable-row" (dblclick)="chooseStore(data)">
+          <td nzAlign="center">{{ page.getNo(index) }}</td>
+          <td>{{ data.depotName }}</td>
+          <td>{{ data.catalogName }}</td>
+          <td>{{ data.brandName }}</td>
+          <td>{{ data.modelName }}</td>
+          <td>{{ data.situationName }}</td>
+          <td>{{ data.actualQty }}</td>
+          <td>{{ data.approvedNotDispatchCount }}</td>
+          <td>{{ data.safeStock }}</td>
+          <td>{{ data.actualQty }}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+<!--    <div style="text-align:right;">-->
+<!--      <button nz-button style="margin-right: 20px" type="button" (click)="addDelivery()"  >添加</button>-->
+<!--      <button nz-button style="margin-right: 20px"   type="button" (click)="cancel()"  >取消</button>-->
+<!--    </div>-->
+
+    <div style="color: #FF9F00; margin-top: 10px" *ngIf="action=== 'add'">
+      注：双击可选择要发货的库房
+    </div>
+  </nz-spin>
+</form>

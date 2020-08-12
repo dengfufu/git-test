@@ -1,0 +1,64 @@
+<nz-layout>
+  <nz-content>
+    <nz-card>
+      <div class="edit-button-div">
+        <!--<i nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addSettleStaffRecord()" nz-tooltip
+           nzTooltipTitle="新建"></i>
+        <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+           nzTooltipTitle="筛选"></i>-->
+        <button nz-button  class="icon-add" nzShape="round"  (click)="addSettleStaffRecord()">新建</button>
+        <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+      </div>
+      <nz-table
+        nzShowSizeChanger
+        nzBordered
+        [nzFrontPagination]="false"
+        [nzData]="settleStaffList"
+        [nzLoading]="loading"
+        [nzTotal]="total"
+        [(nzPageIndex)]="pageNum"
+        [(nzPageSize)]="pageSize"
+        (nzPageIndexChange)="querySettleStaff(getParams(), false)"
+        (nzPageSizeChange)="querySettleStaff(getParams(), true)"
+      >
+        <thead nzSingleSort>
+        <tr>
+          <th style="width: 70px">序号</th>
+          <th>员工姓名</th>
+          <th>结算周期</th>
+          <th>结算工单总数</th>
+          <th>结算单状态</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr (click)="showDetail(data)" *ngFor="let data of settleStaffList;let index = index">
+          <td nzAlign="center">{{ (pageNum - 1) * pageSize + index + 1 }}</td>
+          <td>{{ data.userName }}</td>
+          <td>{{ data.startDate | date:'yyyy-MM-dd' }} ~ {{data.endDate | date:'yyyy-MM-dd'}}</td>
+          <td>{{ data.workQuantity }}</td>
+          <td>{{ data.statusName }}</td>
+          <td><a
+            nz-popconfirm
+            nzPopconfirmTitle="确定删除该记录?"
+            [nzPopconfirmTrigger]="'click'"
+            (click)="$event.stopPropagation()"
+            (nzOnConfirm)="delete(data.settleId);"
+          >删除</a></td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+  <nz-drawer [nzTitle]="'网点结算筛选'" [nzVisible]="visible" [nzWidth]="300" [nzClosable]="true"
+             (nzOnClose)="closeDrawer()">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label>员工姓名</nz-form-label>
+        <nz-form-control>
+          <input (change)="querySettleStaff(this.getParams(),true)" type="text" nz-input formControlName="userName" placeholder="请输入员工姓名" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </nz-drawer>
+</nz-layout>

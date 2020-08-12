@@ -1,0 +1,42 @@
+<nz-card nzTitle="企业信息">
+  <div class="cardContent" nz-row [nzGutter]="{ xs: 8, sm: 16, md: 24, lg: 32, xl: 32, xxl: 32 }">
+    <div class="cardItem" nz-col nzSpan="12" *ngFor="let corp of corpList"
+    style="margin-bottom: 10px;">
+      <!--      <nz-card [nzActions]="[actionEdit]">-->
+      <nz-card>
+        <nz-card-meta [nzAvatar]="avatarTemplate"
+                      [nzDescription]="descriptionTemplate"
+                      [nzTitle]="titleTemplate">
+        </nz-card-meta>
+      </nz-card>
+      <ng-template #avatarTemplate>
+        <nz-avatar [nzSrc]="corp.logoImgUrl"></nz-avatar>
+      </ng-template>
+      <ng-template #titleTemplate>
+        <div>{{corp.corpName}}</div>
+        <div></div>
+      </ng-template>
+      <ng-template #descriptionTemplate>
+        <div>
+          <span class="description-label">地区:</span>
+          <span class="description-value">{{corp.region}}</span>
+        </div>
+        <div>
+          <span class="description-label">详细地址:</span>
+          <span class="description-value">{{corp.address}}</span>
+        </div>
+        <div>
+          <span class="description-label">电话:</span>
+          <span class="description-value">{{corp.telephone}}</span>
+        </div>
+        <div>
+          <span class="description-label">角色:</span>
+          <span class="description-value">{{corp.roleArr}}</span>
+        </div>
+      </ng-template>
+      <ng-template #actionEdit>
+        <i nz-icon nzType="edit" (click)="edit(corp)"></i>
+      </ng-template>
+    </div>
+  </div>
+</nz-card>

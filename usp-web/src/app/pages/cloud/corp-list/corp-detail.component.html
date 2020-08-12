@@ -1,0 +1,399 @@
+<div class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon" >
+    <nz-page-header-title style="margin-left: -10px;">{{detail.corpName}}</nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"
+              style="margin-right: 20px;border: none;">
+        <img src="assets/drop-menu.svg">
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu nzSelectable>
+          <li nz-menu-item *ngFor="let option of  menuOptions"  (click)="menuClick(option.name)" >{{option.name}}</li>
+          <li nz-menu-item *ngIf="canRegistryEdit()"  (click)="editCorpRegistry()" >编辑企业</li>
+          <li nz-menu-item *ngIf="canVerify() && detail.verify === 0"  (click)="corpVerify()" >企业认证</li>
+        </ul>
+      </nz-dropdown-menu>
+    </nz-page-header-extra>
+
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+
+  <nz-spin [nzSpinning]="spinning">
+    <nz-layout>
+      <nz-sider [nzWidth]="320">
+        <nz-card style="width:320px;" [nzBordered]="false">
+          <br>
+          <div nz-row style="margin-bottom: 14px">
+            <div nz-col class="label-item" nzSpan="8">企业LOGO：</div>
+            <div nz-col nzSpan="16">
+              <nz-avatar *ngFor="let fileId of corpImageList; let i = index"
+                         [nzShape]="'square'" [nzSize]="50"
+                         style="margin-left: 10px;margin-bottom: 10px;"
+                         [nzSrc]="showFileUrl + fileId"
+                         pro-image-viewer
+                         [images]="getImageUrls(corpImageList, true)"
+                         [currentImgIndex]="i+1">
+              </nz-avatar>
+              <!--<nz-avatar *ngIf="detail.logoImg && (detail.logoImg != 0)"
+                         [nzShape]="'square'" [nzSize]="50"
+                         style="margin-left: 10px;margin-bottom: 10px;"
+                         [nzSrc]="showFileUrl + detail.logoImg"
+                         pro-image-viewer
+                         [images]="detail.logoImg">
+              </nz-avatar>-->
+            </div>
+          </div>
+          <div class="div-row" nz-row>
+            <div nz-col class="label-item" nzSpan="8">企业简称：</div>
+            <div nz-col nzSpan="16">{{detail.shortName}}</div>
+          </div>
+
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">是否认证：</div>
+            <div nz-col nzSpan="16">
+              <label>{{ detail.verify === 1 ? '已认证' : '未认证'}}</label>
+              <i nz-icon
+                 nzType="check"
+                 nzTheme="outline"
+                 style="font-size: 18px;color: rgb(126, 211, 33)"
+                 *ngIf="detail.verify === 1"></i>
+              <i nz-icon
+                 nzType="exclamation-circle"
+                 nzTheme="outline"
+                 style="font-size: 18px; color: #FFBD50"
+                 (click)="verifyConfirm(detail.corpId)"
+                 *ngIf="canVerify() && detail.verify === 0"
+                 nz-tooltip
+                 nzTooltipTitle="企业认证"></i>
+              <i nz-icon
+                 nzType="rollback"
+                 nzTheme="outline"
+                 style="font-size: 18px; color: #9c9da2; margin-left: 30px;"
+                 (click)="unverifyConfirm(detail.corpId)"
+                 *ngIf="canVerify() && detail.verify === 1"
+                 nz-tooltip
+                 nzTooltipTitle="撤消认证"></i>
+            </div>
+          </div>
+
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">联系方式：</div>
+            <div nz-col nzSpan="16">{{detail.telephone}}</div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">行政区划：</div>
+            <div nz-col nzSpan="16">{{detail.region}}</div>
+          </div>
+          <div nz-row style="margin-bottom: 14px">
+            <div nz-col class="label-item" nzSpan="8">详细地址：</div>
+            <div nz-col nzSpan="16">{{detail.address}}</div>
+          </div>
+          <div nz-row style="margin-bottom: 14px">
+            <div nz-col class="label-item" nzSpan="8">所属行业：</div>
+            <div nz-col nzSpan="16">{{this.industryMap[detail.industry]}}</div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">人员规模：</div>
+            <div nz-col nzSpan="16">{{this.staffMap[detail.staffQty]}}</div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">官方网址：</div>
+            <div nz-col nzSpan="16">{{detail.website}}</div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">注册人姓名：</div>
+            <div nz-col nzSpan="16">
+              {{detail.regUserName}}
+              <i nz-icon
+                 nzType="form"
+                 nzTheme="outline"
+                 style="font-size: 14px; color: #FFBD50"
+                 (click)="editRegUser()"
+                 *ngIf="canEditRegUser()"
+                 nz-tooltip
+                 nzTooltipTitle="修改"></i>
+            </div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">注册时间：</div>
+            <div nz-col nzSpan="16">{{detail.regTime | date:'yyyy-MM-dd HH:mm'}}</div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">主营业务：</div>
+            <div nz-col nzSpan="16">{{detail.business}}</div>
+          </div>
+          <div class="div-row" nz-row >
+            <div nz-col class="label-item" nzSpan="8">企业属性：</div>
+            <div nz-col nzSpan="16">
+              {{ detail.serviceDemander === 'Y' ? '委托商' : ''}}
+              {{ detail.serviceProvider === 'Y' ? '服务提供商' : ''}}
+              {{ detail.deviceUser === 'Y' ? '设备使用商' : ''}}
+            </div>
+          </div>
+        </nz-card>
+
+      </nz-sider>
+      <nz-content>
+        <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;">
+          <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+
+            <nz-tab nzTitle="认证信息" *ngIf="canQueryVerify()">
+              <div>
+                <button nz-button style="margin-bottom: 16px" *ngIf="canVerifyEdit() &&detail.verify === 1"
+                        class="edit-button" nzShape="round" (click)="editCorpVerify()">
+                  <span>编辑</span>
+                </button>
+                <nz-card nzBordered="true" style="width: 80%">
+                  <div class="ant-descriptions-view">
+                    <table>
+                      <tr class="ant-descriptions-row">
+                        <td class="ant-descriptions-item" nzAlign="right">
+                          <span class="ant-descriptions-item-label ant-descriptions-item-colon">法定代表人身份证号</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="left">
+                          <span class="ant-descriptions-item-content">{{verifyInfo.larIdCard}}</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="right">
+                          <span class="ant-descriptions-item-label ant-descriptions-item-colon">统一社会信用代码</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="left">
+                          <span class="ant-descriptions-item-content">{{verifyInfo.creditCode}}</span>
+                        </td>
+                      </tr>
+                      <tr class="ant-descriptions-row">
+                        <td class="ant-descriptions-item" nzAlign="right">
+                          <span class="ant-descriptions-item-label ant-descriptions-item-colon">法人代表姓名</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="left">
+                          <span class="ant-descriptions-item-content">{{verifyInfo.larName}}</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="right">
+                          <span class="ant-descriptions-item-label ant-descriptions-item-colon">详细地址</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="left">
+                          <span class="ant-descriptions-item-content">{{verifyInfo.address}}</span>
+                        </td>
+                      </tr>
+                      <tr class="ant-descriptions-row">
+                        <td class="ant-descriptions-item" nzAlign="right">
+                          <span class="ant-descriptions-item-label ant-descriptions-item-colon">成立日期</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="left">
+                          <span class="ant-descriptions-item-content">{{verifyInfo.foundDate | date: 'yyyy-MM-dd'}}</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="right">
+                          <span class="ant-descriptions-item-label ant-descriptions-item-colon">有效日期</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="left">
+                          <span class="ant-descriptions-item-content">{{verifyInfo.expireDate | date: 'yyyy-MM-dd'}}</span>
+                        </td>
+                      </tr>
+                      <tr class="ant-descriptions-row">
+                        <td class="ant-descriptions-item" nzAlign="right">
+                          <span class="ant-descriptions-item-label ant-descriptions-item-colon">营业执照</span>
+                        </td>
+                        <td class="ant-descriptions-item" nzAlign="left">
+                          <span class="ant-descriptions-item-content">
+                             <!--<nz-avatar *ngIf="verifyInfo.licenseFileId && (verifyInfo.licenseFileId != 0)"
+                                        [nzShape]="'square'" [nzSize]="50"
+                                        style="margin-left: 10px;margin-bottom: 10px;"
+                                        [nzSrc]="showFileUrl + verifyInfo.licenseFileId"
+                                        pro-image-viewer
+                                        [images]="verifyInfo.licenseFileId">
+                            </nz-avatar>-->
+                            <nz-avatar *ngFor="let fileId of licenseImageList; let i = index"
+                                       [nzShape]="'square'" [nzSize]="50"
+                                       style="margin-left: 10px;margin-bottom: 10px;"
+                                       [nzSrc]="showFileUrl + fileId"
+                                       pro-image-viewer
+                                       [images]="getImageUrls(licenseImageList, true)"
+                                       [currentImgIndex]="i+1">
+              </nz-avatar>
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </nz-card>
+              </div>
+            </nz-tab>
+
+            <nz-tab nzTitle="企业人员">
+              <div style="margin-bottom: 16px; height: 20px;">
+                <button nz-button class="user-button" nzShape="round" (click)="openDrawer()">人员筛选</button>
+              </div>
+              <div>
+                <ng-template #userTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+                <nz-table
+                  nzShowSizeChanger
+                  nzBordered
+                  [(nzPageIndex)]="userPage.pageNum"
+                  [(nzPageSize)]="userPage.pageSize"
+                  [nzShowTotal]="userTotalTemplate"
+                  [nzTotal]="userPage.total"
+                  [nzLoading]="deviceLoading"
+                  [nzFrontPagination]="false"
+                  [nzData]="deviceList"
+                  (nzPageIndexChange)="queryUserList()"
+                  (nzPageSizeChange)="queryUserList()">
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>用户名</th>
+                    <th>手机号</th>
+                    <th>当前角色</th>
+                    <th>用户状态</th>
+                    <th>是否隐藏</th>
+                    <th nzWidth="180px">操作</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of deviceList;let index = index">
+                    <td>{{ userPage.getNo(index) }}</td>
+                    <td>
+                      <username-info [userId]="data.userId" [username]="data.userName"></username-info>
+                    </td>
+                    <td>{{ data.mobile }}</td>
+                    <td>{{ data.roleNames }}</td>
+                    <td>{{ data.type === 1 ? '在职' : '离职'}}</td>
+                    <td *ngIf="data.hidden !== '0' && data.hidden !== '1'"> </td>
+                    <td *ngIf="data.hidden === '0' ">显示</td>
+                    <td *ngIf="data.hidden === '1' ">隐藏</td>
+                    <td>
+                      <ng-container *ngIf="data.type === 1">
+                        <a *ngIf="canHidden() && data.hidden === '0'"
+                           (click)="hiddenOrAndShowCorpUser(data.userId, data.corpId, 1)">隐藏</a>
+                        <a *ngIf="canHidden() && data.hidden === '1'"
+                           (click)="hiddenOrAndShowCorpUser(data.userId, data.corpId, 0)">显示</a>
+                        <nz-divider *ngIf="canHidden()" nzType="vertical"></nz-divider>
+                        <a (click)="editModal(data)">编辑</a>
+                        <nz-divider nzType="vertical"></nz-divider>
+                        <a (click)="showDeleteConfirm(data.corpId,data.userId)">删除</a>
+                      </ng-container>
+                    </td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+
+            <nz-tab nzTitle="角色列表">
+              <div style="margin-bottom: 16px; height: 20px;">
+                <button nz-button class="role-button" nzShape="round" (click)="addRole(this.corpId)">新建</button>
+              </div>
+              <div>
+                <ng-template #roleTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+                <nz-table
+                  nzShowSizeChanger
+                  nzBordered
+                  [(nzPageIndex)]="rolePage.pageNum"
+                  [(nzPageSize)]="rolePage.pageSize"
+                  [nzShowTotal]="roleTotalTemplate"
+                  [nzTotal]="rolePage.total"
+                  [nzLoading]="workLoading"
+                  [nzFrontPagination]="false"
+                  [nzData]="workList"
+                  (nzPageIndexChange)="queryRoleList()"
+                  (nzPageSizeChange)="queryRoleList()">
+                  <thead>
+                  <tr>
+                    <th nzWidth="50px">序号</th>
+                    <th>角色名称</th>
+                    <th>应用名称</th>
+                    <th nzWidth="180px">操作</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let data of workList;let index = index">
+                    <td>{{ rolePage.getNo(index) }}</td>
+                    <td>{{ data.roleName }}</td>
+                    <td>{{ data.appNames }}</td>
+                    <td>
+                      <a (click)="editRole(data.roleId, this.corpId)" *ngIf="data.sysType != 1">编辑</a>
+                      <nz-divider nzType="vertical" *ngIf="data.sysType != 1"></nz-divider>
+                      <a *ngIf="data.sysType != 1" (click)="DeleteRoleConfirm(data.roleId)">删除</a>
+                    </td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </nz-tab>
+          </nz-tabset>
+        </nz-card>
+      </nz-content>
+
+      <ng-template #filterTitle>
+        <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+        <span style="font-size: 16px;font-weight: bold;">人员筛选</span>
+      </ng-template>
+
+      <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="400" [nzClosable]="false"
+                 (nzOnClose)="closeDrawer()"
+                 [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+        <form nz-form [formGroup]="corpUserForm">
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6" nzFor="userId">用户姓名</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select
+                nzShowSearch
+                nzServerSearch
+                nzAllowClear
+                nzPlaceHolder="根据姓名、手机号搜索"
+                [nzFilterOption]="nzFilterOption"
+                (nzOnSearch)="matchUser($event)"
+                formControlName="userId">
+                <nz-option *ngFor="let o of userOptions" [nzLabel]="o.userName" [nzValue]="o.userId"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6" nzFor="roleId">角色名称</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-select
+                nzShowSearch
+                nzServerSearch
+                nzAllowClear
+                nzPlaceHolder="根据角色名称搜索"
+                [nzFilterOption]="nzFilterOption"
+                (nzOnSearch)="matchRole($event)"
+                formControlName="roleId">
+                <nz-option *ngFor="let o of roleOptions" [nzLabel]="o.roleName" [nzValue]="o.roleId"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6" nzFor="type">员工状态</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-radio-group formControlName="type">
+                <label nz-radio [nzValue] = "0">不限</label>
+                <label nz-radio [nzValue] = "1">在职</label>
+                <label nz-radio [nzValue] = "2">离职</label>
+              </nz-radio-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="6" nzFor="hidden">是否隐藏</nz-form-label>
+            <nz-form-control [nzSpan]="16">
+              <nz-radio-group formControlName="hidden">
+                <label nz-radio [nzValue] = "">不限</label>
+                <label nz-radio [nzValue] = "0">显示</label>
+                <label nz-radio [nzValue] = "1">隐藏</label>
+              </nz-radio-group>
+            </nz-form-control>
+          </nz-form-item>
+
+          <div style="text-align: right;margin-top: 40px">
+            <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+            </button>
+            <button nz-button [nzType]="'primary'" (click)="useFormValue=true;closeDrawer();queryUserList(true)">查询</button>
+          </div>
+        </form>
+      </nz-drawer>
+    </nz-layout>
+  </nz-spin>
+</div>

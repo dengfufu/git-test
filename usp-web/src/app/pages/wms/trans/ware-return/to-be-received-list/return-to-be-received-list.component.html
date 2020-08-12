@@ -1,0 +1,114 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>待收货列表</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" nzShape="round" (click)="goBack()">返回</button>
+  </nz-page-header-extra>
+</nz-page-header>
+
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+
+<nz-layout>
+  <nz-card [nzBordered]="false">
+    <form [formGroup]="addDetailForm">
+
+      <div nz-row >
+        <div nz-col>
+          <nz-form-item>
+            <nz-form-label [nzSpan]="2"  >申请单号</nz-form-label>
+            <nz-form-control [nzSpan]="4" [nzErrorTip]="">
+              <nz-select style="width: 150px" nzShowSearch nzAllowClear formControlName="ware" nzPlaceHolder="请选择申请库房">
+                <nz-option *ngFor="let item of selectOptions.wareOptions" [nzValue]="item"
+                           [nzLabel]="item.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+            <nz-form-label [nzSpan]="2"  >发货库房</nz-form-label>
+            <nz-form-control [nzSpan]="4" [nzErrorTip]="">
+              <input nz-input formControlName="ware" maxlength="100" style="width: 150px;" placeholder="请输入发货库房" />
+            </nz-form-control>
+
+            <nz-form-label [nzSpan]="2"  >备件名称</nz-form-label>
+            <nz-form-control [nzSpan]="4" [nzErrorTip]="">
+              <nz-select style="width: 150px" nzShowSearch nzAllowClear formControlName="ware" nzPlaceHolder="请选择申请库房">
+                <nz-option *ngFor="let item of selectOptions.wareOptions" [nzValue]="item"
+                           [nzLabel]="item.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </nz-card>
+
+
+
+  <div nz-row>
+    <nz-card style="border-width: 0 0 0 0">
+      <nz-table
+        nzBordered
+        nzHideOnSinglePage
+        nzFrontPagination="true"
+        nzShowSizeChanger
+        [nzPageIndex]="page.pageNum"
+        [nzPageSize]="page.pageSize"
+        [nzData]="showList"
+        [nzTotal]="showList.length"
+        nzLoadingDelay="1000"
+        nzNoResult="无"
+      >
+        <thead>
+        <tr>
+<!--          <th-->
+<!--            nzShowCheckbox-->
+<!--            [(nzChecked)]="isAllDisplayDataChecked"-->
+<!--            [nzIndeterminate]="isIndeterminate"-->
+<!--            (nzCheckedChange)="checkReceiveAll($event)"-->
+<!--          >全选</th>-->
+          <th nzWidth="50px">序号</th>
+          <th>申请单号</th>
+          <th>备件名称</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>发货库房</th>
+          <th>出库数量</th>
+          <th>运送方式</th>
+          <th>快递公司</th>
+          <th>总箱数</th>
+          <th >发货单号</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of showList; let index = index" >
+<!--          <td nzShowCheckbox [(nzChecked)]="mapOfDeliveryCheckedId[data.id]"-->
+<!--              (nzCheckedChange)="refreshStatus()" ></td>-->
+          <td nzAlign="center">{{ page.getNo(index) }}</td>
+          <td>{{ data.applyNo }}</td>
+          <td>{{ data.depotName }}</td>
+          <td>{{ data.applicantName }}</td>
+          <td>{{ data.partName }}</td>
+          <td>{{ data.brandName }}</td>
+          <td>{{ data.modelName }}</td>
+          <td>{{ data.emergencyLevel }}</td>
+          <td>{{ data.applyCount }}</td>
+          <td>{{ data.examinedCount }}</td>
+          <td style="color: #FF9F00;cursor:pointer" (click)="confirmReceive()">{{ data.currentStock }}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </div>
+
+  <nz-modal [(nzVisible)]="isBatchSelectVisible" nzTitle="批量选择" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()" >
+    <nz-form-label nz-col    >库房：</nz-form-label>
+    <nz-select [(ngModel)]="storeSelectedValue" [nzAllowClear]="true" nzPlaceHolder="请选择" style="width: 200px">
+      <nz-option *ngFor="let option of storeOptions" [nzLabel]="option.label"
+                 [nzValue]="option"></nz-option>
+    </nz-select>
+  </nz-modal>
+
+
+</nz-layout>
+

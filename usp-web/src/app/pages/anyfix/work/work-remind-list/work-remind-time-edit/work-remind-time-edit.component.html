@@ -1,0 +1,33 @@
+<form style="width: 500px" [formGroup]="form">
+  <nz-form-item>
+    <nz-form-label [nzSm]="4" [nzXs]="24">预警类型</nz-form-label>
+    <nz-form-control [nzSm]="16" [nzXs]="24">{{this.remindTypeName}}
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="4" [nzXs]="24">预警时间</nz-form-label>
+    <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.remindTime.errors?.explain">
+      <nz-date-picker [(ngModel)]="remindDate" [nzFormat]="'yyyy-MM-dd'" nzPlaceHolder="日期" style="width: 140px;"
+                      [ngModelOptions]="{standalone: true}"></nz-date-picker>
+      &nbsp;
+      <nz-time-picker [(ngModel)]="remindTime"
+                      [ngModelOptions]="{standalone: true}"
+                      nzPlaceHolder="时间"
+                      nzFormat="HH:mm"
+                      style="width: 100px;"></nz-time-picker>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="4" [nzXs]="24">修改原因</nz-form-label>
+    <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.note.errors?.explain">
+      <textarea rows="2" nz-input formControlName="note" placeholder="请输入修改原因。200字以内"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" [nzLoading]="isLoading"
+          [disabled]="!form.valid">
+    提交
+  </button>
+</div>

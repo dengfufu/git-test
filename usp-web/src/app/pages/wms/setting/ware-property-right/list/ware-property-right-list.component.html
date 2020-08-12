@@ -1,0 +1,74 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+      <button nz-button nzType="primary" style="margin-bottom: 16px" (click)="addWarePropertyRight()">
+        <i nz-icon nzType="plus"></i>
+        <span>新建</span>
+      </button>
+      &nbsp;
+      <button nz-button nzType="primary" style="margin-bottom: 16px" (click)="openDrawer()">筛选</button>
+      &nbsp;
+      <button nz-button (click)="clearForm();queryWarePropertyRight();">
+        <i nz-icon nzType="delete" nzTheme="outline"></i>
+        <span>清空筛选</span>
+      </button>
+
+      <nz-table #table
+                nzShowSizeChanger
+                nzBordered
+                [nzFrontPagination]="false"
+                [nzData]="warePropertyRightList"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                (nzPageIndexChange)="queryWarePropertyRight(false)"
+                (nzPageSizeChange)="queryWarePropertyRight(true)">
+        <thead>
+        <tr>
+          <th>序号</th>
+          <th>物料产权名称</th>
+          <th>顺序号</th>
+          <th>是否可用</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of table.data let index = index">
+          <td>{{ page.getNo(index) }}</td>
+          <td>{{ data.name }}</td>
+          <td>{{ data.sortNo }}</td>
+          <td>{{ data.enabled }}</td>
+          <td>
+            <a (click)="editWarePropertyRight(data)">编辑</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a (click)="confirmDelete(data.id)">删除</a>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">物料产权筛选</span>
+  </ng-template>
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="360" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form name="form" nzLayout="inline" [formGroup]="searchForm" (ngSubmit)="queryWarePropertyRight()">
+      <nz-form-item>
+        <nz-form-label>物料产权名称</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="name">
+        </nz-form-control>
+      </nz-form-item>
+      <div style="text-align: right;margin-top: 40px">
+        <button nz-button class="ant-btn" (click)="clearForm();queryWarePropertyRight();">清空筛选</button>
+        &nbsp;
+        <button nz-button nzType="primary">查询</button>
+      </div>
+    </form>
+  </nz-drawer>
+</nz-layout>

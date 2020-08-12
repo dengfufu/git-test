@@ -1,0 +1,88 @@
+<nz-spin [nzSpinning]="spinning">
+  <form nz-form class="add-form" [formGroup]="form">
+<!--    <nz-form-item>-->
+<!--      <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>对账单名称</nz-form-label>-->
+<!--      <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.verifyName.errors?.explain">-->
+<!--        <nz-input-group [nzSuffix]="verifyNameSuffixTemplate">-->
+<!--          <input type="text" nz-input formControlName="verifyName" placeholder="请输入对账单名称"/>-->
+<!--        </nz-input-group>-->
+<!--        <ng-template #verifyNameSuffixTemplate-->
+<!--        ><i-->
+<!--          nz-icon-->
+<!--          nz-tooltip-->
+<!--          class="ant-input-clear-icon"-->
+<!--          nzTheme="fill"-->
+<!--          nzType="close-circle"-->
+<!--          *ngIf="form.value.verifyName"-->
+<!--          (click)="form.controls.verifyName.setValue('');"-->
+<!--        ></i-->
+<!--        ></ng-template>-->
+<!--      </nz-form-control>-->
+<!--    </nz-form-item>-->
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>委托商名称</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        {{workFeeVerify.demanderCorpName}}
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>对账时间</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        {{workFeeVerify.startDate | date: 'yyyy-MM-dd'}} ~ {{workFeeVerify.endDate | date: 'yyyy-MM-dd'}}
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24" nzRequired>对账单号</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        {{workFeeVerify.verifyName}}
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">委托协议</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <a (click)="showCont()" *ngIf="(workFeeVerify.demanderCorp || '').length > 0">
+          {{workFeeVerify.contNo}}
+        </a>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">行政区划</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        {{workFeeVerify.districtName}}
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">备注</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24" [nzErrorTip]="form.controls.note.errors?.explain">
+            <textarea
+              nz-input
+              placeholder="请输入备注"
+              formControlName="note"
+              [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+            ></textarea>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="4" [nzXs]="24">对账工单列表</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <button nz-button class="edit-button" nzShape="round"
+                (click)="selectWork()"
+                [disabled]="!this.form.valid">选择
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzSpan="4">对账工单总数</nz-form-label>
+      <nz-form-control nzSpan="16">
+        {{workQuantity}}  (委托商已确认: {{confirmNum}}，委托商未确认: {{workQuantity - confirmNum}}; 费用未审核: {{workQuantity - checkNum}})
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-spin>
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="cancel()" style="margin-left: 20px">取消</button>
+  <button nz-button nzType="primary" (click)="submit()"
+          [disabled]="!form.valid && !canSubmit"
+          style="margin-left: 20px;">提交
+  </button>
+</div>

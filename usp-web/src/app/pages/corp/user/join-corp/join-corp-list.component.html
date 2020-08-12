@@ -1,0 +1,89 @@
+<my-pro-page-header-wrapper>
+  <nz-card>
+    <div class="edit-button-div">
+
+      <!--<i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+         nzTooltipTitle="筛选"></i>-->
+      <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+    </div>
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              [nzTotal]="page.total"
+              [nzPageIndex]="page.pageNum"
+              [nzPageSize]="page.pageSize"
+              [nzShowTotal]="totalTemplate"
+              [nzData]="corpApplyList"
+              (nzPageIndexChange)="queryCorpApply()"
+              (nzPageSizeChange)="queryCorpApply(true)">
+      <thead>
+      <tr>
+        <th nzWidth="50px">序号</th>
+        <th>申请人姓名</th>
+        <th>申请人手机号</th>
+        <th>申请时间</th>
+        <th>申请状态</th>
+        <th>验证信息</th>
+        <th>审核人员</th>
+        <th>审核时间</th>
+        <th nzWidth="80px" [acl]="{ability: [aclRight.JOIN_CORP_AUDIT]}">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of headerTable.data;let index = index">
+        <td>{{ page.getNo(index) }}</td>
+        <td style="color:#FFA349;cursor: pointer">{{ item.userName }}</td>
+        <td>{{ item.mobile }}</td>
+        <td>{{ item.applyTime | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td>
+          <span *ngIf="item.status == 2" style="color: green;">已同意</span>
+          <span *ngIf="item.status == 3" style="color: red;">已拒绝</span>
+          <span *ngIf="item.status <= 1">申请中</span>
+        </td>
+        <td>{{ item.applyNote }}</td>
+        <td>
+          <username-info [username]="item.checkUserName" [userId]="item.checkUserId"></username-info>
+        </td>
+        <td>{{ item.checkTime | date:'yyyy-MM-dd HH:mm'}}</td>
+        <td [acl]="{ability: [aclRight.JOIN_CORP_AUDIT]}">
+          <a *ngIf="item.status <= 1" (click)="check(item)">审核</a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <nz-drawer [nzTitle]="'加入企业审核筛选'" [nzVisible]="visible" [nzWidth]="300" [nzClosable]="true"
+             (nzOnClose)="closeDrawer()">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label>申请人姓名</nz-form-label>
+        <nz-form-control>
+          <input type="text" nz-input formControlName="userName" placeholder="请输入申请人姓名"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>申请状态</nz-form-label>
+        <nz-form-control>
+          <nz-select formControlName="statusList" nzMode="multiple">
+            <nz-option *ngFor="let option of statusOptionList" [nzLabel]="option.label"
+                       [nzValue]="option.value"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>申请日期</nz-form-label>
+        <nz-form-control>
+          <nz-range-picker formControlName="applyTimeRange" [nzFormat]="'yyyy-MM-dd'"></nz-range-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+    <div class="footer" style="text-align: right; margin-top: 40px;">
+      <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;"><span>清空筛选</span>
+      </button>
+      <button type="button" (click)="closeDrawer();queryCorpApply(true);" class="ant-btn ant-btn-primary">
+        <span>查询</span>
+      </button>
+    </div>
+  </nz-drawer>
+</my-pro-page-header-wrapper>

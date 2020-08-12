@@ -1,0 +1,57 @@
+<my-pro-page-header-wrapper>
+
+  <nz-spin *ngIf="loading" style="margin-top: 120px;"></nz-spin>
+
+  <ng-container *ngIf="!loading">
+    <nz-layout *ngIf="accountInfo">
+      <nz-sider [nzWidth]="320" [nzTheme]="'light'" style="border-right: 1px solid #e6e5e5;">
+        <!-- 账户信息 -->
+        <nz-card [nzBordered]="false" nzTitle="基本信息">
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">账户类型:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.accountTypeName}}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">企业名称:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.corpName}}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">账户状态:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.statusName}}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">开通时间:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.createTime | date:'yyyy-MM-dd' }}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">余额:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.balance | currency:'CNY'}}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">可用余额:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.availableAmount | currency:'CNY'}}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">冻结余额:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.frozenAmount | currency:'CNY'}}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">总收入:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.totalIncome | currency:'CNY'}}</div>
+          </div>
+          <div nz-row class="item-row">
+            <div nz-col nzSpan="6" class="item-label">总支出:</div>
+            <div nz-col nzSpan="18" class="item-content">{{accountInfo.totalExpend | currency:'CNY'}}</div>
+          </div>
+        </nz-card>
+      </nz-sider>
+      <nz-content>
+        <!-- 钱包记录 -->
+        <nz-card [nzBordered]="false">
+          <app-account-trace [accountId]="accountInfo.id"></app-account-trace>
+        </nz-card>
+      </nz-content>
+    </nz-layout>
+  </ng-container>
+</my-pro-page-header-wrapper>
+

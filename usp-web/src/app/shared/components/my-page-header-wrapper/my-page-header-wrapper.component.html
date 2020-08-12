@@ -1,0 +1,26 @@
+<pro-page-header-wrapper [pageHeaderRender]="pageHeaderRenderTemplate">
+  <ng-content></ng-content>
+</pro-page-header-wrapper>
+
+<ng-template #pageHeaderRenderTemplate>
+  <nz-page-header style="padding: 8px 16px;" [style.padding-bottom.px]="tabList && tabList.length>0 ? '0' : '8'">
+    <nz-page-header-title><div style="display: inline-block; float: left; background: #FF9F00;
+    height: 20px; width: 5px; margin-right: 10px; margin-top: 6px;"></div>{{title}}</nz-page-header-title>
+    <nz-page-header-extra style="margin-top: 5px">
+      <nz-breadcrumb [nzAutoGenerate]="true" [nzRouteLabel]="'name'"></nz-breadcrumb>
+    </nz-page-header-extra>
+    <nz-page-header-footer *ngIf="tabList && tabList.length" style="margin-top: 8px;">
+      <nz-tabset class="ant-pro-page-header-wrap-tabs"
+                 [nzSelectedIndex]="getSelectedIndex()"
+                 (nzSelectChange)="selectChange($event)"
+                 [nzTabBarExtraContent]="tabBarExtraContent">
+        <ng-container *ngFor="let tab of tabList">
+          <nz-tab [nzTitle]="tab.tab"></nz-tab>
+        </ng-container>
+      </nz-tabset>
+    </nz-page-header-footer>
+  </nz-page-header>
+</ng-template>
+
+
+

@@ -1,0 +1,192 @@
+<div class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">设备网点详情</nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button   nzShape="round" (click)="goBack()"
+              class="edit-button" >返回
+      </button>
+      <button nz-button nzShape="round" (click)="selectUserModal()"
+              [acl]="{ability: [aclRight.DEVICE_BRANCH_USER_ADD]}"
+              class="edit-button" style="width: 80px" >添加人员
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+
+  <nz-layout>
+    <nz-sider [nzWidth]="320">
+      <nz-card style="width:320px;" [nzBordered]="false">
+        <br>
+        <div class="div-row" nz-row *ngIf="isServiceProvider">
+          <div nz-col class="label-item" nzSpan="8">委托商名称：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.demanderCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">网点名称：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.branchName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">所属区域：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.areaName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">详细地址：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.address}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">网点电话：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.branchPhone}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">联系人：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.contactName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">联系电话：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.contactPhone}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">网点描述：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.description}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="8">客户名称：</div>
+          <div nz-col nzSpan="16">{{deviceBranch.customCorpName}}</div>
+        </div>
+      </nz-card>
+
+    </nz-sider>
+    <nz-content>
+      <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;">
+        <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+          <nz-tab nzTitle="网点人员">
+            <div>
+              <ng-template #userTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+              <nz-table #headerTable
+                        nzShowSizeChanger
+                        nzBordered
+                        [(nzPageIndex)]="page.pageNum"
+                        [(nzPageSize)]="page.pageSize"
+                        [nzTotal]="page.total"
+                        [nzLoading]="loading"
+                        [nzShowTotal]="userTotalTemplate"
+                        [nzFrontPagination]="false"
+                        [nzData]="deviceBranchList"
+                        (nzPageIndexChange)="queryBranchUser()"
+                        (nzPageSizeChange)="queryBranchUser(true)">
+                <thead>
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th>姓名</th>
+                  <th>电话</th>
+                  <th>角色</th>
+                  <th>加入日期</th>
+                  <th nzWidth="50px">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of headerTable.data;let index = index">
+                  <td>{{ page.getNo(index) }}</td>
+                  <td>
+                    <username-info [username]="data.userName" [userId]="data.userId"></username-info>
+                  </td>
+                  <td>{{ data.phone }}</td>
+                  <td>{{ data.roleNames }}</td>
+                  <td>{{ data.addTime |  date: 'yyyy-MM-dd' }}</td>
+                  <td>
+                    <a (click)="showDeleteConfirm(data.userId)">删除</a>
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+          <nz-tab nzTitle="设备列表">
+            <div>
+              <ng-template #deviceInfoTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+              <nz-table #deviceInfoHeaderTable
+                        nzShowSizeChanger
+                        nzBordered
+                        [(nzPageIndex)]="deviceInfoPage.pageNum"
+                        [(nzPageSize)]="deviceInfoPage.pageSize"
+                        [nzTotal]="deviceInfoPage.total"
+                        [nzLoading]="deviceInfoLoading"
+                        [nzShowTotal]="deviceInfoTotalTemplate"
+                        [nzFrontPagination]="false"
+                        [nzData]="deviceInfoList"
+                        (nzPageIndexChange)="queryBranchUser()"
+                        (nzPageSizeChange)="queryBranchUser(true)">
+                <thead>
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th>设备类型</th>
+                  <th>设备品牌</th>
+                  <th>设备型号</th>
+                  <th>设备规格</th>
+                  <th>出厂序列号</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of deviceInfoHeaderTable.data;let index = index">
+                  <td>{{ page.getNo(index) }}</td>
+                  <td>{{ data.smallClassName }}</td>
+                  <td>{{ data.brandName }}</td>
+                  <td>{{ data.modelName }}</td>
+                  <td>{{ data.specificationName }}</td>
+                  <td>{{ data.serial }}</td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+          <nz-tab nzTitle="工单列表">
+            <div>
+              <ng-template #workListTotalTemplate let-total> 共 {{ total }} 条 </ng-template>
+              <nz-table #workListHeaderTable
+                        nzShowSizeChanger
+                        nzBordered
+                        [(nzPageIndex)]="workListPage.pageNum"
+                        [(nzPageSize)]="workListPage.pageSize"
+                        [nzTotal]="workListPage.total"
+                        [nzLoading]="workListLoading"
+                        [nzFrontPagination]="false"
+                        [nzShowTotal]="workListTotalTemplate"
+                        [nzData]="workList"
+                        (nzPageIndexChange)="queryBranchUser()"
+                        (nzPageSizeChange)="queryBranchUser(true)">
+                <thead>
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th>工单状态</th>
+                  <th>工单类型</th>
+                  <th>工单编号</th>
+                  <th>委托商单号</th>
+                  <th>建单时间</th>
+                  <th>完单时间</th>
+                  <th>设备型号</th>
+                  <th>出厂序列号</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of workListHeaderTable.data;let index = index">
+                  <td>{{ page.getNo(index) }}</td>
+                  <td>{{ data.workStatusName}}</td>
+                  <td>{{ data.workTypeName}}</td>
+                  <td>{{ data.workCode }}</td>
+                  <td>{{ data.checkWorkCode }}</td>
+                  <td>{{ data.createTime | date:'yyyy-MM-dd HH:mm'}}</td>
+                  <td>{{data.endTime | date:'yyyy-MM-dd HH:mm'}}</td>
+                  <td>{{data.modelName}}</td>
+                  <td>{{data.smallClassName}}</td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+        </nz-tabset>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</div>

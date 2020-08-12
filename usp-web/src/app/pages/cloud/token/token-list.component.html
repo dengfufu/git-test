@@ -1,0 +1,48 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <form nz-form [nzLayout]="'inline'" [formGroup]="validateForm" #searchForm>
+      <div nz-row [nzGutter]="{ md: 8, lg: 24, xl: 48 }">
+        <div nz-col nzMd="8" nzSm="24">
+          <nz-form-item nz-row>
+            <nz-form-label nzFor="key">键</nz-form-label>
+            <nz-form-control>
+              <input nz-input id="key" formControlName="key" placeholder="请输入键"/>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col style="overflow:hidden;">
+          <div style="float: right;">
+            <button nz-button [nzType]="'primary'">查询</button>
+            <button style="margin-left: 8px" nz-button (click)="resetForm()">重置</button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="tokenList"
+              [nzLoading]="loading"
+              [nzShowPagination]="false">
+      <thead>
+      <tr>
+        <th nzWidth="200px">键</th>
+        <th nzWidth="200px">值</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data">
+        <td>{{ data.key }}</td>
+        <td>{{ data.value }}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</my-pro-page-header-wrapper>
+
+
+
+
+

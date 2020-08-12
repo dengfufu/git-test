@@ -1,0 +1,99 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <div class="edit-button-div">
+      <button nz-button class="icon-add" nzShape="round" [acl]="{ability: [aclRight.DEMANDER_ARCHIVE_ADD]}"
+              nz-dropdown [nzDropdownMenu]="menu">添加
+      </button>
+      <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+    </div>
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item (click)="addModal(false,null)">已注册企业</li>
+        <li nz-menu-item (click)="createModal()">未注册企业</li>
+      </ul>
+    </nz-dropdown-menu>
+    <ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+    <nz-table #headerTable
+              nzShowSizeChanger
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="list"
+              [nzLoading]="loading"
+              [nzTotal]="page.total" [nzShowTotal]="totalTemplate"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              (nzPageIndexChange)="queryDemanderService()"
+              (nzPageSizeChange)="queryDemanderService(true)">
+      <thead>
+      <tr>
+        <th nzWidth="50px">序号</th>
+        <th>企业名称</th>
+        <th>企业简称</th>
+        <th>注册地区</th>
+        <th>详细地址</th>
+        <th>联系电话</th>
+        <th>注册人</th>
+        <th>备注</th>
+        <th nzWidth="100px">是否可用</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of headerTable.data;let index = index" (dblclick)="toDetail(data.id)">
+        <td>{{ page.getNo(index) }}</td>
+        <td nzAlign="left"><a (click)="toDetail(data.id)">{{ data.demanderCorpName }}</a></td>
+        <td>{{ data.demanderShortCorpName }}</td>
+        <td>{{ data.region }}</td>
+        <td nzAlign="left">{{ data.address }}</td>
+        <td>{{ data.telephone }}</td>
+        <td>
+          <username-info [userId]="data.regUserId" [username]="data.regUserName"></username-info>
+        </td>
+        <td nzAlign="left">{{ cutStr(data.description) }}</td>
+        <td *ngIf="data.enabled === 'Y'">是</td>
+        <td *ngIf="data.enabled !== 'Y'"><span style="color: red">否</span></td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+  <nz-drawer [nzTitle]="'委托商筛选'" [nzVisible]="visible" [nzWidth]="300" [nzClosable]="true"
+             (nzOnClose)="closeDrawer()">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label nzFor="name">委托商</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 200px;"
+            formControlName="demanderCorp"
+            nzAllowClear="true"
+            nzShowSearch
+            nzPlaceHolder="请选择委托商">
+            <nz-option *ngFor="let o of demanderCorpOptions" [nzLabel]="o.demanderCorpName"
+                       [nzValue]="o.demanderCorp"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>是否可用</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            style="width: 200px;"
+            formControlName="enabled"
+            nzAllowClear="true"
+            nzPlaceHolder="是/否">
+            <nz-option nzValue="Y" nzLabel="是"></nz-option>
+            <nz-option nzValue="N" nzLabel="否"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+    <div style="text-align: right; margin-top: 40px;">
+      <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;margin-right: 10px;">
+        <span>清空筛选</span>
+      </button>
+      <button type="button" (click)="useFormValue=true;closeDrawer();queryDemanderService(this.getParams())"
+              class="ant-btn ant-btn-primary">
+        <span>查询</span>
+      </button>
+    </div>
+  </nz-drawer>
+</my-pro-page-header-wrapper>

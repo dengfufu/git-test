@@ -1,0 +1,118 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+        <div class="edit-button-div">
+          <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+        </div>
+        <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+        <nz-table #headerTable
+                  nzShowSizeChanger
+                  nzBordered
+                  [nzFrontPagination]="false"
+                  [nzData]="list"
+                  [nzLoading]="loading"
+                  [nzTotal]="page.total"
+                  [(nzPageIndex)]="page.pageNum"
+                  [(nzPageSize)]="page.pageSize"
+                  [nzShowTotal]="totalTemplate"
+                  (nzPageIndexChange)="queryOperationLog()"
+                  (nzPageSizeChange)="queryOperationLog(true)">
+          <thead>
+          <tr>
+            <th nzWidth="50px" nzLeft="0px">序号</th>
+            <th nzWidth="100px" nzLeft="50px">用户</th>
+            <th nzWidth="100px">企业名称</th>
+            <th nzWidth="100px">操作类型</th>
+            <th nzWidth="200px">操作详情</th>
+            <th nzWidth="50px">应用标识</th>
+            <th nzWidth="150px">操作时间</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of headerTable.data;let index = index">
+            <td>{{ page.getNo(index) }}</td>
+            <td>
+              <username-info [userId]="data.userId" [username]="data.userName"></username-info>
+            </td>
+            <td>{{ data.corpName }}</td>
+            <td>{{ data.operTypeName }}</td>
+            <td>{{ data.details }}</td>
+            <td>{{ data.clientId }}</td>
+            <td>{{ data.operTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </nz-content>
+
+    <!-----------------------------------操作日志列表查询条件抽屉-------------------------------------------------->
+    <ng-template #filterTitle>
+      <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+      <span style="font-size: 16px;font-weight: bold;">日志筛选</span>
+    </ng-template>
+
+    <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="500" [nzClosable]="false"
+               (nzOnClose)="closeDrawer()"
+               [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+      <form nz-form [formGroup]="searchForm">
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">企业名称</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-select
+              nzShowSearch
+              nzServerSearch
+              nzAllowClear="true"
+              nzPlaceHolder="请输入企业名称"
+              [nzFilterOption]="nzFilterOption"
+              (nzOnSearch)="matchCorp($event)"
+              (ngModelChange)="corpChange($event)"
+              formControlName="corpId">
+              <nz-option *ngFor="let o of corpList" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+              <nz-option *ngIf="corpLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i> 加载数据中
+              </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">用户名称</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-select [nzAllowClear]="true"
+                       formControlName="userId"
+                       nzShowSearch
+                       nzServerSearch
+                       (nzOnSearch)="matchUser($event)"
+                       nzPlaceHolder="根据姓名、手机号搜索">
+              <nz-option *ngFor="let option of userIdList" [nzValue]="option.value"
+                         [nzLabel]="option.text"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">操作类型</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-select nzAllowClear="true" formControlName="operType"nzPlaceHolder="请选择操作类型">
+              <nz-option *ngFor="let o of operTypeList" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label  [nzSpan]="6">操作时间</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-range-picker formControlName="operTime" [nzFormat]="'yyyy-MM-dd'"  ></nz-range-picker>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div style="text-align: right;margin-top: 40px">
+          <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+          </button>
+          <button nz-button [nzType]="'primary'" (click)="useFormValue=true;closeDrawer();queryOperationLog(true)">查询</button>
+        </div>
+      </form>
+    </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>

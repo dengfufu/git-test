@@ -1,0 +1,79 @@
+<nz-layout>
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">设置范围权限</nz-page-header-title>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+        <nz-spin [nzSpinning]="spinning">
+          <div nz-row>
+            <div nz-col nzSpan="8">
+              <nz-form-item>
+                <nz-form-label [nzSpan]="6">人员姓名</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  {{user.userName}}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col nzSpan="16">
+              <nz-form-item>
+                <nz-form-label [nzSpan]="6">角色</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  {{user.roleNames}}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col nzSpan="8">
+              <nz-form-item>
+                <nz-form-label [nzSpan]="6">手机号</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  {{user.mobile}}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col nzSpan="16">
+              <nz-form-item>
+                <nz-form-label [nzSpan]="6">服务网点</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  {{user.serviceBranchNames}}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+          <div nz-row>
+            <div nz-col nzSpan="24">
+              <nz-form-item>
+                <nz-form-label [nzSpan]="2">范围权限</nz-form-label>
+                <nz-form-control [nzSpan]="22">
+                  <nz-tree #rightTree
+                           [nzData]="rightTreeNodes"
+                           nzShowLine
+                           nzCheckable
+                           nzMultiple
+                           nzCheckStrictly
+                           [nzCheckedKeys]="defaultCheckedKeys"
+                           [nzTreeTemplate]="nzTreeTemplate">
+                  </nz-tree>
+                  <ng-template #nzTreeTemplate let-node>
+                    <span>{{ node.title }}</span>
+                    <a *ngIf="node?.origin?.hasScope === 'Y' && node?.origin?.checked && rightScopeVisible"
+                       (click)="editRightScope(node)">[设置]</a>
+                    <span *ngIf="node?.origin?.scopeNames && rightScopeVisible"
+                          style="color: #5EC894;margin-left: 15px;">{{node?.origin?.scopeNames}}</span>
+                  </ng-template>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </nz-spin>
+        <div style="margin-top: 32px;text-align: center;">
+          <button type="button" nz-button (click)="goBack()">返回</button>&nbsp;&nbsp;
+          <button nz-button nzType="primary" (click)="submitForm()">提交</button>
+        </div>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

@@ -1,0 +1,163 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>网点名称</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+        <input nz-input formControlName="branchName" style="width: 400px;" placeholder="请输入网点名称"/>
+        <ng-template #nameErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">上级网点</nz-form-label>
+      <nz-form-control [nzSpan]="16" [nzErrorTip]="upperBranchErrorTpl">
+        <nz-select
+          style="width: 400px;"
+          nzShowSearch
+          nzServerSearch
+          nzAllowClear
+          nzPlaceHolder="请选择上级网点"
+          (nzOnSearch)="matchServiceBranch($event)"
+          formControlName="upperBranchId">
+          <nz-option *ngFor="let o of upperBranchList" [nzLabel]="o.branchName" [nzValue]="o.branchId"></nz-option>
+        </nz-select>
+        <ng-template #upperBranchErrorTpl let-control>
+          <ng-container *ngIf="control.hasError">
+            {{control.errors.explain}}
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>行政区划</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="areaErrorTpl">
+        <nz-cascader
+          style="width: 400px;"
+          [nzExpandTrigger]="'click'"
+          [nzOptions]="nzOptions" [nzShowSearch]="ZorroUtils.showSearchOptions"
+          [nzChangeOnSelect]="true"
+          (ngModelChange)="onChanges($event)"
+          nzShowSearch="true"
+          nzPlaceHolder="请选择行政区划"
+          formControlName="area">
+        </nz-cascader>
+        <ng-template #areaErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择行政区划！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>详细地址</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="addressErrorTpl">
+        <textarea nz-input rows="3" formControlName="address" maxlength="100" style="width: 400px;"
+                  placeholder="请输入详细地址"></textarea>
+        <i nz-icon nzType="environment" nzTheme="twotone" (click)="openMap()"></i>
+        <ng-template #addressErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入详细地址！
+          </ng-container>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过100个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">网点电话</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="branchPhoneErrorTpl">
+        <input nz-input formControlName="branchPhone" maxlength="20" style="width: 400px;" placeholder="请输入网点电话"/>
+        <ng-template #branchPhoneErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过20个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">联系人</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="contactErrorTpl">
+        <nz-select
+          style="width: 400px;"
+          nzShowSearch
+          nzServerSearch
+          nzAllowClear
+          nzPlaceHolder="请选择联系人"
+          (nzOnSearch)="matchCorpUser($event)"
+          formControlName="contactOption"
+          (ngModelChange)="changeContact($event)">
+          <nz-option *ngFor="let o of contactOptionList" [nzLabel]="o.text" [nzValue]="o.value"></nz-option>
+        </nz-select>
+        <ng-template #contactErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请选择联系人！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">联系人电话</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="contactPhoneErrorTpl">
+        <input nz-input formControlName="contactPhone" maxlength="100" style="width: 400px;" placeholder="请输入联系人电话"/>
+        <ng-template #contactPhoneErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            请输入联系人电话！
+          </ng-container>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过100个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzRequired>网点类型</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="typeErrorTpl">
+        <nz-select
+          style="width: 200px;"
+          nzAllowClear
+          nzPlaceHolder="选择网点类型"
+          formControlName="type">
+          <nz-option nzLabel="自有网点" nzValue="1"></nz-option>
+          <nz-option nzLabel="第三方网点" nzValue="2"></nz-option>
+        </nz-select>
+        <ng-template #typeErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('required')">
+            选择网点类型！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">描述</nz-form-label>
+      <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="descriptionErrorTpl">
+        <textarea nz-input rows="3" formControlName="description" maxlength="100" style="width: 400px;"
+                  placeholder="请输入描述"></textarea>
+        <ng-template #descriptionErrorTpl let-control>
+          <ng-container *ngIf="control.hasError('maxlength')">
+            不能超过100个字符！
+          </ng-container>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4">是否可用</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-switch formControlName="enabled" nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)" [disabled]="!validateForm.valid" class="button-modal-submit" >提交</button>
+</div>

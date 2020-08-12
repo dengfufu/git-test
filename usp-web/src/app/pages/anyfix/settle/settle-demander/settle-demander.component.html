@@ -1,0 +1,178 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+      <div class="edit-button-div">
+        <!--<i nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addSettleDemander()" nz-tooltip
+           nzTooltipTitle="新建"></i>-->
+        <!--<i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+           nzTooltipTitle="筛选"></i>-->
+        <button nz-button class="icon-add" nzShape="round"
+                [acl]="{ability: [aclRight.SETTLE_DEMANDER_ADD, aclRight.SETTLE_DEMANDER_MANAGER]}"
+                (click)="addSettleDemander()">新建
+        </button>
+        <button nz-button class="img-filtrate" nzShape="round" (click)="openDrawer()">筛选</button>
+      </div>
+      <ng-template #totalTemplate let-total> 共 {{ total }} 条 </ng-template>
+      <nz-table
+        nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+        nzBordered
+        [nzFrontPagination]="false"
+        [nzData]="settleDemanderList"
+        [nzLoading]="loading"
+        [nzTotal]="page.total"
+        [nzShowTotal]="totalTemplate"
+        [(nzPageIndex)]="page.pageNum"
+        [(nzPageSize)]="page.pageSize"
+        (nzPageIndexChange)="querySettleDemander(getParams(), false)"
+        (nzPageSizeChange)="querySettleDemander(getParams(), true)"
+        [nzScroll]="{x: '1650px'}"
+      >
+        <thead>
+        <tr>
+          <th nzWidth="50px" nzLeft="0">序号</th>
+          <th nzWidth="180px" nzLeft="50px">结算单号</th>
+          <th nzWidth="100px" nzLeft="230px">委托商名称</th>
+          <th nzWidth="100px" nzLeft="330px">服务商名称</th>
+          <th nzWidth="80px">总费用</th>
+          <th nzWidth="100px">结算方式</th>
+          <th nzWidth="200px">结算周期</th>
+          <th nzWidth="100px">确认状态</th>
+          <th nzWidth="80px">开票状态</th>
+          <th nzWidth="100px">开票日期</th>
+          <th nzWidth="80px">付款状态</th>
+          <th nzWidth="100px">收款日期</th>
+<!--          <th nzWidth="150px">合同号</th>-->
+          <th nzWidth="80px">添加人</th>
+          <th nzWidth="150px">添加时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr (dblclick)="showDetail(data.settleId)" *ngFor="let data of settleDemanderList;let index = index">
+          <td nzAlign="center" nzLeft="0">{{ page.getNo(index) }}</td>
+          <td nzAlign="center" nzLeft="50px"><a (click)="showDetail(data.settleId)">{{data.settleCode}}</a></td>
+          <td nzAlign="left" nzLeft="230px">{{ data.demanderCorpName }}</td>
+          <td nzAlign="left" nzLeft="330px">{{ data.serviceCorpName }}</td>
+          <td nzAlign="right">{{ data.settleFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+          <td nzAlign="left">{{ data.settleWayName }}</td>
+          <td nzAlign="center">
+            <span *ngIf="data.settleWay === settleService.SETTLE_PERIOD">
+              {{ data.startDate | date:'yyyy-MM-dd' }} ~ {{data.endDate | date:'yyyy-MM-dd'}}
+            </span>
+          </td>
+          <td nzAlign="center">
+            <button nz-button class="button-status" *ngIf="data.status === 1"
+                    [ngStyle]="{'background-color': '#1E87F0'}" (click)="showDetail(data.settleId)">{{data.statusName}}
+            </button>
+            <button nz-button class="button-status" *ngIf="data.status === 2"
+                    [ngStyle]="{'background-color': '#FFBD50'}" (click)="showDetail(data.settleId)">{{data.statusName}}
+            </button>
+            <button nz-button class="button-status" *ngIf="data.status === 3"
+                    [ngStyle]="{'background-color': '#FF0000'}" (click)="showDetail(data.settleId)">{{data.statusName}}
+            </button>
+          </td>
+          <td>{{data.invoiceStatusName}}</td>
+          <td>{{data.invoiceTime | date: 'yyyy-MM-dd'}}</td>
+          <td>{{data.payStatusName}}</td>
+          <td>{{data.receiptTime | date: 'yyyy-MM-dd'}}</td>
+<!--          <td nzAlign="left" nzBreakWord>{{data.contNo}}</td>-->
+          <td nzAlign="center">{{ data.operatorName }}</td>
+          <td nzAlign="center">{{ data.operateTime | date:'yyyy-MM-dd' }}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </nz-content>
+  <!-----------------------------------工单列表查询条件抽屉-------------------------------------------------->
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">委托商结算筛选</span>
+  </ng-template>
+
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="visible" [nzWidth]="400" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">结算单号</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <input nz-input formControlName="settleCode" placeholder="请输入结算单号"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">委托商名称</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择委托商"
+            formControlName="demanderCorp"
+          >
+            <nz-option *ngFor="let demander of demanderOptions" [nzLabel]="demander.demanderCorpName"
+                       [nzValue]="demander.demanderCorp"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">服务商名称</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择服务商"
+            formControlName="serviceCorp"
+          >
+            <nz-option *ngFor="let custom of serviceOptions" [nzLabel]="custom.serviceCorpName"
+                       [nzValue]="custom.serviceCorp"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">结算方式</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="请选择结算方式"
+            formControlName="settleWay"
+          >
+            <nz-option *ngFor="let item of settleService.settleWayList" [nzLabel]="item.label"
+                       [nzValue]="item.value"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">开票状态</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzMode="multiple"
+            nzPlaceHolder="请选择开票状态"
+            formControlName="invoiceStatusList">
+            <nz-option *ngFor="let invoiceStatus of invoiceStatusList" [nzLabel]="invoiceStatus.label"
+                       [nzValue]="invoiceStatus.value"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">付款状态</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzMode="multiple"
+            nzPlaceHolder="请选择付款状态"
+            formControlName="payStatusList">
+            <nz-option *ngFor="let payStatus of payStatusList" [nzLabel]="payStatus.label"
+                       [nzValue]="payStatus.value"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+    <div class="footer">
+      <button nz-button (click)="clearDrawer()" class="ant-btn" style="margin-right: 10px;">清空筛选
+      </button>
+      <button (click)="closeDrawer();querySettleDemander(getParams(), true)" nz-button nzType="primary">确定</button>
+    </div>
+  </nz-drawer>
+</nz-layout>

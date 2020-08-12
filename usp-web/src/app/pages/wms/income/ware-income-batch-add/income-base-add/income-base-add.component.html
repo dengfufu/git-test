@@ -1,0 +1,60 @@
+<form nz-form [formGroup]="addBaseForm" style="width: 600px">
+  <nz-form-item>
+    <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>入库库房</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="请选择库房!">
+      <nz-select
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="请选择库房"
+        formControlName="depotId"
+        (ngModelChange)="depotChange($event)"
+        [nzServerSearch]="true"
+        (nzOnSearch)="wmsService.queryDepotList($event)"
+      >
+        <nz-option *ngFor="let depot of wmsService.selectOptions.depotList" [nzLabel]="depot.name" [nzValue]="depot.id"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>物料产权</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="请选择物料产权!">
+      <nz-select
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="请选择备件产权"
+        formControlName="propertyRight"
+        (ngModelChange)="propertyRightChange($event)"
+        [nzServerSearch]="true"
+        (nzOnSearch)="wmsService.queryPropertyRightList($event)"
+      >
+        <nz-option *ngFor="let propertyRight of wmsService.selectOptions.propertyRightList" [nzLabel]="propertyRight.name" [nzValue]="propertyRight.id"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="incomeMain.smallClassId == 10">
+    <nz-form-label [nzSm]="8" [nzXs]="24">采购合同号</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24">
+      <input nz-input formControlName="contId" placeholder="请输入采购合同号">
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="incomeMain.smallClassId == 10">
+    <nz-form-label [nzSm]="8" [nzXs]="24">采购订单号</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24">
+      <input nz-input formControlName="purchaseDetailId" placeholder="请输入采购订单号">
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item *ngIf="incomeMain.smallClassId == 10">
+    <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>是否二手物料</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24">
+      <nz-select
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="请选择"
+        formControlName="secondHand"
+      >
+        <nz-option nzLabel="是" nzValue="Y"></nz-option>
+        <nz-option nzLabel="否" nzValue="N"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+</form>

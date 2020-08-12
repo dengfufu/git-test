@@ -1,0 +1,36 @@
+// table size 为 small时，去除margin
+.ant-table-small > .ant-table-content > .ant-table-body {
+  margin: 0;
+}
+
+// 列表滚动条设置的粗一些
+.ant-table-small  {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    border-radius: 6px ;
+    background: #E7EAED;
+    -webkit-box-shadow: none;
+  }
+  /* 滚动条滑块 */
+  ::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    background: #D4D9E0;
+    -webkit-box-shadow: none;
+  }
+}
+
+th {
+  background-color: rgba(234, 234, 234, 1) !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  font-size: 13px;
+}
+td {
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.8;
+}
+

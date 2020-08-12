@@ -1,0 +1,106 @@
+<nz-page-header [nzBackIcon]="backIcon">
+  <nz-page-header-title>快速转库详情</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" nzShape="round" (click)="goBack()">返回</button>
+
+  </nz-page-header-extra>
+</nz-page-header>
+
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 10px;">
+</ng-template>
+
+
+<nz-layout>
+  <nz-sider [nzWidth]="320">
+    <nz-card style="width:320px;"[nzBordered]="false">
+
+<!--      <nz-divider nzText=""></nz-divider>-->
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请单号：</div>
+        <div nz-col nzSpan="16">{{detailObj.transCode}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">转出库房：</div>
+        <div nz-col nzSpan="16">{{detailObj.fromDepotName}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">转入库房：</div>
+        <div nz-col nzSpan="16">{{detailObj.toDepotName}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请人：</div>
+        <div nz-col nzSpan="16">{{detailObj.createByName}}</div>
+      </div>
+      <div class="div-row" class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">申请时间：</div>
+        <div nz-col nzSpan="16">{{detailObj.applyDate}}</div>
+      </div>
+      <div class="div-row" class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">确认人：</div>
+        <div nz-col nzSpan="16" *ngIf="flowInstanceTraceDtoList.length>1">{{flowInstanceTraceDtoList[1].completedByName}}</div>
+      </div>
+      <div class="div-row" nz-row>
+        <div nz-col class="label-item" nzSpan="8">审核时间：</div>
+        <div nz-col nzSpan="16" *ngIf="flowInstanceTraceDtoList.length>1">{{flowInstanceTraceDtoList[1].completedTime|date: 'yyyy-MM-dd'}}</div>
+
+      </div>
+    </nz-card>
+
+  </nz-sider>
+
+
+  <nz-content>
+    <nz-card style="width: 100%;height: 100%;border-top: 0;border-bottom: 0;border-right: 0;">
+
+      <nz-card style="width: 100%;height: 100%;border-width: 0 0 0 0">
+        <nz-steps nzSize="small" [nzCurrent]="1" [nzLabelPlacement]="'vertical'">
+          <nz-step
+            *ngFor="let item of flowInstanceNodeList"
+            [nzTitle]="item.templateNodeName"
+            [nzIcon]="item.completed == 'Y' ? finishTemplate : waitTemplate"
+            [nzDescription]="item.completedTime | date: 'yyyy-MM-dd HH:mm:ss'"
+            [nzStatus]="item.completed == 'Y' ? 'finish' : 'wait'"
+          ></nz-step>
+
+          <ng-template #finishTemplate><i nz-icon style="font-size: 40px" nzType="wms:green-round"></i></ng-template>
+          <ng-template #waitTemplate><i nz-icon style="font-size: 40px" nzType="wms:gray-round"></i></ng-template>
+        </nz-steps>
+      </nz-card>
+
+      <nz-tabset>
+        <nz-tab nzTitle="申请备件清单" >
+          <nz-table  [nzData]="[{}]">
+            <thead>
+            <tr>
+
+              <th>备件</th>
+              <th>品牌</th>
+              <th>型号</th>
+              <th>申请数量</th>
+              <th>唯一编码</th>
+              <th>备件状态</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>{{ detailObj.catalogName }}</td>
+              <td>{{ detailObj.brandName }}</td>
+              <td>{{ detailObj.modelName }}</td>
+              <td>{{ detailObj.applyQuantity }}</td>
+              <td>{{ detailObj.sn }}</td>
+              <td>{{ detailObj.statusName }}</td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </nz-tab>
+      </nz-tabset>
+
+    </nz-card>
+
+
+
+  </nz-content>
+
+
+</nz-layout>

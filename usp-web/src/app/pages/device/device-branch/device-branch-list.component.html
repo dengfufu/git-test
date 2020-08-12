@@ -1,0 +1,183 @@
+<my-pro-page-header-wrapper>
+  <nz-layout>
+    <nz-content>
+      <nz-card [nzBordered]="false">
+        <div class="edit-button-div">
+          <!--<i  nz-icon nzType="plus-circle" nzTheme="outline" class="icon-add" (click)="addModal()" nz-tooltip
+              nzTooltipTitle="新建" [acl]="{ability: [aclRight.DEVICE_BRANCH_ADD]}"></i>
+          <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+             nzTooltipTitle="筛选"></i>-->
+          <button nz-button  class="icon-add" nzShape="round"  (click)="addModal()" [acl]="{ability: [aclRight.DEVICE_BRANCH_ADD]}">新建</button>
+          <button nz-button  class="img-filtrate" nzShape="round"  (click)="openDrawer()">筛选</button>
+        </div>
+        <nz-table #headerTable
+                  nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+                  nzBordered
+                  [nzFrontPagination]="false"
+                  [nzData]="list"
+                  [nzLoading]="loading"
+                  [nzTotal]="page.total"
+                  [(nzPageIndex)]="page.pageNum"
+                  [(nzPageSize)]="page.pageSize"
+                  (nzPageIndexChange)="queryBranch()"
+                  (nzPageSizeChange)="queryBranch(true)">
+          <thead>
+          <tr>
+            <th nzWidth="50px">序号</th>
+            <th *ngIf="isServiceProvider">委托商名称</th>
+            <th>客户名称</th>
+            <th>上级网点</th>
+            <th>网点名称</th>
+            <th>行政区划</th>
+            <th>网点电话</th>
+            <th>联系人</th>
+            <th>联系人电话</th>
+            <th nzWidth="80px">是否可用</th>
+            <th nzWidth="100px" [acl]="{ability: [aclRight.DEVICE_BRANCH_MOD, aclRight.DEVICE_BRANCH_DEL]}">操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of headerTable.data;let index = index" style="cursor: pointer"
+              (click)="branchDetail(data.branchId)">
+            <td align="center">{{ page.getNo(index) }}</td>
+            <td nzAlign="left" *ngIf="isServiceProvider">{{ data.demanderCorpName }}</td>
+            <td nzAlign="left">{{ data.customCorpName }}</td>
+            <td nzAlign="left">{{ data.upperFullName }}</td>
+            <td nzAlign="left">{{ data.branchName }}</td>
+            <td nzAlign="left">{{ data.areaName }}</td>
+            <td>{{ data.branchPhone }}</td>
+            <td>{{ data.contactName }}</td>
+            <td>{{ data.contactPhone }}</td>
+            <td>
+              <span *ngIf="data.enabled === 'Y'">是</span>
+              <span *ngIf="data.enabled !== 'Y'">否</span>
+            </td>
+            <td [acl]="{ability: [aclRight.DEVICE_BRANCH_MOD, aclRight.DEVICE_BRANCH_DEL]}">
+              <a [acl]="{ability: [aclRight.DEVICE_BRANCH_MOD]}"
+                 (click)="editModal(data);$event.stopPropagation();">编辑</a>
+              <nz-divider [acl]="{ability: [aclRight.DEVICE_BRANCH_MOD, aclRight.DEVICE_BRANCH_DEL], mode: 'allOf'}"
+                          nzType="vertical"></nz-divider>
+              <a [acl]="{ability: [aclRight.DEVICE_BRANCH_DEL]}"
+                 (click)="showDeleteConfirm(data.branchId);$event.stopPropagation();">删除</a>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </nz-content>
+    <nz-drawer nzTitle="设备网点筛选" [nzVisible]="drawerVisible" nzWidth="300px" (nzOnClose)="closeDrawer()"
+               [nzClosable]="'true'">
+      <form nz-form [nzLayout]="'inline'" [formGroup]="searchForm">
+        <nz-form-item *ngIf="isServiceProvider">
+          <nz-form-label  nzFor="demanderCorp">委托商</nz-form-label>
+          <nz-form-control  [nzErrorTip]="demanderErrorTpl">
+            <nz-select
+              nzShowSearch
+              style="width: 200px;"
+              formControlName="demanderCorp"
+              nzAllowClear="true"
+              [nzFilterOption]="nzFilterOption"
+              (ngModelChange)="demanderChange($event)"
+              nzPlaceHolder="请先选择委托商"
+            >
+              <nz-option *ngFor="let demanderCorp of demanderCorpOptions" [nzValue]="demanderCorp.demanderCorp"
+                         [nzLabel]="demanderCorp.demanderCorpName"></nz-option>
+            </nz-select>
+            <ng-template #demanderErrorTpl let-control>
+              <ng-container *ngIf="control.hasError('required')">
+                请选择委托商！
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzFor="upperBranchId">上级网点名称</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              nzAllowClear
+              style="width: 200px;"
+              nzShowSearch
+              nzServerSearch
+              (click)="clickSelect()"
+              nzPlaceHolder="请输入上级网点名称"
+              [nzFilterOption]="nzFilterOption"
+              (ngModelChange)="upperBranchChange()"
+              (nzOnSearch)="matchUpperBranch($event)"
+              formControlName="upperBranchId">
+              <nz-option *ngFor="let o of upperBranchOptions" [nzLabel]="o.branchName" [nzValue]="o.branchId"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzFor="branchId">网点名称</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              style="width: 200px;"
+              nzShowSearch
+              nzServerSearch
+              nzAllowClear
+              (click)="clickSelect()"
+              nzPlaceHolder="请输入网点名称"
+              [nzFilterOption]="nzFilterOption"
+              (nzOnSearch)="matchBranch($event)"
+              formControlName="branchId">
+              <nz-option *ngFor="let o of branchOptions" [nzLabel]="o.branchName" [nzValue]="o.branchId"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label  nzFor="customId">客户名称</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              nzShowSearch
+              style="width: 200px;"
+              nzAllowClear="true"
+              [(ngModel)]="customCorpModal"
+              [ngModelOptions]="{standalone: true}"
+              [nzFilterOption]="nzFilterOption"
+              (ngModelChange)="customChange($event)"
+              (nzOnSearch)="matchCustomCorp($event)"
+              (click)="clickSelect()"
+              nzPlaceHolder="请输入客户名称"
+                      >
+              <nz-option *ngFor="let data of customCorpList" [nzLabel]="data.customCorpName"
+                         [nzValue]="data"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="area">行政区划</nz-form-label>
+          <nz-form-control>
+            <nz-cascader
+              nzAllowClear
+              (ngModelChange)="areaChange($event)"
+              nzPlaceHolder="请选择行政区划"
+              style="width: 200px;"
+              [nzOptions]="nzOptions" [nzShowSearch]="ZorroUtils.showSearchOptions"
+              [nzChangeOnSelect]="true"
+              formControlName="area">
+            </nz-cascader>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>是否可用</nz-form-label>
+          <nz-form-control>
+            <nz-select nzAllowClear style="width: 200px;" formControlName="enabled"
+                       nzPlaceHolder="是/否">
+              <nz-option nzLabel="是" nzValue="Y"></nz-option>
+              <nz-option nzLabel="否" nzValue="N"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <div style="text-align: right;margin-top: 40px">
+          <button class="ant-btn" style="margin-left: 8px;margin-right: 10px;" nz-button (click)="clearDrawer();"><span>清空筛选</span>
+          </button>
+          <button nz-button [nzType]="'primary'" (click)="closeDrawer();queryBranch(true)">查询</button>
+        </div>
+      </form>
+    </nz-drawer>
+  </nz-layout>
+</my-pro-page-header-wrapper>

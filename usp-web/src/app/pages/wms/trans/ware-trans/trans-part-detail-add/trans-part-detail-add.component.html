@@ -1,0 +1,108 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="2" >型号</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择型号"
+          [(ngModel)]="propertySelectedValue"
+          [nzShowArrow]="true"
+          formControlName="modelId"
+        >
+          <nz-option *ngFor="let o of propertySelectOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+
+      <nz-form-label [nzSpan]="4" nzRequired>品牌</nz-form-label>
+      <nz-form-control [nzSpan]="6" nzHasFeedback>
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzPlaceHolder="请选择规格"
+          [(ngModel)]="normsSelectedValue"
+          [nzShowArrow]="true"
+          formControlName="norms"
+        >
+          <nz-option *ngFor="let o of normsOptions" [nzLabel]="o.text" [nzValue]="o.value"> </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div style="margin-top: 30px">
+      <nz-card>
+        <nz-table
+            nzShowSizeChanger
+            nzShowPagination
+            nzBordered
+            [nzData]="list"
+            [nzScroll]="{ x: '1850px',y: '360px' }"
+            [nzFrontPagination]="false"
+            [nzLoading]="loading"
+            [nzTotal]="page.total"
+            [(nzPageIndex)]="page.pageNum"
+            [(nzPageSize)]="page.pageSize"
+            (nzPageIndexChange)="queryStock()"
+            (nzPageSizeChange)="queryStock()" >
+          <thead>
+          <tr>
+            <th
+              nzShowCheckbox
+              [(nzChecked)]="isAllDisplayDataChecked"
+              [nzIndeterminate]="isIndeterminate"
+              (nzCheckedChange)="checkReceiveAll($event)"
+              nzWidth="50px"
+            >全选</th>
+            <th nzWidth="50px">序号</th>
+            <th nzWidth="150px">此单分箱号</th>
+            <th nzWidth="150px">数量</th>
+            <th nzWidth="150px">备件名称</th>
+            <th nzWidth="50px">品牌</th>
+            <th nzWidth="50px">型号</th>
+            <th nzWidth="150px">规格</th>
+            <th nzWidth="150px">备件状态</th>
+            <th nzWidth="150px">单价(元)</th>
+            <th nzWidth="150px">在保状态</th>
+            <th nzWidth="150px">维保到期日</th>
+            <th nzWidth="150px">厂商序列号</th>
+            <th nzWidth="150px">唯一编码</th>
+            <th nzWidth="150px">入库日期</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of list;let i = index" class="editable-row">
+            <td nzShowCheckbox [(nzChecked)]="mapOfDeliveryCheckedId[data.id]"
+                nzWidth="50px"  (nzCheckedChange)="refreshStatus()"   ></td>
+            <td nzWidth="50px">{{page.getNo(i)}}</td>
+            <td nzWidth="150px"><nz-input-number  [(ngModel)]="data.subBoxNum" [nzMin]="1"  [nzStep]="1" [ngModelOptions]="{standalone: true}"></nz-input-number></td>
+            <td nzWidth="150px"><nz-input-number [(ngModel)]="data.quantity" [nzMin]="1"  [nzStep]="1" [ngModelOptions]="{standalone: true}"></nz-input-number></td>
+            <td nzWidth="150px">{{ data.catalogName }}</td>
+            <td nzWidth="50px">{{ data.brandName }}</td>
+            <td nzWidth="50px">{{ data.modelName }}</td>
+            <td nzWidth="150px">{{ data.normsValue }}</td>
+            <td nzWidth="150px">{{ data.statusName }}</td>
+            <td nzWidth="150px">{{ data.unitPrice }}</td>
+            <td nzWidth="150px">{{ data.insuranceStatusName }}</td>
+            <td nzWidth="150px">{{ data.serviceEndDate }}</td>
+            <td nzWidth="150px">{{ data.sn }}</td>
+            <td nzWidth="150px">{{ data.barcode }}</td>
+            <td nzWidth="150px">{{ data.createTime | date:'yyyy-MM-dd'}}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-card>
+    </div>
+
+    <div style="text-align:right;">
+      <button nz-button style="margin-right: 20px" type="button" (click)="addDelivery()"  >添加</button>
+      <button nz-button style="margin-right: 20px"   type="button" (click)="cancel()"  >取消</button>
+    </div>
+
+
+  </nz-spin>
+</form>

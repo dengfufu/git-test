@@ -1,0 +1,168 @@
+<div style="height: calc(100vh - 200px); padding-bottom: 0px; overflow: auto">
+<nz-list #nzList id="nzList" [nzSplit]="false"  style="height: calc(100% - 110px);  overflow: auto; padding: 10px 10px ;
+  border: 1px solid #E3E3E3;" (scroll)="onScroll()">
+    <div style="text-align: center; margin-bottom: 20px;" *ngIf="showQueryMore">
+      <span style="cursor: pointer;" (click)="query(QUERY_MORE)">查询更多消息</span></div>
+    <nz-row *ngFor="let item of list;let index=index" [id]="'id'+item.msgOrder">
+      <div *ngIf="item.userId !== myId">
+        <nz-row class="avatar-div" >
+          <nz-avatar nz-comment-avatar nzIcon="user" [nzSize]="32"  [nzSrc]="prefixFile + item.faceImg"
+                     > </nz-avatar>
+        </nz-row>
+        <nz-list-item class="left-list-item" >
+          <div class="name-content-div-left">
+            <div class="username">
+              <span>{{item.corpName}}</span>
+              <span style="margin-left: 10px">{{item.userName}}</span>
+              <span style="margin-left: 10px">{{parseTime(item.createTime)}}</span>
+            </div>
+            <div *ngIf="item.fileId == 0"  class="content-left" (contextmenu)="contextMenu($event, menu, item,index)">
+              <p class="content-word-left" >{{item.content}}</p>
+            </div>
+            <!-- 图片信息 -->
+            <nz-row  *ngIf="item.fileId !=0 && item.img" (contextmenu)="contextMenu($event, menu, item,index)">
+              <img   [src]="prefixFile + item.thumbnail"
+                    class="img-msg-left"
+                    pro-image-viewer
+                    [images]="getImageUrls()"
+                    [currentImgIndex]="getImageIndex(prefixFile + item.fileId)"
+                    (error)="getDefaultImg($event)" (load)="imgLoaded(item)"/>
+            </nz-row>
+
+            <!-- 文件信息-->
+            <nz-row *ngIf="item.fileId !=0 && !item.img" class="file-left" (contextmenu)="contextMenu($event, menu, item,index)">
+              <nz-row  [nzGutter]="10" nzType="flex" nzJustify="space-around" nzAlign="middle" >
+                <nz-col nzSpan="18" class="file-name" >
+                  <nz-row>
+                    {{item.fileName}}
+                  </nz-row>
+                  <nz-row [nzGutter]="20">
+                    <nz-col >
+                      {{ getSize(item.size/1024)}}
+                    </nz-col>
+                    <nz-col  style="color: dodgerblue;cursor: pointer" pro-down-file  [httpUrl]="prefixFile + item.fileId" [fileName]="item.fileName">
+                      下载
+                    </nz-col>
+                  </nz-row>
+                </nz-col>
+                <nz-col nzSpan="6" style="text-align: center">
+                  <img [src]="fileIcon(item.extension)"/>
+                </nz-col>
+              </nz-row>
+            </nz-row>
+          </div>
+        </nz-list-item>
+      </div>
+
+      <div *ngIf="item.userId === myId">
+        <nz-row class="toward-right">
+          <nz-avatar   nz-comment-avatar nzIcon="user" [nzSize]="32" class="avatar-div" [nzSrc]="user.faceImg"
+                       > </nz-avatar>
+        </nz-row>
+        <nz-list-item  class="right-list-item toward-right">
+          <div    class="name-content-div-right">
+            <div style="text-align: right" class="username">
+              <span >{{item.userName}}</span>
+              <span style="margin-left: 10px">{{parseTime(item.createTime)}}</span>
+            </div>
+            <!-- 文本信息 -->
+            <nz-row *ngIf="item.fileId == 0"  class="content-right" (contextmenu)="contextMenu($event, menu, item,index)">
+              <p class="content-word-right">{{item.content}}</p>
+            </nz-row>
+            <!-- 图片信息 -->
+            <nz-row   *ngIf="item.fileId !=0 && item.img" (contextmenu)="contextMenu($event, menu, item,index)">
+              <img   [src]="prefixFile + item.thumbnail"  class="img-msg-right"
+                     pro-image-viewer
+                    [images]="getImageUrls()"
+                     (error)="getDefaultImg($event)"
+                    [currentImgIndex]="getImageIndex(prefixFile + item.fileId)"
+                    (load)="imgLoaded(item)"/>
+            </nz-row>
+            <!-- 文件信息-->
+            <nz-row *ngIf="item.fileId !=0 && !item.img" class="file-right" (contextmenu)="contextMenu($event, menu, item,index)">
+                <nz-row  [nzGutter]="10" nzType="flex" nzJustify="space-around" nzAlign="middle" >
+                  <nz-col nzSpan="18" class="file-name" >
+                    <nz-row>
+                      {{item.fileName}}
+                    </nz-row>
+                    <nz-row [nzGutter]="20">
+                      <nz-col >
+                        {{ getSize(item.size)}}
+                      </nz-col>
+                      <nz-col  style="color: dodgerblue;cursor: pointer" pro-down-file  [httpUrl]="prefixFile + item.fileId" [fileName]="item.fileName">
+                        下载
+                      </nz-col>
+                    </nz-row>
+                  </nz-col>
+                  <nz-col nzSpan="6" style="text-align: center">
+                    <img [src]="fileIcon(item.extension)"/>
+                  </nz-col>
+                </nz-row>
+            </nz-row>
+          </div>
+        </nz-list-item>
+      </div>
+    </nz-row>
+</nz-list>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu style="margin-top: 15px;">
+    <li nz-menu-item (click)="recallChat()" *ngIf="canRecall && isCurItemMine">撤回
+    <li nz-menu-item nzDisabled *ngIf="!canRecall && isCurItemMine">撤回（超过2分钟）
+    <li nz-menu-item (click)="deleteChat()" [acl]="{ability: [aclRight.WORK_CHAT_DEL]}"  >删除
+    </li>
+  </ul>
+</nz-dropdown-menu>
+
+<nz-modal [nzBodyStyle]="{marginTop: imgTop +'px'}"
+  style="z-index: 100;" [nzWidth]="imgWidth + 60"
+  [nzVisible]="previewVisible"
+  [nzContent]="modalContent"
+  [nzFooter]="null"
+  (nzOnCancel)="previewVisible = false"
+></nz-modal>
+<ng-template #modalContent>
+  <div [style.width]="imgWidth+'px'">
+    <img [src]="avatarUrlBig" style="width: 100%; margin-top: 10px;" />
+  </div>
+</ng-template>
+
+<nz-comment style="margin-left: -12px; margin-top: -12px;">
+  <nz-comment-content>
+    <div class="icons-list">
+<!--      <button nz-button style="border: none">-->
+<!--        <i nz-icon nzType="chat:emoji"-->
+<!--           [nzTheme]="'outline'" style="  margin-right: 10px;" >-->
+<!--        </i>-->
+<!--      </button>-->
+      <button nz-button style="border: none;margin-right: 10px" (click)="query(this.QUERY_LATEST)" title="刷新">
+        <i nz-icon nzType="chat:refresh"
+           [nzTheme]="'outline'" style="margin-right: 10px;" >
+        </i>
+      </button>
+      <div style="float: right;clear: right;">
+        <span style="font-size: 10px" *ngIf="showHint">按Enter进行发送，Control + Enter换行</span>
+        <button nz-button nzShape="round" (click)="submit(TEXT)" class="edit-button" [disabled]="!content || sending"
+                style="margin-bottom: 8px; vertical-align: bottom; margin-left: 15px;">发送</button>
+        <button nz-button style="border: none; color: #aaa;" (click)="toggleHint()">
+          <i nz-icon nzType="info-circle" nzTheme="outline"></i>
+        </button>
+      </div>
+
+      <nz-upload [nzBeforeUpload]="beforeUpload">
+        <button nz-button [nzLoading]="uploading" style="border: none" title="上传文件">
+          <i nz-icon nzType="chat:file" [nzTheme]="'outline'"></i>
+        </button>
+      </nz-upload>
+
+    </div>
+
+    <nz-form-item style="margin-bottom: 10px">
+      <textarea #text title="按Enter进行发送，Control + Enter换行"
+             [(ngModel)]="content" [disabled]="sending" maxlength="500"
+             nz-input rows="2" nzAutosize="true" style="min-height: 52px; max-height:400px; overflow: auto"
+             (keydown.enter)="keyEnter($event)" (keydown.control.enter)="keyCtrlEnter($event)"
+             ></textarea>
+    </nz-form-item>
+  </nz-comment-content>
+</nz-comment>
+</div>

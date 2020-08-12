@@ -1,0 +1,27 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+
+  <nz-spin [nzSpinning]="spinning">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="4" nzFor="userId">员工姓名</nz-form-label>
+      <nz-form-control [nzSpan]="16" >
+        <nz-select
+          style="width: 200px;"
+          nzShowSearch
+          nzServerSearch
+          nzAllowClear
+          nzPlaceHolder="根据姓名、手机号搜索"
+          [nzFilterOption]="nzFilterOption"
+          (nzOnSearch)="matchUser($event)"
+          formControlName="userId">
+          <nz-option *ngFor="let o of userOptions" [nzLabel]="o.userName" [nzValue]="o.userId"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+  </nz-spin>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)"  [disabled]="!validateForm.valid"  class="button-modal-submit" >提交</button>
+</div>
+

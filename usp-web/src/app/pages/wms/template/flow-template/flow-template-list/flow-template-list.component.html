@@ -1,0 +1,137 @@
+<my-pro-page-header-wrapper>
+  <nz-card [nzBordered]="false">
+    <div nz-row>
+      <div nz-col style="text-align: right;child-align: middle">
+        <img nz-dropdown src="assets/wms/add-circle.svg" (click)="addFlowTemplate()" class="img-filtrate">
+        &nbsp;&nbsp;&nbsp;
+        <img src="assets/anyfix/filtrate.svg" class="img-filtrate" (click)="openDrawer()">
+        <!-- <img *ngIf="saveStatus === 20" src="assets/anyfix/filtrate.svg" class="img-filtrate" (click)="openDrawer()">-->
+      </div>
+    </div>
+    <nz-table #rowSelectionTable
+              nzShowSizeChanger
+              nzBordered
+              nzSize="middle"
+              style="padding-top: 20px;"
+              [nzFrontPagination]="false"
+              [nzData]="list"
+              [nzLoading]="loading"
+              [nzTotal]="total"
+              [(nzPageIndex)]="pageNum"
+              [(nzPageSize)]="pageSize"
+              [nzLoadingDelay]="300"
+              (nzPageIndexChange)="queryConfig(false)"
+              (nzPageSizeChange) = "queryConfig(true)"
+              [nzPageSize]="10">
+      <thead>
+      <tr >
+        <th style="width: 70px">序号</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">流程模板名称</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">流程类型</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否可用</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">顺序号</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">描述</th>
+        <th nzAlign="center" style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of rowSelectionTable.data;let index = index">
+        <td nzAlign="center">{{ (pageNum - 1) * pageSize + index + 1 }}</td>
+        <td nzAlign="center">{{ data.name }}</td>
+        <td nzAlign="center">{{ data.largeClassName}}--{{ data.smallClassName}}</td>
+        <td  nzAlign="center"*ngIf="data.enabled === 'Y'">是</td>
+        <td  nzAlign="center"*ngIf="data.enabled === 'N'">否</td>
+
+        <td nzAlign="center">{{ data.sortNo }}</td>
+        <td nzAlign="center">{{ data.description }}</td>
+        <td nzAlign="center">
+          <a (click)="modFlowTemplateNode(data, (pageNum - 1) * pageSize + index + 1)">
+            <i nz-icon nzType="edit" nzTheme="fill"></i>流程步骤
+          </a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="editFlowTemplate(data)">
+            <i nz-icon nzType="edit" nzTheme="fill"></i>编辑基本信息
+          </a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="copyFlowTemplate(data)">
+            <i nz-icon nzType="copy" nzTheme="fill"></i>复制模板
+          </a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="showDeleteConfirm(data)">
+            <i nz-icon nzType="delete" nzTheme="fill"></i>删除
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </nz-card>
+
+  <ng-template #filterTitle>
+    <img src="assets/go-back.svg" (click)="closeDrawer()" style="padding-right: 20px;">
+    <span style="font-size: 16px;font-weight: bold;">筛选</span>
+  </ng-template>
+  <nz-drawer [nzTitle]="filterTitle" [nzVisible]="drawerVisible" [nzWidth]="360" [nzClosable]="false"
+             (nzOnClose)="closeDrawer()"
+             [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }">
+    <form nz-form name="form" [formGroup]="searchForm">
+      <nz-form-item>
+        <nz-form-label>流程模板名称</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="name" placeholder="请输入流程模板名称"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>流程类型</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="largeClassId"
+          >
+            <nz-option *ngFor="let data of ClassOptions.largeClass" [nzValue]="data.value"
+                       [nzLabel]="data.text"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>流程子类型</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            formControlName="smallClassId"
+          >
+            <nz-option *ngFor="let data of ClassOptions.smallClass" [nzValue]="data.value"
+                       [nzLabel]="data.text"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>顺序号</nz-form-label>
+        <nz-form-control>
+          <nz-input-number
+            [nzMin]="1"
+            [nzMax]="1000000"
+            [nzStep]="1"
+            formControlName="sortNo"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>是否可用</nz-form-label>
+        <nz-form-control>
+          <nz-radio-group formControlName="enabled">
+            <label nz-radio nzValue="Y">是</label>
+            <label nz-radio nzValue="N">否</label>
+          </nz-radio-group>
+        </nz-form-control>
+      </nz-form-item>
+      <div class="footer">
+        <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;"><span>清空筛选</span>
+        </button>&nbsp;
+        <button type="button" (click)="closeDrawer();queryConfig(false);" class="ant-btn ant-btn-primary"><span>查询</span>
+        </button>
+      </div>
+    </form>
+  </nz-drawer>
+</my-pro-page-header-wrapper>

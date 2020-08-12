@@ -1,0 +1,51 @@
+@import '~ng-zorro-antd/style/themes/default.less';
+
+.extraContent {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  white-space: nowrap;
+
+  .statItem {
+    position: relative;
+    display: inline-block;
+    flex: 1;
+
+    > p:first-child {
+      margin-bottom: 4px;
+      color: @text-color-secondary;
+      font-size: @font-size-base;
+      line-height: 22px;
+    }
+
+    > p {
+      margin: 0;
+      color: @heading-color;
+      font-size: 30px;
+      line-height: 38px;
+
+      > span {
+        color: @text-color-secondary;
+        font-size: 20px;
+      }
+    }
+
+    &::after {
+      position: absolute;
+      top: 8px;
+      right: 0;
+      width: 1px;
+      height: 40px;
+      background-color: @border-color-split;
+      content: '';
+    }
+
+    &:last-child {
+      padding-right: 0;
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+}

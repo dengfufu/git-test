@@ -1,0 +1,267 @@
+<nz-spin [nzSpinning]="loading" class="detail-div">
+  <nz-page-header [nzBackIcon]="backIcon">
+    <nz-page-header-title style="margin-left: -10px;">
+      对账单详情 {{workFeeVerify.verifyName}}
+    </nz-page-header-title>
+    <nz-page-header-extra>
+      <button nz-button nzShape="round" (click)="goBack()" class="edit-button">返回</button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.SETTLE_DEMANDER_MOD, aclRight.WORK_FEE_VERIFY_MANAGER]}"
+              *ngIf="corpId == workFeeVerify.serviceCorp && (workFeeVerify.status === 1)"
+              (click)="mod()"
+              class="edit-button">修改
+      </button>
+      <button nz-button nzShape="round"
+               [acl]="{ability: [aclRight.SETTLE_DEMANDER_ADD, aclRight.WORK_FEE_VERIFY_MANAGER]}"
+               *ngIf="corpId == workFeeVerify.serviceCorp && (workFeeVerify.status === 1)"
+               (click)="submit()"
+               class="edit-button">提交对账
+      </button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY]}"
+              *ngIf="corpId == workFeeVerify.demanderCorp && (workFeeVerify.status === 2 || workFeeVerify.status === 4)"
+              nz-dropdown [nzDropdownMenu]="verifyDropMenu"
+              class="edit-button">对账
+      </button>
+      <button nz-button nzShape="round"
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY_CONFIRM]}"
+              *ngIf="corpId == workFeeVerify.serviceCorp && (workFeeVerify.status === 3)"
+              (click)="confirm()"
+              class="edit-button">确认
+      </button>
+      <button nz-button nzNoAnimation nz-dropdown [nzDropdownMenu]="menu"
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY_MANAGER, aclRight.WORK_FEE_VERIFY_LIST, aclRight.WORK_FEE_VERIFY_DEL], mode: 'oneOf'}"
+              *ngIf="corpId === workFeeVerify.serviceCorp || corpId === workFeeVerify.demanderCorp"
+              style="margin-left: 20px; margin-right: 10px; border: none; padding: 0">
+        <img src="assets/drop-menu.svg">
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item
+              style="border: none;outline: none"
+              pro-down-file
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY_LIST, aclRight.WORK_FEE_VERIFY_MANAGER]}"
+              *ngIf="workFeeVerify.status >= 3"
+              httpMethod="get"
+              [httpUrl]="'/api/anyfix/work-fee-verify-detail/export?verifyId=' + verifyId"
+              [msg] ="'正在导出对账工单...'" >导出
+          </li>
+          <li nz-menu-item
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY_DEL, aclRight.WORK_FEE_VERIFY_MANAGER]}"
+              *ngIf="corpId === workFeeVerify.serviceCorp && (workFeeVerify.status === 1 || workFeeVerify.status === 2)"
+              (click)="deleteConfirm()">删除
+          </li>
+          <li nz-menu-item nzDisabled>无更多操作</li>
+        </ul>
+      </nz-dropdown-menu>
+      <nz-dropdown-menu #verifyDropMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY]}"
+              *ngIf="corpId == workFeeVerify.demanderCorp && (workFeeVerify.status === 2 || workFeeVerify.status === 4)"
+              (click)="verify()">手动对账
+          </li>
+          <li nz-menu-divider></li>
+          <li nz-menu-item
+              [acl]="{ability: [aclRight.WORK_FEE_VERIFY]}"
+              *ngIf="corpId == workFeeVerify.demanderCorp && (workFeeVerify.status === 2 || workFeeVerify.status === 4)"
+              (click)="importVerify()">导入对账
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <ng-template #backIcon>
+    <img src="assets/go-back.svg" style="padding-right: 20px;">
+  </ng-template>
+  <nz-layout>
+    <nz-sider [nzWidth]="300" nzCollapsible [(nzCollapsed)]="isCollapsed" [nzCollapsedWidth]="0" nzTheme="light" [nzTrigger]="null">
+      <nz-card style="width:300px;" [nzBordered]="false">
+        <div nz-row>
+          <div nz-col nzSpan="16"
+               style="font-weight: bold;">{{workFeeVerify.addTime | date:'yyyy-MM-dd HH:mm'}}</div>
+        </div>
+        <br>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">对账状态：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.statusName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">结算状态：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.settleStatusName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">服务商：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.serviceCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">委托商：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.demanderCorpName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">对账周期：</div>
+          <div nz-col nzSpan="14">
+            {{workFeeVerify.startDate | date:'yyyy-MM-dd'}}<br>
+            ~{{workFeeVerify.endDate | date:'yyyy-MM-dd'}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">委托协议：</div>
+          <div nz-col nzSpan="14"><a (click)="showContNo()">{{workFeeVerify.contNo}}</a></div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">行政区划：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.districtName}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">工单总数：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.workQuantity}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">工单总费用：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.totalAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="workFeeVerify.status >= 2">
+          <div nz-col class="label-item" nzSpan="10">对账总费用：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.verifyAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</div>
+        </div>
+        <!--      <div class="div-row" nz-row>-->
+        <!--        <div nz-col class="label-item" nzSpan="8">总金额：</div>-->
+        <!--        <div nz-col nzSpan="16">￥{{settleDemander.settleFee}}</div>-->
+        <!--      </div>-->
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">添加人：</div>
+          <div nz-col nzSpan="14">
+            <username-info [userId]="workFeeVerify.addUser" [username]="workFeeVerify.addUserName"></username-info>
+          </div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzSpan="10">备注：</div>
+          <div nz-col nzSpan="14">{{workFeeVerify.note}}</div>
+        </div>
+        <div class="div-row" nz-row *ngIf="workFeeVerify.status > 2">
+          <div nz-col class="label-item" nzSpan="10">对账人：</div>
+          <div nz-col nzSpan="14">
+            <username-info [userId]="workFeeVerify.checkUser" [username]="workFeeVerify.checkUserName"></username-info>
+          </div>
+        </div>
+        <div class="div-row" nz-row *ngIf="workFeeVerify.status > 2">
+          <div nz-col class="label-item" nzSpan="10">对账时间：</div>
+          <div nz-col nzSpan="14">
+            {{workFeeVerify.checkTime | date: 'yyyy-MM-dd HH:mm'}}
+          </div>
+        </div>
+        <div class="div-row" nz-row *ngIf="workFeeVerify.status > 3">
+          <div nz-col class="label-item" nzSpan="10">确认人：</div>
+          <div nz-col nzSpan="14">
+            <username-info [userId]="workFeeVerify.confirmUser" [username]="workFeeVerify.confirmUserName"></username-info>
+          </div>
+        </div>
+        <div class="div-row" nz-row *ngIf="workFeeVerify.status > 3">
+          <div nz-col class="label-item" nzSpan="10">确认时间：</div>
+          <div nz-col nzSpan="14">
+            {{workFeeVerify.confirmTime | date: 'yyyy-MM-dd HH:mm'}}
+          </div>
+        </div>
+        <div class="div-row" nz-row *ngIf="workFeeVerify.status >= 4 && (workFeeVerify.confirmNote || '').length > 0">
+          <div nz-col class="label-item" nzSpan="10">确认备注：</div>
+          <div nz-col nzSpan="14">
+            {{workFeeVerify.confirmNote}}
+          </div>
+        </div>
+      </nz-card>
+    </nz-sider>
+    <nz-content>
+      <span class="trigger" (click)="isCollapsed = !isCollapsed">
+        <i nz-icon style="color: #FFBD50" [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
+      </span>
+      <nz-card style="width: 100%;height: 100%;border-top: 0px;border-bottom: 0px;border-right: 0px;"
+               [nzBodyStyle]="{paddingTop: '6px', paddingBottom: '0px'}">
+        <nz-tabset [nzTabBarStyle]="{'border-bottom': '0px'}">
+          <nz-tab nzTitle="对账工单">
+            <ng-template #totalTemplate let-total>
+              共{{total}}条
+            </ng-template>
+            <nz-table
+              nzShowSizeChanger [nzPageSizeOptions]="userService.pageSizeOptions"
+              nzBordered
+              [nzFrontPagination]="false"
+              [nzData]="detailList"
+              [nzLoading]="tableLoading"
+              [nzTotal]="page.total"
+              [nzShowTotal]="totalTemplate"
+              [(nzPageIndex)]="page.pageNum"
+              [(nzPageSize)]="page.pageSize"
+              (nzPageIndexChange)="queryDetailList(false)"
+              (nzPageSizeChange)="queryDetailList(true)"
+              [nzScroll]="workFeeVerify.status >= 2 ? {x: '2900px'} : {x: '2620px'}"
+            >
+              <thead>
+              <tr>
+                <th nzWidth="50px" nzLeft="0">序号</th>
+                <th nzWidth="180px" nzLeft="50px">工单编号</th>
+                <th nzWidth="80px">工单费用</th>
+                <th nzWidth="80px" *ngIf="workFeeVerify.status >= 3">对账费用</th>
+                <th nzWidth="200px" *ngIf="workFeeVerify.status >= 3">对账说明</th>
+                <th nzWidth="80px" *ngIf="corpId === workFeeVerify.serviceCorp">审核</th>
+                <th nzWidth="80px">确认</th>
+                <th nzWidth="100px">基础维护费</th>
+                <th nzWidth="100px">辅助人员费</th>
+                <th nzWidth="100px">郊区交通费</th>
+                <th nzWidth="100px">长途交通费</th>
+                <th nzWidth="100px">住宿费</th>
+                <th nzWidth="100px">出差补助</th>
+                <th nzWidth="100px">邮寄费</th>
+                <th nzWidth="100px">其他费用</th>
+                <th nzWidth="80px">省</th>
+                <th nzWidth="80px">市</th>
+                <th nzWidth="150px">客户</th>
+                <th nzWidth="150px">设备类型</th>
+                <th nzWidth="100px">品牌</th>
+                <th nzWidth="150px">型号</th>
+                <th nzWidth="80px">规格</th>
+                <th nzWidth="100px">工单类型</th>
+                <th nzWidth="100px">建单人</th>
+                <th nzWidth="150px">建单时间</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr (dblclick)="toWorkDetail(data.workId)" *ngFor="let data of detailList;let index = index">
+                <td nzLeft="0">{{index + 1}}</td>
+                <td nzLeft="50px"><a (click)="toWorkDetail(data.workId)">{{data.workCode}}</a></td>
+                <td nzAlign="right">{{data.totalFee  | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right" *ngIf="workFeeVerify.status >= 3">
+                  <span *ngIf="data.verifyAmount !== data.totalFee" style="font-weight: bolder;color: red">
+                    {{data.verifyAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}
+                  </span>
+                  <span *ngIf="data.verifyAmount === data.totalFee">{{data.verifyAmount | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</span>
+                </td>
+                <td nzAlign="left" *ngIf="workFeeVerify.status >= 3">{{data.note}}</td>
+                <td *ngIf="corpId === workFeeVerify.serviceCorp">{{data.workFeeDto.feeCheckStatusName}}</td>
+                <td>{{data.feeConfirmStatusName}}</td>
+                <td nzAlign="right">{{data.workFeeDto.assortBasicFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right">{{data.workFeeDto.assortSupportFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right">{{data.workFeeDto.suburbTrafficExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right">{{data.workFeeDto.longTrafficExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right">{{data.workFeeDto.hotelExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right">{{data.workFeeDto.travelExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right">{{data.workFeeDto.postExpense | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="right">{{data.workFeeDto.otherFee | currency: 'CNY': 'symbol-narrow': '1.0-2'}}</td>
+                <td nzAlign="left">{{data.provinceName}}</td>
+                <td nzAlign="left">{{data.cityName}}</td>
+                <td nzAlign="left">{{data.customCorpName}}</td>
+                <td nzAlign="left">{{data.smallClassName}}</td>
+                <td nzAlign="left">{{data.brandName}}</td>
+                <td nzAlign="left">{{data.modelName}}</td>
+                <td nzAlign="left">{{data.specificationName}}</td>
+                <td nzAlign="left">{{data.workTypeName}}</td>
+                <td nzAlign="left">{{data.creatorName}}</td>
+                <td>{{data.createTime | date:'yyyy-MM-dd HH:mm'}}</td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+        </nz-tabset>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</nz-spin>

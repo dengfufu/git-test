@@ -1,0 +1,26 @@
+<nz-descriptions [nzSize]="'small'" [nzBordered]="true" [nzColumn]="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }">
+  <!--  <nz-descriptions-item nzTitle="支付订单号" [nzSpan]="4">{{paymentApply.id}}</nz-descriptions-item>-->
+  <nz-descriptions-item nzTitle="商品名称" [nzSpan]="2">{{paymentApply.orderName}}</nz-descriptions-item>
+  <!--  <nz-descriptions-item nzTitle="商品订单ID" [nzSpan]="2">{{paymentApply.orderId}}</nz-descriptions-item>-->
+  <!--  <nz-descriptions-item nzTitle="商品明细">{{paymentApply.orderDetail}}</nz-descriptions-item>-->
+
+  <nz-descriptions-item nzTitle="付款方">{{paymentApply.payerCorpName}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="收款方">{{paymentApply.payeeCorpName}}</nz-descriptions-item>
+
+  <nz-descriptions-item nzTitle="申请时间">{{paymentApply.applyTime | date: 'yyyy-MM-dd HH:mm:ss' }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="支付方式">{{paymentApply.payWayName}}</nz-descriptions-item>
+
+  <nz-descriptions-item nzTitle="订单状态">{{paymentApply.statusName}}</nz-descriptions-item>
+  <ng-container *ngIf="paymentApply.status === payApplyStatusCode.CANCEL">
+    <nz-descriptions-item nzTitle="取消原因">{{paymentApply.cancelReason}}</nz-descriptions-item>
+  </ng-container>
+
+  <nz-descriptions-item nzTitle="订单类型">{{paymentApply.orderTypeName}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="订单来源">{{paymentApply.orderSourceName}}</nz-descriptions-item>
+
+  <ng-container *ngIf="paymentApply.status === payApplyStatusCode.PAY_SUCCESS">
+    <nz-descriptions-item
+      nzTitle="支付完成时间">{{paymentApply.finishTime | date: 'yyyy-MM-dd HH:mm:ss' }}</nz-descriptions-item>
+  </ng-container>
+  <!--  <nz-descriptions-item nzTitle="结束时间">{{paymentApply.endTime | date: 'yyyy-MM-dd HH:mm:ss' }}</nz-descriptions-item>-->
+</nz-descriptions>

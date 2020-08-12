@@ -1,0 +1,167 @@
+<nz-layout>
+  <nz-content>
+    <nz-card [nzBordered]="false">
+      <!-----------------------------------物料库存列表-------------------------------------------------->
+      <div>
+        <a (click)="changeTag(0)"
+           [ngStyle]="changeColor(0)">全部({{ this.statusCountMap[wareTransService.CONFIRM] + this.statusCountMap[wareTransService.END]}}
+          )</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="changeTag(wareTransService.FOR_ALLOCATION)"
+           [ngStyle]="changeColor(wareTransService.FOR_ALLOCATION )">待确认({{statusCountMap[wareTransService.CONFIRM]}}
+          )</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="changeTag(wareTransService.COMPLETE_ALLOCATION)"
+           [ngStyle]="changeColor(wareTransService.COMPLETE_ALLOCATION )">已确认({{statusCountMap[wareTransService.END]}}
+          )</a>
+        <div style="float: right">
+          <button nz-button nz-dropdown [nzDropdownMenu]="menu4">
+            选择操作
+            <i nz-icon nzType="down"></i>
+          </button>
+          <nz-dropdown-menu #menu4="nzDropdownMenu" >
+            <ul nz-menu>
+              <li nz-menu-item (click)="apply()">申请</li>
+              <li nz-menu-item (click)="confirm()">确认</li>
+            </ul>
+          </nz-dropdown-menu>
+
+          <i nz-icon nzType="anyfix:filtrate" nzTheme="outline" class="img-filtrate" (click)="openDrawer()" nz-tooltip
+             nzTooltipTitle="筛选"></i>
+        </div>
+      </div>
+      <nz-table nzShowSizeChanger
+                nzBordered
+                style="padding-top: 20px;"
+                [nzFrontPagination]="false"
+                [nzData]="list"
+                [nzLoading]="loading"
+                [nzTotal]="page.total"
+                [(nzPageIndex)]="page.pageNum"
+                [(nzPageSize)]="page.pageSize"
+                [nzLoadingDelay]="100"
+                (nzPageIndexChange)="queryList(false)"
+                (nzPageSizeChange)="queryList(true)">
+        <thead>
+        <tr>
+          <th>序号</th>
+          <th>申请单号</th>
+          <th>转出库房</th>
+          <th>申请人</th>
+          <th>物料名称</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>数量</th>
+          <th>转入库房</th>
+          <th>申请时间</th>
+          <th *ngIf="confirmStatus">确认人</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of list;let i = index;" (click)="toWorkDetail(data.id)">
+          <td nzAlign="center" >{{page.getNo(i)}}</td>
+          <td>{{data.transCode}}</td>
+          <td>{{ data.fromDepotName }}</td>
+          <td>{{data.createByName}}</td>
+          <td>{{data.catalogName}}</td>
+          <td>{{data.brandName}}</td>
+          <td>{{data.modelName}}</td>
+          <td>{{ data.applyQuantity }}</td>
+          <td>{{ data.toDepotName }}</td>
+          <td>{{ data.applyDate | date:'yyyy-MM-dd'}}</td>
+          <td  *ngIf="confirmStatus">{{data.confirmedBy}}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+    <!-----------------------------------物料库存列表查询条件抽屉-------------------------------------------------->
+    <nz-drawer [nzTitle]="'调度筛选'" [nzVisible]="visible" [nzWidth]="360" [nzClosable]="true"
+               (nzOnClose)="closeDrawer()">
+      <form nz-form [formGroup]="searchForm" style="padding-bottom: 30px;">
+        <nz-form-item>
+          <nz-form-label>申请单号</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="workCode" nzPlaceHolder="请输入申请单号"/>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>申请库房</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="workTypes" nzShowSearch nzAllowClear
+                       nzPlaceHolder="请选择申请库房">
+              <nz-option *ngFor="let option of optionList.workTypeOption" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>调度状态</nz-form-label>
+          <label class="label-checkbox" nz-checkbox [(ngModel)]="allChecked"
+                 (ngModelChange)="updateAllChecked()" [nzIndeterminate]="indeterminate"
+                 [ngModelOptions]="{standalone: true}">全选</label>
+          <nz-form-control>
+            <nz-checkbox-group formControlName="workStatuses" nzPlaceHolder="工单状态"
+                               [(ngModel)]="checkOptionsOne"
+                               (ngModelChange)="updateSingleChecked() "></nz-checkbox-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>申请人</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="customCorp" nzShowSearch nzPlaceHolder="请选择申请人">
+              <nz-option *ngFor="let option of optionList.customOption" [nzValue]="option.customCorp"
+                         [nzLabel]="option.customCorpName"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>备件</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="serial" nzPlaceHolder="备件"/>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>型号</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="smallClassId" nzShowSearch nzPlaceHolder="请选择型号">
+              <nz-option *ngFor="let option of optionList.deviceSmallClassOption" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>紧急程度</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="deviceModel" nzShowSearch nzPlaceHolder="请选择紧急程度">
+              <nz-option *ngFor="let option of optionList.deviceModelOption" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>申请时间</nz-form-label>
+          <nz-form-control>
+            <nz-select [nzAllowClear]="true" formControlName="deviceBrand" nzShowSearch nznzPlaceHolder="请选择申请时间">
+              <nz-option *ngFor="let option of optionList.deviceBrandOption" [nzValue]="option.id"
+                         [nzLabel]="option.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+      <div class="footer">
+        <button type="button" (click)="clearDrawer()" class="ant-btn" style="margin-right: 8px;"><span>清空筛选</span>
+        </button>&nbsp;
+        <button type="button" (click)="closeDrawer();queryList(true);getWorkStatusCount();"
+                class="ant-btn ant-btn-primary"><span>提交</span>
+        </button>
+      </div>
+    </nz-drawer>
+  </nz-content>
+</nz-layout>

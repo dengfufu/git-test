@@ -1,0 +1,212 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-spin [nzSpinning]="spinning">
+    <div nz-row>
+      <nz-card [nzBordered]="false" [nzBodyStyle]="{'padding': '0'}">
+        <nz-form-item>
+          <nz-form-label [nzSpan]="4" nzRequired>字段名称</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="nameErrorTpl">
+            <input nz-input formControlName="fieldName" (input)="fieldNameChange()" maxlength="20" style="width: 400px;"
+                   placeholder="请输入字段名称"/>
+            <ng-template #nameErrorTpl let-control>
+              <ng-container *ngIf="control.hasError">
+                {{control.errors?.explain}}
+              </ng-container>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item nz-row>
+          <nz-form-label [nzSpan]="4" nzRequired>字段类型</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback>
+            <nz-select
+              style="width: 200px;"
+              nzAllowClear
+              nzPlaceHolder="选择字段类型"
+              formControlName="fieldType"
+              (ngModelChange)="changeFieldType($event)"
+            >
+              <nz-option *ngFor="let field of fieldOptions.fieldTypeList" [nzLabel]="field.text"
+                         [nzValue]="field.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="4" nzRequired>是否必填</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-radio-group formControlName="required">
+              <label nz-radio nzValue="Y">是</label>
+              <label nz-radio nzValue="N">否</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="4" nzRequired>是否公共</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <nz-radio-group (ngModelChange)="commonChange()" formControlName="common">
+              <label nz-radio nzValue="Y">是</label>
+              <label nz-radio nzValue="N">否</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item nz-row *ngIf="validateForm.controls.common.value !== 'Y'">
+          <nz-form-label [nzSpan]="4" nzRequired>业务表单类型</nz-form-label>
+          <nz-form-control [nzSpan]="16" nzHasFeedback>
+            <nz-select
+              style="width: 200px;"
+              nzAllowClear
+              nzPlaceHolder="选择业务表单类型"
+              formControlName="formType"
+            >
+              <nz-option *ngFor="let form of fieldOptions.formTypeList" [nzLabel]="form.text"
+                         [nzValue]="form.value"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="flag">
+          <nz-form-label [nzSpan]="4" nzRequired>可选值列表</nz-form-label>
+          <nz-form-control [nzSpan]="16">
+            <img nz-dropdown src="assets/wms/add-circle.svg" (click)="addDataSource()">
+           <!-- <button nz-button  class="edit-button" nzShape="round"  (click)="addDataSource()">添加</button>-->
+          </nz-form-control>
+        </nz-form-item>
+
+        <div nz-row *ngIf="flag">
+          <nz-col [nzSpan]="4">
+          </nz-col>
+          <nz-col [nzSpan]="20">
+            <nz-card [nzBordered]="false" [nzBodyStyle]="{'padding': '0'}">
+              <nz-table nzShowSizeChanger
+                        nzSize="middle"
+                        [nzBordered]="true"
+                        [nzFrontPagination]="false"
+                        [nzData]="dataSourceList"
+                        nzNoResult="无">
+                <thead>
+                <tr>
+                  <th nzWidth="50px">序号</th>
+                  <th nzWidth="50px" nzAlign="center"
+                      style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">数据源值
+                  </th>
+                  <th nzWidth="50px" nzAlign="center"
+                      style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">是否可用
+                  </th>
+                  <th nzWidth="50px" nzAlign="center"
+                      style="background-color: rgba(234, 234, 234, 1);font-weight: bold;">操作
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of dataSourceList;let index = index">
+                  <td nzWidth="50px" nzAlign="center">{{ index + 1 }}</td>
+                  <td nzWidth="50px" nzAlign="center">{{ data.sourceValue }}</td>
+                  <td nzWidth="50px" *ngIf="data.enabled === 'Y'">是</td>
+                  <td nzWidth="50px" *ngIf="data.enabled !== 'Y'"><span style="color: red">否</span></td>
+                  <td nzAlign="center">
+                    <img src="assets/config/edit.png" (click)="editDataSource(data, index)" >
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <img src="assets/config/delete.png" (click)="showDeleteDataSource(data, index)">
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </nz-card>
+          </nz-col>
+        </div>
+
+        <div style="margin-top: 30px">
+          <div  style="margin-left: 5px;color: #FFA349;font-size: 15px">形成控件如下(仅为预览)：
+          </div>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="4" [nzNoColon]="true">{{fieldName}}</nz-form-label>
+            <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="textErrorTpl" *ngIf="fieldType ===10">
+              <input nz-input formControlName="text" maxlength="100" style="width: 400px;"
+                     placeholder="请输入{{fieldName}}"/>
+              <ng-template #textErrorTpl let-control>
+                <ng-container *ngIf="control.hasError('required')">
+                  请输入{{fieldName}}！
+                </ng-container>
+              </ng-template>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="16" [nzErrorTip]="multilineTextErrorTpl" *ngIf="fieldType ===20">
+              <textarea rows="4" nz-input formControlName="multilineText" placeholder="请输入{{fieldName}}"></textarea>
+              <ng-template #multilineTextErrorTpl let-control>
+                <ng-container *ngIf="control.hasError('required')">
+                  请输入{{fieldName}}！
+                </ng-container>
+              </ng-template>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="16" *ngIf="fieldType ===30">
+              <nz-select nzShowSearch nzAllowClear nzPlaceHolder="请选择一个下拉" formControlName="dropRadioList">
+                <nz-option *ngFor="let dataSource of dataSourceList" [nzLabel]="dataSource.sourceValue"
+                           [nzValue]="dataSource.sourceValue" [nzDisabled]="dataSource.enabled=='N'"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="16" *ngIf="fieldType ===40">
+              <nz-select
+                [nzMaxTagCount]="5"
+                [nzMaxTagPlaceholder]="tagPlaceHolder"
+                nzMode="multiple"
+                nzPlaceHolder="请选择下拉"
+                formControlName="dropMultipleSelectionList"
+              >
+                <nz-option *ngFor="let dataSource of dataSourceList" [nzLabel]="dataSource.sourceValue"
+                           [nzValue]="dataSource.sourceValue" [nzDisabled]="dataSource.enabled=='N'"></nz-option>
+              </nz-select>
+              <ng-template #tagPlaceHolder let-selectedList> and {{ selectedList.length }} more selected</ng-template>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="16" *ngIf="fieldType===50">
+              <nz-radio-group formControlName="radio">
+                <label [nzDisabled]="o.enabled == 'N'" nz-radio [nzValue]="o.value"
+                       *ngFor="let o of radioList">{{ o.label }}</label>
+              </nz-radio-group>
+            </nz-form-control>
+
+            <nz-form-control *ngIf="fieldType ===60" [nzSpan]="16">
+              <nz-checkbox-group [ngModelOptions]="{standalone: true}" [ngModel]="checkBox"></nz-checkbox-group>
+            </nz-form-control>
+
+            <nz-form-control *ngIf="fieldType ===70" [nzSpan]="16">
+              <nz-date-picker formControlName="date"></nz-date-picker>
+            </nz-form-control>
+
+            <nz-form-control *ngIf="fieldType ===80" [nzSpan]="16">
+              <nz-time-picker formControlName="time"></nz-time-picker>
+            </nz-form-control>
+
+            <nz-form-control *ngIf="fieldType ===90" [nzSpan]="16">
+              <nz-input-number formControlName="number" [nzMin]="1" [nzMax]="10" [nzStep]="1"></nz-input-number>
+            </nz-form-control>
+
+            <nz-form-control *ngIf="fieldType ===100" [nzSpan]="16">
+              <input nz-input formControlName="decimal" maxlength="100" style="width: 400px;"
+                     placeholder="请输入{{fieldName}}"/>
+            </nz-form-control>
+
+            <nz-form-control *ngIf="fieldType ===110" [nzSpan]="16">
+              <input nz-input formControlName="email" maxlength="100" style="width: 400px;"
+                     placeholder="请输入{{fieldName}}"/>
+            </nz-form-control>
+
+          </nz-form-item>
+
+        </div>
+      </nz-card>
+    </div>
+
+    <nz-form-item>
+      <nz-form-control [nzOffset]="10" [nzSpan]="12">
+        <button nz-button nzType="primary" [disabled]="!validateForm.valid">提交</button>&nbsp;
+        <button nz-button type="button" (click)="destroyModal()">取消</button>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-spin>
+</form>

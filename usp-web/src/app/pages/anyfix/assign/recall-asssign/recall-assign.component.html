@@ -1,0 +1,18 @@
+<ul
+    nz-list
+    [nzDataSource]="reasonList"
+    nzSize="small"
+    [nzRenderItem]="smallItem"
+  >
+    <ng-template #smallItem let-item>
+      <li nz-list-item [nzActions]="[opAction]" [nzContent]="item.name" nzNoFlex></li>
+      <ng-template #opAction>
+        <label nz-checkbox [(ngModel)]="mapOfCheckedId[item.id]" (nzCheckedChange)="refreshStatus(item.id)"></label>
+      </ng-template>
+    </ng-template>
+    <textarea *ngIf="mapOfCheckedId[0]" maxlength="100" placeholder="字数不能超过100字" [(ngModel)]="otherReason"></textarea>
+  </ul>
+<div class="footer">
+  <button nz-button (click)="destroyModal()">取消</button>&nbsp;
+  <button nz-button nzType="primary" (click)="submitForm()" [disabled]="!disable">提交</button>&nbsp;
+</div>

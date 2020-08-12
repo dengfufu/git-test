@@ -1,0 +1,63 @@
+<form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" nzRequired>服务名</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="appErrorTpl">
+      <nz-select
+        style="width: 400px;"
+        nzShowSearch
+        nzAllowClear
+        nzPlaceHolder="选择应用服务"
+        [(ngModel)]="selectedValue"
+        formControlName="appId"
+      >
+        <nz-option nzLabel="usp-admin" nzValue="usp-admin"></nz-option>
+        <nz-option nzLabel="usp-auth" nzValue="usp-auth"></nz-option>
+        <nz-option nzLabel="usp-config" nzValue="usp-config"></nz-option>
+        <nz-option nzLabel="usp-file" nzValue="usp-file"></nz-option>
+        <nz-option nzLabel="usp-gateway" nzValue="usp-gateway"></nz-option>
+        <nz-option nzLabel="usp-msg" nzValue="usp-msg"></nz-option>
+        <nz-option nzLabel="usp-pos" nzValue="usp-pos"></nz-option>
+        <nz-option nzLabel="usp-push" nzValue="usp-push"></nz-option>
+        <nz-option nzLabel="usp-uas" nzValue="usp-uas"></nz-option>
+      </nz-select>
+      <ng-template #appErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请选择应用服务！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" nzRequired>配置名称</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="keyErrorTpl">
+      <input nz-input formControlName="configKey" maxlength="100" style="width: 400px;" placeholder="请输入配置名称" />
+      <ng-template #keyErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请输入配置名称！
+        </ng-container>
+        <ng-container *ngIf="control.hasError('maxlength')">
+          不能超过100个字符！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSpan]="4" nzRequired>配置值</nz-form-label>
+    <nz-form-control [nzSpan]="16" nzHasFeedback [nzErrorTip]="valueErrorTpl">
+      <input nz-input formControlName="configValue" maxlength="100" style="width: 400px;" placeholder="请输入配置值" />
+      <ng-template #valueErrorTpl let-control>
+        <ng-container *ngIf="control.hasError('required')">
+          请输入配置值！
+        </ng-container>
+        <ng-container *ngIf="control.hasError('maxlength')">
+          不能超过100个字符！
+        </ng-container>
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+<div *nzModalFooter>
+  <button nz-button type="button" (click)="destroyModal()" class="button-modal-cancel">取消</button>
+  <button nz-button nzType="primary"  (click)="submitForm(validateForm.value)"  [disabled]="!validateForm.valid"  class="button-modal-submit" >提交</button>
+</div>
+

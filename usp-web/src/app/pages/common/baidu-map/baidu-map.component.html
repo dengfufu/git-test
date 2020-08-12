@@ -1,0 +1,22 @@
+<div id="r-result">
+  <label>请输入:</label>
+  <nz-input-group nzSearch style="width:300px;" [nzAddOnAfter]="suffixIconButton">
+    <input
+      placeholder="百度"
+      nz-input
+      [(ngModel)]="inputValue"
+      id="suggestId"
+    />
+  </nz-input-group>
+  <ng-template #suffixIconButton>
+    <button nz-button nzType="primary" nzSearch (click)="setPlace(inputValue)">
+      <i nz-icon nzType="search" nzTheme="outline"></i>
+    </button>
+  </ng-template>
+<!--  <input nz-input type="text" id="suggestId" size="20" value="百度"  style="width:300px;" />-->
+  &nbsp;
+  <button nz-button nzType="primary" (click)="confirm()">提交</button>
+</div>
+<div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+<div id = "map"  #map  style="width: 700px;height: 500px;margin-top: 20px"></div>
+

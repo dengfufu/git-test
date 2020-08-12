@@ -1,0 +1,37 @@
+<nz-list nzItemLayout="vertical" [nzDataSource]="workReviewList" [nzRenderItem]="item"
+         nzSplit="false" [nzLoading]="initLoading" style="margin-left: 18px; font-size: 14px;">
+  <ng-template #item let-item>
+
+    <nz-list-item [nzContent]="nzContent" [nzExtra]="nzExtra">
+      <ng-template #nzExtra>
+      </ng-template>
+      <nz-list-item-meta [nzTitle]="nzTitle">
+        <ng-template #nzTitle>
+        </ng-template>
+      </nz-list-item-meta>
+      <ng-template #nzContent>
+        <nz-divider nzDashed></nz-divider>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzXs="4" nzXl="3">回访人员：</div>
+          <div nz-col class="div-note" nzSpan="20">
+          <span class="username">{{item.corpName}}</span>
+          <span class="username name-content-div-left">{{item.userName}}</span>
+          <span class="dt">{{item.operatTime | date:'yyyy-MM-dd HH:mm:ss'}}</span>
+          <i nz-icon  nzType="close-circle" nzTheme="outline"
+             style="margin-left: 16px;color: #FFBD50;"  nz-tooltip nzTooltipTitle="删除"
+             (click)="del(item)" *ngIf="hasWorkReviewDelRight() && item.operator === currentUserId"></i>
+          </div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzXs="4" nzXl="3">解决情况：</div>
+          <div nz-col class="div-note" nzSpan="20">{{IS_SOLVEMAP[item.isSolved]}}</div>
+        </div>
+        <div class="div-row" nz-row>
+          <div nz-col class="label-item" nzXs="4" nzXl="3">沟通摘要：</div>
+          <div nz-col class="div-note" nzSpan="20">{{ item.record}}</div>
+        </div>
+      </ng-template>
+    </nz-list-item>
+  </ng-template>
+</nz-list>
+

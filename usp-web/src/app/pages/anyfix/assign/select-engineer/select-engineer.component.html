@@ -1,0 +1,92 @@
+<nz-form-item>
+  <nz-form-label nzSpan="3">已选择工程师</nz-form-label>
+  <nz-form-control nzSpan="21">
+    <nz-tag *ngFor="let engineer of engineerCheckedList" nzMode="closeable" [nzColor]="'green'"
+            (nzOnClose)="deleteEngineer(engineer.userId)">{{ engineer.userName }}</nz-tag>
+  </nz-form-control>
+</nz-form-item>
+<form nz-form style="width: 750px" [nzLayout]="'inline'" [formGroup]="searchForm" (ngSubmit)="selectEngineerList(true)">
+  <div nz-row>
+    <div nz-col nzSpan="9">
+      <nz-form-item>
+        <nz-form-label>服务网点</nz-form-label>
+        <nz-form-control>
+          <nz-select nzPlaceHolder="服务网点"
+                     nzShowSearch
+                     [nzServerSearch]="true"
+                     (nzOnSearch)="searchServiceBranch($event)"
+                     formControlName="serviceBranch"
+                     [nzLoading]="serviceBranchOptionsLoading"
+                     nzPlaceHolder="请选择服务网点"
+                     style="width: 200px"
+                     nzAllowClear
+          >
+            <nz-option *ngFor="let branch of serviceBranchOptions" [nzLabel]="branch.branchName"
+                       [nzValue]="branch.branchId"></nz-option>
+            <nz-option [nzLabel]="serviceBranch.branchName" [nzValue]="serviceBranch.branchId" nzHide></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="9">
+      <nz-form-item>
+        <nz-form-label>工程师</nz-form-label>
+        <nz-form-control>
+          <input formControlName="userName" nz-input placeholder="可输入姓名/手机号查询"/>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col nzSpan="4">
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary" type="submit" [disabled]="!searchForm.valid">查询</button>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+</form>
+<ng-template #totalTemplate let-total> 共 {{ total }} 条</ng-template>
+<nz-table nzShowSizeChanger
+          nzBordered
+          [nzFrontPagination]="false"
+          [nzTotal]="page.total"
+          [(nzPageIndex)]="page.pageNum"
+          [(nzPageSize)]="page.pageSize"
+          [nzData]="engineerList"
+          [nzLoading]="loading"
+          nzShowPagination="true"
+          [nzShowTotal]="totalTemplate"
+          (nzPageIndexChange)="selectEngineerList()"
+          (nzPageSizeChange)="selectEngineerList()"
+          style="margin-top: 10px"
+>
+  <thead>
+  <tr>
+    <th
+      nzShowCheckbox
+      [(nzChecked)]="checkBox.isAllChecked"
+      [nzIndeterminate]="checkBox.isIndeterminate"
+      (nzCheckedChange)="checkAll($event);checkBox.checkAll($event);"
+      nzWidth="50px"
+    ></th>
+    <th nzWidth="50px">序号</th>
+    <th>姓名</th>
+    <th>联系方式</th>
+    <th>角色</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of engineerList;let i = index">
+    <td nzShowCheckbox [(nzChecked)]="checkBox.mapOfCheckedId[data.userId]"
+        (nzCheckedChange)="checkBox.refreshStatus();checkEngineer($event, data)"></td>
+    <td>{{ page.getNo(i) }}</td>
+    <td>{{ data.userName }}</td>
+    <td>{{ data.mobile }}</td>
+    <td>{{ data.roleNames}}</td>
+  </tr>
+  </tbody>
+</nz-table>
+<div *nzModalFooter>
+  <button nz-button (click)="destroyModal()">取消</button>&nbsp;
+  <button nz-button nzType="primary" (click)="submitForm()" [disabled]="engineerCheckedList.length <= 0">提交</button>&nbsp;
+</div>

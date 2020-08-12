@@ -1,0 +1,115 @@
+<nz-page-header  [nzBackIcon]="backIcon">
+  <nz-page-header-title>批量确认</nz-page-header-title>
+  <nz-page-header-extra>
+    <button nz-button (click)="goBack()" nzType="primary" nzShape="round">返回</button>
+    <button nz-button nzType="primary"  nzShape="round" (click)="saveDetail()" [disabled]="checkedList.length < 1">确认收货</button>
+  </nz-page-header-extra>
+</nz-page-header>
+
+<ng-template #backIcon>
+  <img src="assets/go-back.svg" style="padding-right: 20px;">
+</ng-template>
+
+<nz-layout>
+  <nz-card [nzBordered]="false">
+    <form [formGroup]="searchForm">
+
+      <div nz-row >
+        <div nz-col >
+          <nz-form-item>
+            <nz-form-label [nzSpan]="2"  nzRequired>转出库房</nz-form-label>
+            <nz-form-control [nzSpan]="5" [nzErrorTip]="">
+              <nz-select    nzShowSearch nzAllowClear
+                          (nzOnSearch)="queryDepotList($event)" formControlName="fromDepotId" nzPlaceHolder="请选择转出库房" >
+                <nz-option *ngFor="let item of fromDepotSelectionOptions" [nzValue]="item.id"
+                           [nzLabel]="item.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+            <nz-form-label [nzSpan]="2"  nzRequired>备件名称</nz-form-label>
+            <nz-form-control [nzSpan]="5" [nzErrorTip]="">
+              <nz-select
+                nzShowSearch
+                nzAllowClear
+                formControlName="catalog"
+                nzPlaceHolder="请选择备件分类"
+                (ngModelChange)="catalogChange($event)"
+                [nzServerSearch]="true"
+                (nzOnSearch)="wmsService.queryCatalogList($event)"
+              >
+                <nz-option *ngFor="let catalog of wmsService.selectOptions.catalogList" [nzValue]="catalog"
+                           [nzLabel]="catalog.name"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+          </nz-form-item>
+        </div>
+      </div>
+
+    </form>
+  </nz-card>
+
+  <div nz-row>
+    <nz-card style="border-width: 1px 0 0 0">
+      <div style="margin-bottom: 20px">
+<!--        <span class="p-title">调度添加明细</span>-->
+
+      </div>
+      <nz-table
+        nzBordered
+        nzHideOnSinglePage
+        nzFrontPagination="true"
+        nzShowSizeChanger
+        [nzPageIndex]="page.pageNum"
+        [nzPageSize]="page.pageSize"
+        [nzData]="showList"
+        [nzTotal]="showList.length"
+        [nzLoading]="loading"
+        nzLoadingDelay="1000"
+        nzNoResult="无"
+        (nzPageIndexChange)="queryList(false)"
+        (nzPageSizeChange)="queryList(true)">
+        <thead>
+        <tr>
+          <th
+            nzShowCheckbox
+            [(nzChecked)]="isAllDisplayDataChecked"
+            [nzIndeterminate]="isIndeterminate"
+            (nzCheckedChange)="checkReceiveAll($event)"
+          >全选</th>
+          <th nzWidth="50px">序号</th>
+          <th>申请单号</th>
+          <th>转出库房</th>
+          <th>申请人</th>
+          <th>备件</th>
+          <th>品牌</th>
+          <th>型号</th>
+          <th>申请数量</th>
+          <th>唯一编码</th>
+          <th>备件状态</th>
+          <th>申请日期</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of showList; let index = index" >
+          <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[data.id]"
+              (nzCheckedChange)="refreshStatus()" ></td>
+          <td nzAlign="center">{{ page.getNo(index) }}</td>
+          <td nzAlign="left">{{ data.transCode }}</td>
+          <td nzAlign="left">{{ data.toDepotName }}</td>
+          <td nzAlign="left">{{ data.createByName }}</td>
+          <td nzAlign="left">{{ data.catalogName }}</td>
+          <td nzAlign="left">{{ data.brandName }}</td>
+          <td nzAlign="left">{{ data.modelName }}</td>
+          <td nzAlign="left">{{ data.applyQuantity }}</td>
+          <td nzAlign="left">{{ data.sn }}</td>
+          <td nzAlign="left">{{ data.statusName}}</td>
+          <td nzAlign="left">{{ data.applyDate }}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+  </div>
+
+</nz-layout>
+

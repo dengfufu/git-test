@@ -1,0 +1,71 @@
+    <div style="padding:20px;">
+        <div nz-row [nzGutter]="8">
+            <div nz-col [nzSpan]="8">
+                <nz-card nzTitle="机器安装">
+                    <div class="card-content">
+                        <div class="price-box">
+                            <div class="txt">
+                                <span>230</span>元/单/台
+                            </div>
+                            <div class="tip">（不含物理到位、硬件安装和辅材费用）</div>
+                        </div>
+                        <button nzBlock="true" nz-button nzType="primary" (click)="addWork()">发起工单</button>
+                    </div>
+                </nz-card>
+            </div>
+            <div nz-col [nzSpan]="8">
+                <nz-card nzTitle="机器维护、巡检">
+                    <div class="card-content">
+                        <div class="price-box">
+                            <div class="txt">
+                                <span>180</span>元/单/台
+                            </div>
+                        </div>
+                        <button nzBlock="true" nz-button nzType="primary" (click)="addWork()">发起工单</button>
+                    </div>
+                </nz-card>
+            </div>
+            <div nz-col [nzSpan]="8">
+                <nz-card nzTitle="长期合作">
+                    <div class="card-content">
+                        <div class="price-box">
+                            <div class="txt">
+                                <span>500</span>元/天/人
+                            </div>
+                        </div>
+                        <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="submitForm()">
+                            <nz-form-item>
+                                <nz-form-control nzErrorTip="请填写公司名称">
+                                    <nz-input-group>
+                                        <input type="text" nz-input formControlName="company" placeholder="公司名称" />
+                                    </nz-input-group>
+                                </nz-form-control>
+                            </nz-form-item>
+                            <nz-form-item>
+                                <nz-form-control nzErrorTip="请填写设备服务需求">
+                                    <nz-input-group>
+                                        <input type="text" nz-input formControlName="demand" placeholder="设备服务需求" />
+                                    </nz-input-group>
+                                </nz-form-control>
+                            </nz-form-item>
+                            <nz-form-item>
+                                <nz-form-control nzErrorTip="请填写联系人">
+                                    <nz-input-group>
+                                        <input type="text" nz-input formControlName="name" placeholder="联系人" />
+                                    </nz-input-group>
+                                </nz-form-control>
+                            </nz-form-item>
+                            <nz-form-item>
+                                <nz-form-control nzErrorTip="请填写联系电话">
+                                    <nz-input-group>
+                                        <input type="text" nz-input formControlName="phone" placeholder="联系电话" />
+                                    </nz-input-group>
+                                </nz-form-control>
+                            </nz-form-item>
+                            <button style="margin-top: 10px;" nzBlock="true" nz-button nzType="primary">提交申请</button>
+                        </form>
+                    </div>
+                </nz-card>
+            </div>
+        </div>
+    </div>
