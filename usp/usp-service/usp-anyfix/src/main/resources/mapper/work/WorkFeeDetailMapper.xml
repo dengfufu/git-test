@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.WorkFeeDetailMapper">
+
+    <select id="listDtoByWorkId" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDetailDto">
+        select d.*, a.assort_id, a.together, a.assort_name, i.implement_id, i.implement_name, i.implement_type
+        from work_fee_detail d
+        left join work_fee_assort_define a on d.fee_id = a.assort_id
+        left join work_fee_implement_define i on d.fee_id = i.implement_id
+        where 1=1
+        <choose>
+            <when test="workId != null and workId > 0">
+                and d.work_id = #{workId}
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="listDtoByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDetailDto">
+        select d.*, a.assort_id, a.assort_name, i.implement_id, i.implement_name
+        from work_fee_detail d
+        left join work_fee_assort_define a on d.fee_id = a.assort_id
+        left join work_fee_implement_define i on d.fee_id = i.implement_id
+        where 1=1
+        <choose>
+            <when test="workFeeDetailFilter.workId != null and workFeeDetailFilter.workId > 0">
+                and d.work_id = #{workFeeDetailFilter.workId}
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
+        </choose>
+        <if test="workFeeDetailFilter.feeType != null and workFeeDetailFilter.feeType > 0">
+            and d.fee_type = #{workFeeDetailFilter.feeType}
+        </if>
+    </select>
+
+    <select id="listCheckedByAssortId" resultType="com.zjft.usp.anyfix.work.fee.model.WorkFeeDetail">
+        select a.* from work_fee_detail a
+        left join (select * from work_deal where fee_check_status = 2) b on a.work_id = b.work_id
+        where b.work_id is not null
+        <if test="assortId != null and assortId > 0">
+            and a.fee_id = #{assortId}
+        </if>
+    </select>
+
+    <select id="listUncheckedByAssortId" resultType="com.zjft.usp.anyfix.work.fee.model.WorkFeeDetail">
+        select a.* from work_fee_detail a
+        left join (select * from work_deal where fee_check_status != 2) b on a.work_id = b.work_id
+        where b.work_id is not null
+        <if test="assortId != null and assortId > 0">
+            and a.fee_id = #{assortId}
+        </if>
+    </select>
+
+    <!-- 费用分类查询 -->
+    <select id="listByTypeAndWorkId" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDetailDto">
+        select
+	        fd.work_id,
+	        fd.amount,
+	        fd.fee_type,
+	        ad.together,
+	        id.implement_type
+        from
+        (select * from work_fee_detail where 1=1
+        <if test="workIdList != null and workIdList.size() > 0">
+            and work_id in
+            <foreach collection="workIdList" item="workId" separator="," open="(" close=")">
+                #{workId}
+            </foreach>
+        </if>
+        ) fd
+        left join work_fee_implement_define id on fd.fee_id = id.implement_id and fd.fee_type = 2
+        left join work_fee_assort_define ad on fd.fee_id = ad.assort_id and fd.fee_type = 1
+    </select>
+
+</mapper>

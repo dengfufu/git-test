@@ -1,0 +1,1 @@
+INSERT INTO usp_uas.sys_right_url (id,right_type,uri,path_method,right_id,description) VALUES (1240251818116939778,1,'/api/uas/corp-app/getExternalApps','POST',324,'获取企业授权应用');

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.consign.mapper.ConsignDetailMapper">
+    <select id="listByPage" resultType="com.zjft.usp.wms.business.consign.dto.ConsignDetailDto">
+        select * from (
+        select d.*,m.consign_code,m.corp_id,m.consign_date,m.consign_by,m.consign_mobile,m.description,
+        m.express_corp_id,m.express_no,m.receiver_id,m.receiver_mobile,m.receive_name,receive_district,
+        m.receive_address,m.total_box_num,m.transport_type_id,m.consign_type_id,m.is_submit,m.create_by,
+        m.create_time
+        from consign_d d left join consign_m m on d.consign_main_id = m.id
+        left join ware_model wm on d.model_id = wm.id
+        where 1=1
+        <if test="consignFilter.corpId != null and consignFilter.corpId > 0L">
+            and m.corp_id = #{consignFilter.corpId}
+        </if>
+        <if test="consignFilter.signed != null">
+            and d.signed = #{consignFilter.signed}
+        </if>
+        <if test="consignFilter.largeClassId !=null and consignFilter.largeClassId >0L ">
+            and d.large_class_id = #{consignFilter.largeClassId}
+        </if>
+        <if test="consignFilter.smallClassId !=null and consignFilter.smallClassId >0L ">
+            and d.small_class_id = #{consignFilter.smallClassId}
+        </if>
+        <if test="consignFilter.fromDepotId !=null and consignFilter.fromDepotId >0L ">
+            and d.from_depot_id = #{consignFilter.fromDepotId}
+        </if>
+        <if test="consignFilter.formDetailId !=null and consignFilter.formDetailId >0L ">
+            and d.form_detail_id = #{consignFilter.formDetailId}
+        </if>
+        <if test="consignFilter.modelId != null and consignFilter.modelId > 0L">
+            and d.model_id = #{consignFilter.modelId}
+        </if>
+        <if test="consignFilter.catalogId != null and consignFilter.catalogId != ''">
+            and wm.catalog_id = #{consignFilter.catalogId}
+        </if>
+        ) t
+    </select>
+</mapper>

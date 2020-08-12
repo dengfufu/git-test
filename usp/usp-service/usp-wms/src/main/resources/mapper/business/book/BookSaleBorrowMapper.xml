@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.book.mapper.BookSaleBorrowMapper">
+    <sql id="commonCondition">
+        <if test="bookSaleBorrowFilter.idList != null and bookSaleBorrowFilter.idList.size > 0">
+            and id in
+            <foreach item="item" collection="bookSaleBorrowFilter.idList" open="(" close=")" separator="," index="index">
+                #{item}
+            </foreach>
+        </if>
+        <if test="bookSaleBorrowFilter.corpId != null and bookSaleBorrowFilter.corpId > 0L">
+            and corp_id = #{bookSaleBorrowFilter.corpId}
+        </if>
+        <if test="bookSaleBorrowFilter.saleFormId != null and bookSaleBorrowFilter.saleFormId > 0L">
+            and sale_form_id = #{bookSaleBorrowFilter.saleFormId}
+        </if>
+        <if test="bookSaleBorrowFilter.depotId != null and bookSaleBorrowFilter.depotId > 0L">
+            and depot_id = #{bookSaleBorrowFilter.depotId}
+        </if>
+        <if test="bookSaleBorrowFilter.catalogId != null and bookSaleBorrowFilter.catalogId > 0L">
+            and model_id in (select id from ware_model where catalog_id = #{bookSaleBorrowFilter.catalogId})
+        </if>
+        <if test="bookSaleBorrowFilter.brandId != null and bookSaleBorrowFilter.brandId > 0L">
+            and model_id in (select id from ware_model where brand_id = #{bookSaleBorrowFilter.brandId})
+        </if>
+        <if test="bookSaleBorrowFilter.modelId != null and bookSaleBorrowFilter.modelId > 0L">
+            and model_id = #{bookSaleBorrowFilter.modelId}
+        </if>
+        <if test="bookSaleBorrowFilter.status != null and bookSaleBorrowFilter.status > 0">
+            and status = #{bookSaleBorrowFilter.status}
+        </if>
+        <if test="bookSaleBorrowFilter.propertyRight != null and bookSaleBorrowFilter.propertyRight > 0L">
+            and property_right = #{bookSaleBorrowFilter.propertyRight}
+        </if>
+        <if test="bookSaleBorrowFilter.sn != null and bookSaleBorrowFilter.sn !=''">
+            and sn like concat('%',#{bookSaleBorrowFilter.sn},'%')
+        </if>
+        <if test="bookSaleBorrowFilter.barcode != null and bookSaleBorrowFilter.barcode !=''">
+            and barcode like concat('%',#{bookSaleBorrowFilter.barcode},'%')
+        </if>
+        <if test="bookSaleBorrowFilter.saleQty != null and bookSaleBorrowFilter.saleQty > 0">
+            and sale_qty = #{bookSaleBorrowFilter.saleQty}
+        </if>
+        <if test="bookSaleBorrowFilter.createBy != null and bookSaleBorrowFilter.createBy > 0L">
+            and create_by = #{bookSaleBorrowFilter.createBy}
+        </if>
+        <if test="bookSaleBorrowFilter.reverseDetailId != null and bookSaleBorrowFilter.reverseDetailId > 0L">
+            and reverse_detail_id = #{bookSaleBorrowFilter.reverseDetailId}
+        </if>
+        <if test="bookSaleBorrowFilter.reverseDetailIdList != null and bookSaleBorrowFilter.reverseDetailIdList.size > 0">
+            and reverse_detail_id in
+            <foreach collection="bookSaleBorrowFilter.reverseDetailIdList" item="detailId" open="(" close=")" separator=",">
+                #{detailId}
+            </foreach>
+        </if>
+        <if test="bookSaleBorrowFilter.reversed != null and bookSaleBorrowFilter.reversed != ''">
+            and reversed = #{bookSaleBorrowFilter.reversed}
+        </if>
+        <if test="bookSaleBorrowFilter.reverseBy != null and bookSaleBorrowFilter.reverseBy > 0L">
+            and reverse_by = #{bookSaleBorrowFilter.reverseBy}
+        </if>
+    </sql>
+
+    <select id="queryByPage" resultType="com.zjft.usp.wms.business.book.dto.BookSaleBorrowResultDto">
+        select * from book_sale_borrow a where 1=1
+        <include refid="commonCondition"></include>
+    </select>
+
+    <select id="listByFilter" resultType="com.zjft.usp.wms.business.book.dto.BookSaleBorrowResultDto">
+        select * from book_sale_borrow a where 1=1
+        <include refid="commonCondition"></include>
+    </select>
+
+    <select id="listByIncomeDetailSaveIdList" resultType="com.zjft.usp.wms.business.book.dto.BookSaleBorrowResultDto">
+        select a.*, b.detail_id as income_detail_save_id from book_sale_borrow a
+        left join income_d_reversed_save b on a.id = b.book_id where 1 = 1
+        <if test="incomeDetailSaveIdList != null and incomeDetailSaveIdList.size > 0">
+            and b.detail_id in
+            <foreach collection="incomeDetailSaveIdList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

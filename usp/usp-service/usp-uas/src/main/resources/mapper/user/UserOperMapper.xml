@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.user.mapper.UserOperMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.user.model.UserOper">
+    <id column="userid" jdbcType="BIGINT" property="userId" />
+    <id column="txid" jdbcType="BIGINT" property="txId" />
+    <result column="appid" jdbcType="INTEGER" property="appId" />
+    <result column="clientid" jdbcType="VARCHAR" property="clientId" />
+    <result column="opertype" jdbcType="SMALLINT" property="operType" />
+    <result column="details" jdbcType="VARCHAR" property="details" />
+    <result column="opertime" jdbcType="TIMESTAMP" property="operTime" />
+    <result column="lon" jdbcType="DECIMAL" property="lon" />
+    <result column="lat" jdbcType="DECIMAL" property="lat" />
+  </resultMap>
+
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.baseinfo.mapper.WorkConditionMapper">
+    <select id="listWorkCondition" resultType="com.zjft.usp.anyfix.baseinfo.model.WorkCondition">
+        select * from work_condition where 1=1
+        <if test="customCorp != null and customCorp != ''">
+            and custom_corp=#{customCorp}
+        </if>
+        <if test="workType != null and workType != ''">
+            and work_type=#{workType}
+        </if>
+        <if test="largeClassId != null and largeClassId != ''">
+            and large_class_id=#{largeClassId}
+        </if>
+        <if test="smallClassId != null and smallClassId != ''">
+            and small_class_id=#{smallClassId}
+        </if>
+        <if test="brandId != null and brandId != ''">
+            and locate(#{brandId},brand_id)>0
+        </if>
+        <if test="modelId != null and modelId != ''">
+            and locate(#{modelId},model_id)>0
+        </if>
+        <if test="district != null and district != ''">
+            and district=#{district}
+        </if>
+        <if test="deviceBranch != null and deviceBranch != ''">
+            and locate(#{deviceBranch},device_branch)>0
+        </if>
+        <if test="deviceId != null and deviceId != ''">
+            and device_id=#{deviceId}
+        </if>
+    </select>
+</mapper>

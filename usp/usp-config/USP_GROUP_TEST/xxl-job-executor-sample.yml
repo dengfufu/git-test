@@ -1,0 +1,13 @@
+xxl:
+  job:
+    accessToken: ''
+    admin:
+      addresses: https://anyfix-dev.zijin.com/xxl-job-admin
+    executor:
+      appname: xxl-job-executor-sample
+      ip: ''
+      logpath: ./log/usp/job/jobhandler
+      logretentiondays: 30
+      port: 10112
+usp:
+  url: https://anyfixgw-dev.zijin.com

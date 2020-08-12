@@ -1,0 +1,91 @@
+spring:
+  #集群版
+  redis:
+    cluster:
+      nodes: 10.34.12.145:6390,10.34.50.197:6391,10.34.12.97:6392,10.34.12.145:6393,10.34.50.197:6394,10.34.12.97:6395
+      max-redirects: 3
+    password: zj000001
+    timeout: 5000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 300
+        max-wait: 500
+        max-idle: 10
+        min-idle: 0
+
+  datasource:
+    druid:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://10.34.12.145:3306/usp_wms?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      username: root
+      password: cloud.Zijin
+      initialSize: 1
+      minIdle: 1
+      maxActive: 20
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      logAbandoned: true
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      validationQueryTimeout: 10000
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: false
+      maxPoolPreparedStatementPerConnectionSize: 20
+      filters: stat,wall
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      web-stat-filter:
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        enabled: true
+        url-pattern: "/druid/*"
+        allow: 127.0.0.1
+        reset-enable: false
+        login-username: admin
+        login-password: admin
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml,classpath:mapper/**/*.xml
+  typeAliasesPackage: com.zjft.usp.wms.**.model
+  global-config:
+    id-type: 2
+    field-strategy: 2
+    db-column-underline: false
+    refresh-mapper: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#Redis集群模式
+redisson:
+  model: CLUSTER
+  attemptTimeout: 10000 #单位 毫秒
+  lockWatchdogTimeout: 30000 #单位 毫秒
+  multiple-server-config:
+    node-addresses:
+      - 10.34.12.145:6390
+      - 10.34.50.197:6391
+      - 10.34.12.185:6392
+      - 10.34.12.145:6393
+      - 10.34.50.197:6394
+      - 10.34.12.185:6395
+
+logging:
+  level:
+    com.zjft.usp: debug
+    com.alibaba.nacos.client.naming: warn
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

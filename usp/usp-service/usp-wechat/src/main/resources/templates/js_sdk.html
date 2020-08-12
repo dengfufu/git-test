@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body ontouchmove="event.preventDefault();">
+<h4>测试js-sdk</h4>
+<br>
+<button onclick="qrcode()" style="background-color:rgba(77,224,153,0.45);width: 100%; height: 40px">二维码</button>
+<script src="http://beauty-assets.oss-cn-hangzhou.aliyuncs.com/tms/global/js/jquery.min2.0.3.js"></script>
+<script src="http://beauty-assets.oss-cn-hangzhou.aliyuncs.com/tms/global/js/fastclick.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script>
+    wx.config({
+        debug: true,
+        appId: '[[${jsapi.appId}]]',
+        timestamp: '[[${jsapi.timestamp}]]',
+        nonceStr: '[[${jsapi.nonceStr}]]',
+        signature: '[[${jsapi.signature}]]',
+        jsApiList: [
+            'checkJsApi',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage',
+            'onMenuShareQQ',
+            'onMenuShareWeibo',
+            'chooseImage',
+            'scanQRCode'
+        ]
+    });
+    wx.ready(function () {
+        console.log("验证成功");
+        wx.checkJsApi({
+            jsApiList: ['scanQRCode'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+            success: function (res) {
+            }
+        });
+    });
+    wx.error(function (res) {
+        console.log("验证失败");
+    });
+
+    function qrcode() {
+        wx.scanQRCode({
+            needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+            scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+            success: function (res) {
+                alert(JSON.stringify(res));
+            },
+            fail: function (res) {
+                alert(JSON.stringify(res));
+            },
+            // complete: function (res) {
+            //     alert('complete')
+            // },
+            // cancel: function (res) {
+            //     alert('cancel')
+            // },
+            // trigger: function (res) {
+            //     alert('trigger')
+            // }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.right.mapper.SysRoleRightMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="SysRoleRightDtoResultMap" type="com.zjft.usp.uas.right.dto.SysRoleRightDto">
+        <result column="corp_id" property="corpId"/>
+        <result column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="right_id" property="rightId"/>
+        <result column="right_name" property="rightName"/>
+        <result column="right_type" property="rightType"/>
+        <result column="uri" property="uri"/>
+        <result column="path_method" property="pathMethod"/>
+        <result column="has_scope" property="hasScope"/>
+        <result column="right_code" property="rightCode"/>
+        <result column="app_id" property="appId"/>
+    </resultMap>
+
+    <!-- 获得角色权限列表（有URL） -->
+    <select id="listRoleRightByRoleIdList" resultMap="SysRoleRightDtoResultMap">
+        select distinct a.role_id,a.role_name,b.right_id,d.right_name,c.uri,c.right_type,c.path_method from
+        (select * from sys_role where role_id in
+        <foreach item="roleId" collection="roleIdList" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+        ) a
+        join sys_role_right b on a.role_id=b.role_id
+        join sys_right_url c on b.right_id=c.right_id
+        join sys_right d on c.right_id=d.right_id
+    </select>
+
+    <!-- 获得角色权限列表（有URL） -->
+    <select id="listRoleRightByRoleId" resultMap="SysRoleRightDtoResultMap">
+        select distinct a.role_id,a.role_name,b.right_id,d.right_name,c.uri,c.right_type,c.path_method from
+        (select * from sys_role where role_id = #{roleId}) a
+        join sys_role_right b on a.role_id=b.role_id
+        join sys_right_url c on b.right_id=c.right_id
+        join sys_right d on c.right_id=d.right_id
+    </select>
+
+    <!-- 获得角色权限列表（有URL） -->
+    <select id="listRoleRight" resultMap="SysRoleRightDtoResultMap">
+        select distinct a.role_id,a.role_name,b.right_id,d.right_name,c.uri,c.right_type,c.path_method from
+        sys_role a
+        join sys_role_right b on a.role_id=b.role_id
+        join sys_right_url c on b.right_id=c.right_id
+        join sys_right d on c.right_id=d.right_id
+    </select>
+
+    <!-- 获得用户权限列表（有URL） -->
+    <select id="listUserRight" resultMap="SysRoleRightDtoResultMap">
+        select distinct d.corp_id,a.role_id,b.right_id,c.uri,c.right_type,c.path_method from
+        sys_role_user a
+        join sys_role_right b on a.role_id=b.role_id
+        join sys_right_url c on b.right_id=c.right_id
+        join sys_role d on a.role_id=d.role_id
+        where a.user_id=#{userId}
+    </select>
+
+    <!-- 获得系统权限列表（有URL） -->
+    <select id="listSysRight" resultMap="SysRoleRightDtoResultMap">
+        select distinct right_id,uri,right_type,path_method from
+        sys_right_url
+        where right_id in
+        <foreach item="rightId" collection="rightIdList" open="(" separator="," close=")">
+            #{rightId}
+        </foreach>
+    </select>
+
+    <!-- 获得用户权限编号列表 -->
+    <select id="listUserRightId" resultType="Long">
+        select distinct b.right_id from
+        sys_role_user a
+        join sys_role_right b on a.role_id=b.role_id
+        join sys_role d on a.role_id=d.role_id
+        where a.user_id=#{userId} and d.corp_id=#{corpId}
+    </select>
+
+    <!-- 获得用户权限编号列表 -->
+    <select id="listUserByRightId" resultType="Long">
+        select distinct a.user_id from
+        sys_role_user a
+        join sys_role_right b on a.role_id=b.role_id
+        join sys_role d on a.role_id=d.role_id
+        where b.right_id=#{rightId} and d.corp_id=#{corpId}
+        <if test='corpId != null'>
+            and a.user_id in (select userid from uas_corp_user where corpid = #{corpId} and hidden = 0)
+        </if>
+    </select>
+
+    <!-- 查询系统权限树 -->
+    <select id="listSysAuthRight" resultMap="SysRoleRightDtoResultMap">
+        select distinct
+        a.right_id,a.right_name,a.has_scope,a.right_code,a.app_id,b.uri,b.right_type,b.path_method
+        from sys_right a
+        left join sys_right_url b on a.right_id=b.right_id
+        left join sys_right_extra_corp c on a.right_id=c.right_id
+        where 1=1
+        <if test='rightCode != null and rightCode != ""'>
+            and a.right_code = #{rightCode}
+        </if>
+        <if test='rightId != null and rightId != ""'>
+            and a.right_id = #{rightId}
+        </if>
+        <if test='appId != null and appId != ""'>
+            and a.app_id = #{appId}
+        </if>
+        <trim prefix="and (" suffix=")" prefixOverrides="AND |OR">
+            <if test='serviceDemander != null and serviceDemander == "Y"'>
+                or a.service_demander = #{serviceDemander}
+            </if>
+            <if test='serviceProvider != null and serviceProvider == "Y"'>
+                or a.service_provider = #{serviceProvider}
+            </if>
+            <if test='deviceUser != null and deviceUser == "Y"'>
+                or a.device_user = #{deviceUser}
+            </if>
+            <if test='cloudManager != null and cloudManager == "Y"'>
+                or a.cloud_manager = #{cloudManager}
+            </if>
+            <if test='corpId != null and corpId != ""'>
+                or c.corp_id = #{corpId}
+            </if>
+        </trim>
+        and (b.right_id is null or b.right_type != 1)
+        order by a.right_id asc
+    </select>
+</mapper>

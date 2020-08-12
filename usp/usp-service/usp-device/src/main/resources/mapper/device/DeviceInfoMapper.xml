@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.device.device.mapper.DeviceInfoMapper">
+    <!--  公共查询条件，参数为deviceInfoFilter  -->
+    <sql id="common_where">
+        <if test='deviceInfoFilter.smallClassId != null and deviceInfoFilter.smallClassId > 0'>
+            and small_class_id=#{deviceInfoFilter.smallClassId}
+        </if>
+        <if test='deviceInfoFilter.largeClassId != null and deviceInfoFilter.largeClassId > 0
+                   and (deviceInfoFilter.smallClassId == null or deviceInfoFilter.smallClassId == 0 )'>
+            and small_class_id in (
+                select id
+                from device_small_class
+                where large_class_id = #{deviceInfoFilter.largeClassId}
+            )
+        </if>
+        <if test='deviceInfoFilter.brandId != null and deviceInfoFilter.brandId > 0'>
+            and brand_id=#{deviceInfoFilter.brandId}
+        </if>
+        <if test='deviceInfoFilter.modelId != null and deviceInfoFilter.modelId > 0'>
+            and model_id=#{deviceInfoFilter.modelId}
+        </if>
+        <if test='deviceInfoFilter.serial != null and deviceInfoFilter.serial != ""'>
+            and serial=#{deviceInfoFilter.serial}
+        </if>
+        <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+            and demander_corp=#{deviceInfoFilter.demanderCorp}
+        </if>
+        <if test='deviceInfoFilter.serviceCorp != null and deviceInfoFilter.serviceCorp > 0'>
+            and service_corp=#{deviceInfoFilter.serviceCorp}
+        </if>
+        <if test='deviceInfoFilter.factoryStartDate != null and deviceInfoFilter.factoryStartDate != null != ""'>
+            and factory_date <![CDATA[ >= ]]> #{deviceInfoFilter.factoryStartDate}
+        </if>
+        <if test='deviceInfoFilter.factoryEndDate != null and deviceInfoFilter.factoryEndDate != ""'>
+            and factory_date <![CDATA[ <= ]]> #{deviceInfoFilter.factoryEndDate}
+        </if>
+        <if test='deviceInfoFilter.purchaseStartDate != null and deviceInfoFilter.purchaseStartDate != ""'>
+            and purchase_date <![CDATA[ >= ]]> #{deviceInfoFilter.purchaseStartDate}
+        </if>
+        <if test='deviceInfoFilter.purchaseEndDate != null and deviceInfoFilter.purchaseEndDate != ""'>
+            and purchase_date <![CDATA[ <= ]]> #{deviceInfoFilter.purchaseEndDate}
+        </if>
+        <if test='deviceInfoFilter.warrantyStatus != null and deviceInfoFilter.warrantyStatus > 0'>
+            and warranty_status=#{deviceInfoFilter.warrantyStatus}
+        </if>
+        <if test='deviceInfoFilter.warrantyEndDateStart != null'>
+            and warranty_end_date <![CDATA[ >= ]]> Date(#{deviceInfoFilter.warrantyEndDateStart})
+        </if>
+        <if test='deviceInfoFilter.warrantyEndDateEnd != null'>
+            and warranty_end_date <![CDATA[ <= ]]> Date(#{deviceInfoFilter.warrantyEndDateEnd})
+        </if>
+    </sql>
+    <!--  device_locate表公共查询条件，参数为deviceInfoFilter  -->
+    <sql id="common_locate_where">
+        <if test='deviceInfoFilter.customId != null and deviceInfoFilter.customId > 0'>
+            and custom_id =#{deviceInfoFilter.customId}
+        </if>
+        <if test='deviceInfoFilter.district != null and deviceInfoFilter.district != ""'>
+            and district=#{deviceInfoFilter.district}
+        </if>
+        <if test='deviceInfoFilter.branchId != null and deviceInfoFilter.branchId > 0'>
+            and branch_id=#{deviceInfoFilter.branchId}
+        </if>
+        <if test='deviceInfoFilter.deviceCode != null and deviceInfoFilter.deviceCode != ""'>
+            and device_code=#{deviceInfoFilter.deviceCode}
+        </if>
+        <if test='deviceInfoFilter.status != null and deviceInfoFilter.status > 0'>
+            and status=#{deviceInfoFilter.status}
+        </if>
+        <if test='deviceInfoFilter.installStartDate != null and deviceInfoFilter.installStartDate != ""'>
+            and install_start_date <![CDATA[ >= ]]> #{deviceInfoFilter.installStartDate}
+        </if>
+        <if test='deviceInfoFilter.installEndDate != null and deviceInfoFilter.installEndDate != ""'>
+            and install_end_date <![CDATA[ <= ]]> #{deviceInfoFilter.installEndDate}
+        </if>
+    </sql>
+    <!--  device_service表公共查询条件，参数为deviceInfoFilter  -->
+    <sql id="common_service_where">
+        <if test='deviceInfoFilter.workManager != null and deviceInfoFilter.workManager > 0'>
+            and work_manager=#{deviceInfoFilter.workManager}
+        </if>
+        <if test='deviceInfoFilter.engineer != null and deviceInfoFilter.engineer > 0'>
+            and engineer=#{deviceInfoFilter.engineer}
+        </if>
+        <if test='deviceInfoFilter.workId != null and deviceInfoFilter.workId > 0'>
+            and work_id=#{deviceInfoFilter.workId}
+        </if>
+    </sql>
+
+    <!-- 分页查询设备档案 -->
+    <select id="queryDeviceInfo" resultType="com.zjft.usp.device.device.dto.DeviceInfoDto">
+        select * from (
+        select a.*,b.custom_id,b.district,b.address,b.branch_id,b.zone,
+        b.device_code,b.status,b.install_date,b.description,b.lon,b.lat,
+        c.service_branch,c.work_manager,c.engineer,c.service_note,
+        d.brand_name,e.small_class_name,f.large_class_name,g.model_name from (
+        select * from device_info
+        <where>
+            1=1
+            <include refid="common_where"/>
+        </where>
+        ) a LEFT JOIN (
+        select * from device_locate
+        <where>
+            1=1
+            <include refid="common_locate_where"/>
+        </where>
+        ) b ON a.device_id=b.device_id LEFT JOIN (
+        select * from device_service
+        <where>
+            1=1
+            <include refid="common_service_where"/>
+        </where>
+        ) c ON a.device_id=c.device_id LEFT JOIN (
+            select id as brand_id,name as brand_name from device_brand where 1=1
+            <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+                and corp=#{deviceInfoFilter.demanderCorp}
+            </if>
+        ) d on a.brand_id=d.brand_id LEFT JOIN (
+            select id as small_class_id,large_class_id,name as small_class_name from device_small_class where 1=1
+            <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+                and corp=#{deviceInfoFilter.demanderCorp}
+            </if>
+        ) e on a.small_class_id=e.small_class_id LEFT JOIN (
+            select id as large_class_id,name as large_class_name from device_large_class where 1=1
+            <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+                and corp=#{deviceInfoFilter.demanderCorp}
+            </if>
+        ) f on e.large_class_id=f.large_class_id LEFT JOIN (
+            select id as model_id,name as model_name from device_model where 1=1
+            <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+                and corp=#{deviceInfoFilter.demanderCorp}
+            </if>
+        ) g on a.model_id = g.model_id
+        <where>
+            1=1
+            <include refid="common_locate_where"/>
+            <include refid="common_service_where"/>
+            and (
+                demander_corp=#{deviceInfoFilter.curCorpId}
+                or service_corp=#{deviceInfoFilter.curCorpId}
+                <if test='deviceInfoFilter.customIdList != null and deviceInfoFilter.customIdList.size > 0'>
+                or custom_id in
+                    <foreach  item="item" collection="deviceInfoFilter.customIdList" index="index"  open="(" separator="," close=")">
+                    #{item}
+                    </foreach>
+                </if>
+            )
+            <if test='deviceInfoFilter.mobileFilter != null and deviceInfoFilter.mobileFilter != ""'>
+            and (
+                brand_name like CONCAT('%',#{deviceInfoFilter.mobileFilter}, '%')
+                or small_class_name like CONCAT('%',#{deviceInfoFilter.mobileFilter}, '%')
+                or model_name like CONCAT('%',#{deviceInfoFilter.mobileFilter}, '%')
+                or serial like CONCAT('%',#{deviceInfoFilter.mobileFilter}, '%')
+            )
+            </if>
+        </where>
+        ) t1 order by small_class_id asc,serial asc
+    </select>
+
+    <!-- 查询设备档案 -->
+    <select id="listDeviceInfo" resultType="com.zjft.usp.device.device.dto.DeviceInfoDto">
+        select * from (
+        select a.*,b.custom_id,b.district,b.address,b.branch_id,
+        b.device_code,b.status,b.install_date,b.description,b.lon,b.lat,
+        c.service_branch,c.work_manager,c.engineer,c.service_note,
+        d.brand_name,e.small_class_name,f.large_class_name,g.model_name from (
+        select * from device_info
+        <where>
+            1=1
+            <include refid="common_where"/>
+        </where>
+        ) a LEFT JOIN (
+        select * from device_locate
+        <where>
+            1=1
+            <include refid="common_locate_where"/>
+        </where>
+        ) b ON a.device_id=b.device_id LEFT JOIN (
+        select * from device_service
+        <where>
+            1=1
+            <include refid="common_service_where"/>
+        </where>
+        ) c ON a.device_id=c.device_id LEFT JOIN (
+        select id as brand_id,name as brand_name from device_brand where 1=1
+        <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+            and corp=#{deviceInfoFilter.demanderCorp}
+        </if>
+        ) d on a.brand_id=d.brand_id LEFT JOIN (
+        select id as small_class_id,large_class_id,name as small_class_name from device_small_class where 1=1
+        <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+            and corp=#{deviceInfoFilter.demanderCorp}
+        </if>
+        ) e on a.small_class_id=e.small_class_id LEFT JOIN (
+        select id as large_class_id,name as large_class_name from device_large_class where 1=1
+        <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+            and corp=#{deviceInfoFilter.demanderCorp}
+        </if>
+        ) f on e.large_class_id=f.large_class_id LEFT JOIN (
+        select id as model_id,name as model_name from device_model where 1=1
+        <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+            and corp=#{deviceInfoFilter.demanderCorp}
+        </if>
+        ) g on a.model_id = g.model_id
+        <where>
+            1=1
+            <include refid="common_locate_where"/>
+            <include refid="common_service_where"/>
+            <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+                and demander_corp=#{deviceInfoFilter.demanderCorp}
+            </if>
+        </where>
+        ) t1 order by small_class_id asc,serial asc
+    </select>
+
+    <!-- 查询设备档案 -->
+    <select id="findDeviceInfo" resultType="com.zjft.usp.device.device.dto.DeviceInfoDto">
+        select * from (
+        select a.*,b.device_code,b.custom_id,b.branch_id from (
+        select * from device_info
+        <where>
+            1=1
+            <include refid="common_where"/>
+        </where>
+        ) a LEFT JOIN (
+        select * from device_locate
+        <where>
+            1=1
+            <include refid="common_locate_where"/>
+        </where>
+        ) b ON a.device_id=b.device_id
+        LEFT JOIN (
+        select * from device_service
+        <where>
+            1=1
+            <include refid="common_service_where"/>
+        </where>
+        ) c on a.device_id=c.device_id
+        <where>
+            1=1
+            <include refid="common_locate_where"/>
+            <include refid="common_service_where"/>
+            <if test='deviceInfoFilter.demanderCorp != null and deviceInfoFilter.demanderCorp > 0'>
+                and demander_corp=#{deviceInfoFilter.demanderCorp}
+            </if>
+        </where>
+        ) t1
+    </select>
+
+    <resultMap type="com.zjft.usp.device.baseinfo.dto.DeviceSmallClassDto" id="deviceClassDtoMap">
+        <id property="id" column="small_class_id"/>
+        <result property="name" column="small_class_name"/>
+        <result property="largeClassId" column="large_class_id"/>
+        <result property="largeClassName" column="large_class_name"/>
+    </resultMap>
+
+    <select id="listDeviceClass" resultMap="deviceClassDtoMap">
+        select
+        b.id as small_class_id,
+        b.name as small_class_name,
+        c.id as large_class_id,
+        c.name as large_class_name
+        from (select small_class_id from device_info where 1=1
+        <if test='serial != null and serial != ""'>
+            and serial=#{serial}
+        </if>
+        <if test='deviceCode != null and deviceCode != ""'>
+            and device_id in (select device_id from device_locate where device_code=#{deviceCode})
+        </if>
+        <if test='demanderCorp != null and demanderCorp > 0'>
+            and demander_corp = #{demanderCorp}
+        </if>
+        ) a
+        left join (select * from device_small_class) b
+        on a.small_class_id=b.id
+        join (select * from device_large_class) c
+        on b.large_class_id=c.id
+        group by b.id,b.name,c.id,c.name
+        order by c.sort_no asc,b.sort_no asc
+    </select>
+
+    <resultMap type="com.zjft.usp.device.baseinfo.dto.DeviceModelDto" id="deviceModelDtoMap">
+        <id property="id" column="model_id"/>
+        <result property="name" column="model_name"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="brandName" column="brand_name"/>
+    </resultMap>
+
+    <select id="listDeviceModel" resultMap="deviceModelDtoMap">
+        select
+        b.id as model_id,
+        b.name as model_name,
+        c.id as brand_id,
+        c.name as brand_name
+        from (select model_id, brand_id from device_info where 1=1
+        <if test='serial != null and serial != ""'>
+            and serial=#{serial}
+        </if>
+        <if test='deviceCode != null and deviceCode != ""'>
+            and device_id in(select device_id from device_locate where device_code=#{deviceCode})
+        </if>
+        <if test='smallClassId != null and smallClassId > 0'>
+            and small_class_id=#{smallClassId}
+        </if>
+        <if test='demanderCorp != null and demanderCorp > 0'>
+            and demander_corp=#{demanderCorp}
+        </if>
+        ) a
+        left join
+        (select * from device_model) b
+        on a.model_id=b.id
+        join (select * from device_brand) c
+        on a.brand_id=c.id
+        group by b.id,b.name,c.id,c.name
+    </select>
+</mapper>

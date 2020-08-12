@@ -1,0 +1,23 @@
+server:
+  port: 10090
+
+spring:
+  application:
+    name: usp-gateway
+  cloud:
+    nacos:
+      config:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        file-extension: yml
+        group: ${config-group:USP_GROUP_DEV}
+      discovery:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        ip: ${discovery-ip:${spring.cloud.client.ip-address}}
+
+logging:
+  path: "./log/usp/gateway"
+  file: "./log/usp/gateway/log_info.log"
+  level:
+    com:
+      alibaba:
+        nacos: error

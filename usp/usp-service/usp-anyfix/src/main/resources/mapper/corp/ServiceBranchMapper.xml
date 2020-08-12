@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.branch.mapper.ServiceBranchMapper">
+
+    <!-- 模糊查询服务网点 -->
+    <select id="matchServiceBranch" resultType="com.zjft.usp.anyfix.corp.branch.model.ServiceBranch">
+        select * from service_branch where service_corp=#{serviceCorp}
+        <if test='branchName != null and branchName != ""'>
+            and branch_name like concat('%',trim(#{branchName}),'%')
+        </if>
+        <if test='enabled != null and enabled != ""'>
+            and enabled = #{enabled}
+        </if>
+        order by branch_name asc, branch_id asc limit 0,50
+    </select>
+
+    <!-- 获得所有上级网点列表（包括自己） -->
+    <select id="listAllUpperServiceBranch" resultType="com.zjft.usp.anyfix.corp.branch.model.ServiceBranch">
+        select distinct b.* from service_branch_upper a join service_branch b
+        on (a.branch_id =b.branch_id or a.upper_branch_id=b.branch_id)
+        where a.branch_id=#{branchId}
+        union
+        select * from service_branch where branch_id=#{branchId}
+        order by branch_name asc, branch_id asc
+    </select>
+
+    <!-- 分页查询服务网点所有下级列表 -->
+    <select id="queryAllLowerServiceBranch" resultType="com.zjft.usp.anyfix.corp.branch.model.ServiceBranch">
+        select distinct b.* from service_branch_upper a join service_branch b on a.branch_id=b.branch_id
+        where a.upper_branch_id=#{serviceBranchFilter.branchId} order by b.branch_name asc,b.branch_id asc
+    </select>
+
+    <!-- 分页查询服务网点同级网点列表 -->
+    <select id="querySameServiceBranch" resultType="com.zjft.usp.anyfix.corp.branch.model.ServiceBranch">
+        select * from service_branch where upper_branch_id=#{serviceBranchFilter.upperBranchId}
+        and service_corp=#{serviceBranchFilter.serviceCorp}
+        order by branch_name asc,branch_id asc
+    </select>
+
+    <select id="selectBranchByUserId" resultType="com.zjft.usp.anyfix.corp.branch.model.ServiceBranch" >
+        select branch_id , branch_name
+        from service_branch
+        where branch_id in (
+            select branch_id
+            from service_branch_user
+            where user_id = #{userId}
+        )
+    </select>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.baseinfo.mapper.WareClassMapper">
+
+    <resultMap type="com.zjft.usp.wms.baseinfo.model.WareClass" id="resultMap">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="wareImg" column="ware_img"/>
+        <result property="isCommon" column="is_common"/>
+        <result property="enabled" column="enabled"/>
+        <result property="corpId" column="corp_id"/>
+        <result property="operator" column="operator"/>
+        <result property="operateTime" column="operate_time"/>
+    </resultMap>
+
+    <select id="listWareClassBy" resultMap="resultMap">
+        select * from ware_class where corp_id=#{corpId} and enabled='Y'
+            and (id in (select ware_class_id from ware_class_device where small_class_id=#{smallClassId})
+            and id in (select ware_class_id from ware_class_brand where brand_id=#{brandId})
+            or is_common=1)
+            order by name asc
+    </select>
+
+</mapper>

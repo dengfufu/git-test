@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.msg.mapper.PushMsgMapper">
+
+
+    <insert id="insertPushMsg" parameterType="com.zjft.usp.msg.model.PushMsg">
+    INSERT INTO ${tableName} (msgid,touser,appid,title, content ,senttime,sendstatus,receiptid)
+     values(#{msgId}, #{touser}, #{appId}, #{title}, #{content}, #{sentTime}, #{sendStatus}, #{receiptId})
+    </insert>
+
+    <update id="updatePushMsg" parameterType="com.zjft.usp.msg.model.PushMsg">
+     update ${tableName}
+     set receivestatus = #{receiveStatus} , receivetime = #{receiveTime}
+     where msgid = #{msgId}
+    </update>
+
+    <!--分页查询-->
+    <select id="queryList" parameterType="com.zjft.usp.msg.dto.MsgFilter" resultType="com.zjft.usp.msg.model.PushMsg">
+        SELECT msgid, touser, appid, title, content, fixedtime, senttime, sendstatus, receiptid, receivestatus,
+        receivetime
+        FROM push_msg_${yearMonth}
+        where 1=1
+        <if test="touser != null and touser!=0">
+            AND touser=#{touser}
+        </if>
+        ORDER BY senttime DESC
+        limit ${(pageNum-1)* pageSize},${pageSize};
+    </select>
+    <select id="queryCount" parameterType="com.zjft.usp.msg.dto.MsgFilter" resultType="long">
+        SELECT COUNT(1)
+        FROM push_msg_${yearMonth}
+        where 1=1
+        <if test="touser != null and touser!=0">
+            AND touser=#{touser}
+        </if>
+    </select>
+
+    <select id="listUnSend" resultType="com.zjft.usp.msg.model.PushMsg">
+        SELECT * FROM (
+        <foreach item="yearMonth" collection="yearMonthList" index="index">
+            SELECT msgid, touser, appid, title, content, fixedtime, senttime, sendstatus, receiptid, receivestatus,
+            receivetime FROM push_msg_${yearMonth}
+            where touser=#{userId} AND sendstatus!=1
+            <if test="index != (yearMonthList.size() - 1)">
+                UNION ALL
+            </if>
+        </foreach>
+        ) a ORDER BY senttime DESC
+    </select>
+
+    <select id="existTable" parameterType="String" resultType="Integer">
+        select count(*) from information_schema.TABLES
+        where table_name=#{tableName}
+    </select>
+
+    <update id="createTable" parameterType="String">
+        CREATE TABLE ${tableName} (
+          `msgid` bigint(20) NOT NULL COMMENT '消息ID',
+          `touser` bigint(20) NOT NULL COMMENT '目标用户',
+          `appid` int(11) NOT NULL DEFAULT 0 COMMENT '应用ID',
+          `title` varchar(50) NOT NULL DEFAULT '' COMMENT '标题',
+          `content` varchar(200) NOT NULL DEFAULT '' COMMENT '通知内容',
+          `fixedtime` datetime DEFAULT NULL COMMENT '指定推送时间',
+          `senttime` datetime DEFAULT NULL COMMENT '已发送时间',
+          `sendstatus` smallint(6) NOT NULL DEFAULT 0 COMMENT '发送状态',
+          `receiptid` varchar(20) NOT NULL DEFAULT '' COMMENT '回执ID',
+          `receivestatus` smallint(6) NOT NULL DEFAULT 0 COMMENT '接收状态',
+          `receivetime` datetime DEFAULT NULL COMMENT '已接收时间',
+          `weburl` varchar(100) NOT NULL DEFAULT '' COMMENT '网页链接',
+          `appurl` varchar(100) NOT NULL DEFAULT '' COMMENT 'APP链接',
+          `wechaturl` varchar(100) NOT NULL DEFAULT '' COMMENT '微信链接',
+          PRIMARY KEY (`msgid`,`touser`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='单点消息记录表';
+    </update>
+</mapper>

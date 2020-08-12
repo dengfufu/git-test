@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.evaluate.mapper.WorkEvaluateIndexMapper">
+
+    <!-- 查询工程师某月得到的评价-->
+    <select id="selectByMonth" resultType="com.zjft.usp.anyfix.work.evaluate.model.WorkEvaluateIndex">
+        SELECT * FROM work_evaluate_index g WHERE
+        EXISTS(
+        SELECT * FROM
+        (
+		SELECT * FROM
+        (
+            SELECT c.work_id,c.assign_id,d.engineer_id FROM
+            (SELECT a.work_id,assign_id FROM
+            (SELECT work_id FROM work_evaluate WHERE operate_time LIKE CONCAT(#{month,jdbcType=VARCHAR},'%') ) a
+            LEFT JOIN (SELECT assign_id,work_id FROM work_assign) b ON a.work_id = b.work_id
+            ) c LEFT JOIN (SELECT * FROM work_assign_engineer WHERE engineer_id = #{userId,jdbcType=BIGINT}) d
+            on c.assign_id = d.assign_id
+        ) e
+        WHERE  NOT EXISTS(SELECT refer_form FROM work_transfer f WHERE f.mode IN(6,7,8,10)
+        AND f.operate_time >= #{month,jdbcType=VARCHAR} AND e.assign_id = f.refer_form  ) AND e.engineer_id = #{userId,jdbcType=BIGINT}
+        ) h WHERE g.work_id = h.work_id ) AND g.evaluate_id = #{evaluateId,jdbcType=INTEGER}
+	</select>
+</mapper>

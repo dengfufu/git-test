@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.WorkFeeVerifyMapper">
+
+    <sql id="commonCondition">
+        <if test="workFeeVerifyFilter.serviceCorp != null and workFeeVerifyFilter.serviceCorp > 0">
+            and service_corp = #{workFeeVerifyFilter.serviceCorp}
+        </if>
+        <if test="workFeeVerifyFilter.demanderCorp != null and workFeeVerifyFilter.demanderCorp > 0">
+            and demander_corp = #{workFeeVerifyFilter.demanderCorp}
+        </if>
+        <if test="workFeeVerifyFilter.verifyName != null and workFeeVerifyFilter.verifyName != ''">
+            and verify_name like concat('%', #{workFeeVerifyFilter.verifyName}, '%')
+        </if>
+        <if test="workFeeVerifyFilter.currentCorp != null and workFeeVerifyFilter.currentCorp > 0">
+            and (demander_corp = #{workFeeVerifyFilter.currentCorp}
+            or service_corp = #{workFeeVerifyFilter.currentCorp})
+        </if>
+        <if test="workFeeVerifyFilter.startDate != null">
+            and start_date <![CDATA[ >= ]]> #{workFeeVerifyFilter.startDate}
+        </if>
+        <if test="workFeeVerifyFilter.endDate != null">
+            and end_date <![CDATA[ <= ]]> #{workFeeVerifyFilter.endDate}
+        </if>
+        <if test="workFeeVerifyFilter.district != null and workFeeVerifyFilter.district != ''">
+            and (district like concat('%', #{workFeeVerifyFilter.district}, '%')
+            or (district like '5002%' and #{workFeeVerifyFilter.district} = '5002'))
+        </if>
+        <if test="workFeeVerifyFilter.status != null and workFeeVerifyFilter.status > 0">
+            and status = #{workFeeVerifyFilter.status}
+        </if>
+        <if test='workFeeVerifyFilter.statuses != null and workFeeVerifyFilter.statuses != ""'>
+            and status in
+            <foreach collection='workFeeVerifyFilter.statuses.split(",")' open="(" close=")" separator="," item="verifyStatus">
+                #{verifyStatus}
+            </foreach>
+        </if>
+        <if test="workFeeVerifyFilter.settleStatus != null and workFeeVerifyFilter.settleStatus > 0">
+            and settle_status = #{workFeeVerifyFilter.settleStatus}
+        </if>
+        <if test='workFeeVerifyFilter.settleStatuses != null and workFeeVerifyFilter.settleStatuses != ""'>
+            and settle_status in
+            <foreach collection='workFeeVerifyFilter.settleStatuses.split(",")' open="(" close=")" separator="," item="settleStatus">
+                #{settleStatus}
+            </foreach>
+        </if>
+        <if test="workFeeVerifyFilter.demanderCorpList != null and workFeeVerifyFilter.demanderCorpList.size() > 0">
+            and demander_corp in
+            <foreach collection="workFeeVerifyFilter.demanderCorpList" item="demanderCorpId" separator="," open="(" close=")">
+                #{demanderCorpId}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="pageByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeVerifyDto">
+        select * from work_fee_verify where 1=1
+        <include refid="commonCondition"></include>
+        order by add_time desc
+    </select>
+
+<!--    查询可结算的对账单-->
+    <select id="queryCanSettleVerify" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeVerifyDto">
+        select * from work_fee_verify where 1=1
+        <include refid="commonCondition"></include>
+        <if test="workFeeVerifyFilter.settleId != null and workFeeVerifyFilter.settleId > 0">
+            and (settle_status = 1 or
+            (settle_status = 2 and verify_id in
+            (select verify_id from settle_demander_detail where settle_id=#{workFeeVerifyFilter.settleId})))
+        </if>
+        order by add_time desc
+    </select>
+
+    <!-- 根据前缀查询最大对账单号 -->
+    <select id="findMaxVerifyName" resultType="java.lang.String">
+        select max(verify_name) from work_fee_verify where
+        <choose>
+            <when test="prefix != null and prefix != ''">
+                verify_name like concat(#{prefix}, '%')
+            </when>
+            <otherwise>
+                1=2
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 根据前缀查询最大对账单号列表 -->
+    <select id="listMaxVerifyName" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeVerifyDto">
+        select substring(verify_name, 1, #{prefixLength}) as prefix, max(verify_name) as verifyName from work_fee_verify
+        where 1=1
+        <if test="prefixList != null and prefixList.size() > 0">
+        and substring(verify_name, 1, #{prefixLength}) in
+            <foreach collection="prefixList" separator="," item="prefix" open="(" close=")">
+            #{prefix}
+            </foreach>
+        </if>
+        group by substring(verify_name, 1, #{prefixLength})
+    </select>
+
+</mapper>

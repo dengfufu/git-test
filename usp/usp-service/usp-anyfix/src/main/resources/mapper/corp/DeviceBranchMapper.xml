@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.branch.mapper.DeviceBranchMapper">
+
+    <select id="selectDeviceBranchByCorpIdList" resultType="com.zjft.usp.anyfix.corp.branch.dto.DeviceBranchDto">
+        select branch_id as branchId, branch_name as branchName
+        from device_branch
+        where custom_corp in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <!-- 模糊查询设备网点 -->
+    <select id="matchDeviceBranch" resultType="com.zjft.usp.anyfix.corp.branch.dto.DeviceBranchDto">
+        select * from device_branch where 1=1
+        <choose>
+            <when test="customCorp != null and customCorp > 0">
+                and custom_corp = #{customCorp}
+            </when>
+            <otherwise>
+                <if test="customId != null and customId > 0">
+                    and custom_id = #{customId}
+                </if>
+            </otherwise>
+        </choose>
+        <if test='matchFilter != null and matchFilter != ""'>
+            and branch_name like concat('%',trim(#{matchFilter}),'%')
+        </if>
+        <if test='enabled != null and enabled != ""'>
+            and enabled = #{enabled}
+        </if>
+        order by branch_name asc limit 0,50
+    </select>
+
+    <!-- 模糊查询相关企业的设备网点 -->
+    <select id="matchRelateDeviceBranch" resultType="com.zjft.usp.anyfix.corp.branch.dto.DeviceBranchDto">
+        select * from device_branch where
+        (custom_id in
+        ( select custom_id from demander_custom where demander_corp=#{corpId} or demander_corp
+        in (
+        select demander_corp from demander_service where service_corp=#{corpId}
+        )
+        ) or custom_corp = #{corpId})
+        <if test='matchFilter != null and matchFilter != ""'>
+            and branch_name like concat('%',trim(#{matchFilter}),'%')
+        </if>
+        <if test='enabled != null and enabled != ""'>
+            and enabled = #{enabled}
+        </if>
+        <if test='upperBranchId != null and upperBranchId > 0 '>
+            and upper_branch_id = #{upperBranchId}
+        </if>
+        order by branch_name asc limit 0,50
+    </select>
+
+    <select id="selectUpperBranchList"  resultType="com.zjft.usp.anyfix.corp.branch.model.DeviceBranch">
+        select  branch_name, branch_id from device_branch
+        where branch_id in
+         ( select upper_branch_id from device_branch where upper_branch_id  != 0 and
+           (custom_id in
+            ( select custom_id from demander_custom where demander_corp=#{corpId} or demander_corp
+            in (
+            select demander_corp from demander_service where service_corp=#{corpId}
+            )
+            ) or custom_corp = #{corpId}))
+        <if test='matchFilter != null and matchFilter != ""'>
+            and branch_name like concat('%',trim(#{matchFilter}),'%')
+        </if>
+    </select>
+
+    <!--  分页查询设备网点  -->
+    <select id="queryDeviceBranch" resultType="com.zjft.usp.anyfix.corp.branch.model.DeviceBranch">
+        select a.* from (
+        select branch.*
+        from device_branch branch
+        where
+        <choose>
+            <when  test="deviceBranchFilter.customId != null and deviceBranchFilter.customId > 0">
+                branch.custom_id = #{deviceBranchFilter.customId}
+            </when>
+            <otherwise>
+                (branch.custom_id in
+                ( select custom_id from demander_custom where demander_corp=#{deviceBranchFilter.corpId} or demander_corp
+                in (
+                select demander_corp from demander_service where service_corp=#{deviceBranchFilter.corpId}
+                )
+                ) or branch.custom_corp = #{deviceBranchFilter.corpId})
+            </otherwise>
+        </choose>
+
+        <if test='deviceBranchFilter.enabled != null and deviceBranchFilter.enabled != ""'>
+            and branch.enabled = #{deviceBranchFilter.enabled}
+        </if>
+        <if test="deviceBranchFilter.upperBranchId != null and deviceBranchFilter.upperBranchId > 0">
+            and branch.upper_branch_id = #{deviceBranchFilter.upperBranchId}
+        </if>
+        <if test="deviceBranchFilter.branchId != null and deviceBranchFilter.branchId > 0">
+            and branch.branch_id = #{deviceBranchFilter.branchId}
+        </if>
+        <if test="deviceBranchFilter.district != null and deviceBranchFilter.district != ''">
+            and branch.district like concat(#{deviceBranchFilter.district}, '%')
+        </if>
+        <if test='deviceBranchFilter.branchName != null and deviceBranchFilter.branchName != ""'>
+            and branch.branch_name like concat('%',#{deviceBranchFilter.branchName}, '%')
+        </if>
+        ) a
+        order by a.branch_name asc
+    </select>
+
+
+    <!--  分页查询设备网点  -->
+    <select id="queryDeviceBranchForService" resultType="com.zjft.usp.anyfix.corp.branch.dto.DeviceBranchDto">
+        select branch.*, custom.demander_corp
+        from  usp_anyfix.device_branch branch left join demander_custom custom
+        on branch.custom_id = custom.custom_id
+        where  ( branch.custom_corp = #{deviceBranchFilter.corpId}
+            or custom.demander_corp
+            in (
+            select demander_corp from demander_service where service_corp=#{deviceBranchFilter.corpId}
+            )
+            or custom.demander_corp = #{deviceBranchFilter.corpId}
+        )
+        <if  test="deviceBranchFilter.demanderCorp != null and deviceBranchFilter.demanderCorp > 0">
+            and custom.demander_corp = #{deviceBranchFilter.demanderCorp}
+        </if>
+        <!-- 查询客户名称为自己客户的设备网点 -->
+        <if  test="deviceBranchFilter.customId != null and deviceBranchFilter.customId > 0">
+            and branch.custom_id = #{deviceBranchFilter.customId}
+        </if>
+        <!-- 查询客户名称为委托商的设备网点 -->
+        <if  test="deviceBranchFilter.customCorp != null and deviceBranchFilter.customCorp > 0">
+            and branch.custom_corp = #{deviceBranchFilter.customCorp}
+        </if>
+        <if test='deviceBranchFilter.enabled != null and deviceBranchFilter.enabled != ""'>
+            and branch.enabled = #{deviceBranchFilter.enabled}
+        </if>
+        <if test="deviceBranchFilter.upperBranchId != null and deviceBranchFilter.upperBranchId > 0">
+            and branch.upper_branch_id = #{deviceBranchFilter.upperBranchId}
+        </if>
+        <if test="deviceBranchFilter.branchId != null and deviceBranchFilter.branchId > 0">
+            and branch.branch_id = #{deviceBranchFilter.branchId}
+        </if>
+        <if test="deviceBranchFilter.district != null and deviceBranchFilter.district != ''">
+            and branch.district like concat(#{deviceBranchFilter.district}, '%')
+        </if>
+        <if test='deviceBranchFilter.branchName != null and deviceBranchFilter.branchName != ""'>
+            and branch.branch_name like concat('%',#{deviceBranchFilter.branchName}, '%')
+        </if>
+        order by  custom.demander_corp, branch.branch_name asc
+    </select>
+</mapper>

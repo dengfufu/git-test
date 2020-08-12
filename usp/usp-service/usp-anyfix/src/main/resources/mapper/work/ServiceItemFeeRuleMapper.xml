@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.ServiceItemFeeRuleMapper">
+
+    <sql id="commonCondition">
+        <if test="serviceItemFeeRuleFilter.serviceCorp != null and serviceItemFeeRuleFilter.serviceCorp > 0">
+            and service_corp = #{serviceItemFeeRuleFilter.serviceCorp}
+        </if>
+        <if test="serviceItemFeeRuleFilter.ruleName != null and serviceItemFeeRuleFilter.ruleName != ''">
+            and rule_name like concat('%', #{serviceItemFeeRuleFilter.ruleName}, '%')
+        </if>
+        <if test="serviceItemFeeRuleFilter.serviceItemId != null and serviceItemFeeRuleFilter.serviceItemId > 0">
+            and service_item_id = #{serviceItemFeeRuleFilter.serviceItemId}
+        </if>
+    </sql>
+
+    <select id="pageByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.ServiceItemFeeRuleDto">
+        select a.*, b.* from (
+        select * from service_item_fee_rule where 1=1
+        <include refid="commonCondition"></include>
+        ) a
+        left join work_condition b on a.condition_id = b.id
+    </select>
+
+    <select id="listByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.ServiceItemFeeRuleDto">
+        select a.*, b.* from (
+        select * from service_item_fee_rule where 1=1
+        <include refid="commonCondition"></include>
+        ) a
+        left join work_condition b on a.condition_id = b.id
+    </select>
+
+    <!-- 匹配服务项目费用规则 -->
+    <select id="matchServiceItemFeeRule" resultType="com.zjft.usp.anyfix.work.fee.dto.ServiceItemFeeRuleDto">
+        select a.*,b.*
+        from service_item_fee_rule a
+        left join work_condition b on a.condition_id = b.id
+        where 1=1
+        <choose>
+            <when test="workDto.serviceCorp != null and workDto.serviceCorp > 0">
+                and a.service_corp = #{workDto.serviceCorp}
+            </when>
+            <otherwise>
+                and 1 = 0
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.serviceItem != null and workDto.serviceItem > 0">
+                and a.service_item_id = #{workDto.serviceItem}
+            </when>
+            <otherwise>
+                and (a.service_item_id is null or a.service_item_id = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.createTime != null">
+                and a.start_date <![CDATA[ <= ]]> #{workDto.createTime}
+                and a.end_date <![CDATA[ >= ]]> #{workDto.createTime}
+            </when>
+            <otherwise>
+                and a.start_date is null
+                and a.end_date is null
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.demanderCorp != null and workDto.demanderCorp > 0">
+                and b.demander_corp = #{workDto.demanderCorp}
+            </when>
+            <otherwise>
+                and (b.demander_corp is null or b.demander_corp = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.customId != null and workDto.customId > 0">
+                and (b.custom_id = #{workDto.customId} or b.custom_id = 0)
+            </when>
+            <otherwise>
+                and (b.custom_id is null or b.custom_Id = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.customCorp != null and workDto.customCorp > 0">
+                and (b.custom_corp = #{workDto.customCorp} or b.custom_corp = 0)
+            </when>
+            <otherwise>
+                and (b.custom_corp is null or b.custom_corp = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.workType != null and workDto.workType > 0">
+                and (b.work_type = #{workDto.workType} or b.work_type = 0)
+            </when>
+            <otherwise>
+                and (b.work_type is null or b.work_type = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.largeClassId != null and workDto.largeClassId > 0">
+                and (b.large_class_id = #{workDto.largeClassId} or b.large_class_id = 0)
+            </when>
+        </choose>
+        <choose>
+            <when test="workDto.smallClass != null and workDto.smallClass > 0">
+                and (FIND_IN_SET(#{workDto.smallClass}, b.small_class_id) > 0 or b.small_class_id = '0' or
+                b.small_class_id = '')
+            </when>
+            <otherwise>
+                and (b.small_class_id is null or b.small_class_id = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.brand != null and workDto.brand > 0">
+                and (FIND_IN_SET(#{workDto.brand}, b.brand_id) > 0 or b.brand_id = '0' or b.brand_id = '')
+            </when>
+            <otherwise>
+                and (b.brand_id is null or b.brand_id = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.model != null and workDto.model > 0">
+                and (FIND_IN_SET(#{workDto.model}, b.model_id) > 0 or b.model_id = '0' or b.model_id = '')
+            </when>
+            <otherwise>
+                and (b.model_id is null or b.model_id = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.district != null and workDto.district != ''">
+                and (LOCATE(b.district, #{workDto.district}) = 1 or b.district is null or b.district = '')
+            </when>
+            <otherwise>
+                and (b.district is null or b.district = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.deviceBranch != null and workDto.deviceBranch > 0">
+                and (FIND_IN_SET(#{workDto.deviceBranch}, b.device_branch) > 0 or b.device_branch = '0' or
+                b.device_branch = '')
+            </when>
+            <otherwise>
+                and (b.device_branch is null or b.device_branch = 0)
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.WorkFeeVerifyDetailMapper">
+
+    <!--  根据对账单号查询WorkDeal列表  -->
+    <select id="listWorkDealByVerifyId" resultType="com.zjft.usp.anyfix.work.deal.model.WorkDeal">
+        select * from work_deal where
+        <choose>
+            <when test="verifyId != null and verifyId > 0">
+                work_id in (select work_id from work_fee_verify_detail where verify_id=#{verifyId})
+            </when>
+            <otherwise>
+                1=2
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 查询对账单明细 -->
+    <select id="listByVerifyId" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeVerifyDetailDto">
+        select
+        s.*,r.work_type,r.service_request,r.custom_id,r.custom_corp,r.device_branch,r.district,r.small_class,r.serial,r.brand,r.model,
+        r.warranty,r.fault_time,r.create_time,d.work_code,r.check_work_code,d.service_branch,d.service_mode,d.engineer,d.finish_time,f.total_fee,
+        d.fee_confirm_status,d.fee_check_status,d.service_corp
+        from (
+        select * from work_fee_verify_detail where
+        <choose>
+            <when test="verifyId != null and verifyId > 0">
+                verify_id=#{verifyId}
+            </when>
+            <otherwise>
+                1=2
+            </otherwise>
+        </choose>
+        ) s
+        left join work_request r on s.work_id=r.work_id
+        left join work_deal d on s.work_id=d.work_id
+        left join (
+        select work_id,total_fee from work_fee
+        ) f on s.work_id=f.work_id
+    </select>
+
+    <!-- 分页查询对账单明细 -->
+    <select id="pageByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeVerifyDetailDto">
+        select
+        s.*,r.work_type,r.service_request,r.custom_id,r.custom_corp,r.device_branch,r.district,r.small_class,r.specification,r.serial,r.brand,r.model,
+        r.warranty,r.fault_time,r.creator,r.create_time,d.work_code,d.service_branch,d.service_mode,d.engineer,d.finish_time,f.total_fee,
+        d.fee_confirm_status,d.fee_check_status,
+        case when s.verify_amount = f.total_fee then 0 else 1 end as modAmout
+        from (
+        select * from work_fee_verify_detail where
+        <choose>
+            <when test="workFeeVerifyDetailFilter.verifyId != null and workFeeVerifyDetailFilter.verifyId > 0">
+                verify_id=#{workFeeVerifyDetailFilter.verifyId}
+            </when>
+            <otherwise>
+                1=2
+            </otherwise>
+        </choose>
+        ) s
+        left join work_request r on s.work_id=r.work_id
+        left join work_deal d on s.work_id=d.work_id
+        left join (
+        select work_id,total_fee from work_fee
+        ) f on s.work_id=f.work_id
+        order by modAmout desc,d.end_time desc
+    </select>
+
+</mapper>

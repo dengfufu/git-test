@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.book.mapper.BookVendorCommonMapper">
+    <sql id="commonCondition">
+        select * from book_vendor_common where 1=1
+        <if test="bookVendorFilter.corpId != null and bookVendorFilter.corpId > 0L">
+            and corp_id = #{bookVendorFilter.corpId}
+        </if>
+        <if test="bookVendorFilter.workId != null and bookVendorFilter.workId > 0L">
+            and work_id = #{bookVendorFilter.workId}
+        </if>
+    </sql>
+
+    <select id="listByPage" resultType="com.zjft.usp.wms.business.book.dto.BookVendorCommonDto">
+        select * from (
+        <include refid="commonCondition"></include>
+        ) t
+    </select>
+</mapper>

@@ -1,0 +1,28 @@
+wx:
+  mp:
+    appId: wx03ab8e67b206dbc0
+    secret: 1fc95b1a4c1d187812e11ce934b82f94
+    token: usp
+  config-storage:
+    type: redis
+    redis:
+      host: 127.0.0.1
+      port: 6379
+
+gongzhonghao:
+  uri: https://anyfix.zijin.com/wx/
+
+logging:
+  level:
+    org.springframework.web: INFO
+    com.zjft.usp.wechat: DEBUG
+    me.chanjar.weixin: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

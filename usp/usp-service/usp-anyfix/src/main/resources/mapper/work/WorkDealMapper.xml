@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.deal.mapper.WorkDealMapper">
+
+
+    <select id="queryEngineerDto" resultType="com.zjft.usp.anyfix.work.deal.dto.EngineerDto">
+		select t1.engineer as engineerId,
+        case when (t1.count  - t2.count) is NULL then t1.count else (t1.count  - t2.count) end as changeCount
+        from
+        (
+        SELECT engineer , count(*) as count
+        FROM work_deal
+		where service_corp = #{workFilter.serviceCorp} AND
+        <if test="workFilter.countTime != null and workFilter.countTime == 10">
+            YEARWEEK(date_format(create_time,'%Y-%m-%d')) = YEARWEEK(now())
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "20"'>
+            date_format(create_time, '%Y-%m' ) = date_format( now( ), '%Y-%m' )
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "30"'>
+            period_diff(date_format(now() , '%Y%m') , date_format(create_time, '%Y%m')) =1
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "40"'>
+            QUARTER(create_time)=QUARTER(now())
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "50"'>
+            create_time>=DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "60"'>
+            YEAR(create_time)=YEAR(NOW())
+        </if>
+        group by engineer
+        order by count(*) desc
+        ) as t1
+        left join
+        (
+        SELECT engineer , count(*) as count
+        FROM work_deal
+		where service_corp = #{workFilter.serviceCorp} AND
+        <if test="workFilter.countTime != null and workFilter.countTime == 10">
+            YEARWEEK(date_format(create_time,'%Y-%m-%d')) = YEARWEEK(now())-1
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "20"'>
+            period_diff(date_format(now() , '%Y%m') , date_format(create_time, '%Y%m')) =1
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "30"'>
+            period_diff(date_format(now() , '%Y%m') , date_format(create_time, '%Y%m')) =2
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "40"'>
+            QUARTER(create_time)=QUARTER(DATE_SUB(now(),interval 1 QUARTER))
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "50"'>
+            create_time  <![CDATA[ >= ]]>  DATE_SUB(CURDATE(), INTERVAL 6 MONTH)  and  create_time  <![CDATA[ < ]]> DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "60"'>
+            year(create_time)=year(date_sub(now(),interval 1 year))
+        </if>
+        group by engineer
+        order by count(*) desc
+        ) as t2
+        on t1.engineer = t2.engineer
+        limit 0, #{workFilter.pageSize}
+    </select>
+
+    <select id="queryCloseWorkForCost" resultType="com.zjft.usp.anyfix.work.deal.model.WorkDeal">
+        select work_id, engineer,together_engineers FROM work_deal WHERE 1 = 1
+
+
+        <if test='workDealFilter.finishMonth != null'>
+            and left(finish_time, 7)=#{workDealFilter.finishMonth}
+        </if>
+
+        <if test='workDealFilter.serviceMode != null'>
+            and service_mode =#{workDealFilter.serviceMode}
+        </if>
+
+        <if test='workDealFilter.workStatusList != null'>
+            and work_status in
+            <foreach item="workStatus" collection="workDealFilter.workStatusList" open="(" separator="," close=")">
+                #{workStatus}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="listSameWork" resultType="com.zjft.usp.anyfix.work.deal.model.WorkDeal">
+        select * from work_deal wd join work_request wr on wd.work_id=wr.work_id join work_type wt
+        on wr.work_type=wt.id where
+        <choose>
+            <when test="deviceIdList != null and deviceIdList.size() != 0">
+                wd.device_id in
+                <foreach collection="deviceIdList" item="deviceId"  index="index" open="(" close=")" separator=",">
+                    #{deviceId}
+                </foreach>
+            </when>
+            <when test="serialList != null and serialList.size() != 0 and brand != null and brand != 0">
+                wd.demander_corp = #{demanderCorp} and wr.serial in
+                <foreach collection="serialList" item="serial"  index="index" open="(" close=")" separator=",">
+                    #{serial}
+                </foreach>
+                and wr.brand= #{brand}
+            </when>
+            <otherwise>
+                 1=0
+            </otherwise>
+        </choose>
+        <!--  根据sys_type判断工单类型是否一样 -->
+        and wt.sys_type=(select sys_type from work_type where id=#{workType})
+        <if test="workStatusList != null and workStatusList.size() != 0">
+            and wd.work_status in
+            <foreach collection="workStatusList" item="workStatus"  index="index" open="(" close=")" separator=",">
+                #{workStatus}
+            </foreach>
+        </if>
+    </select>
+</mapper>

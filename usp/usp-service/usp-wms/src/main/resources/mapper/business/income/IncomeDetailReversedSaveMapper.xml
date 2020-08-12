@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.income.mapper.IncomeDetailReversedSaveMapper">
+
+    <delete id="deleteByIncomeId">
+        delete from income_d_reversed_save where 1=1 and
+        detail_id in (select detail_id from income_d_common_save where income_id = #{incomeId})
+    </delete>
+
+</mapper>

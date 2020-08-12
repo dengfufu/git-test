@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.WorkFeeImplementDefineMapper">
+
+    <sql id="commonCondition">
+        <if test="workFeeImplementFilter.serviceCorp != null and workFeeImplementFilter.serviceCorp > 0">
+            and service_corp = #{workFeeImplementFilter.serviceCorp}
+        </if>
+        <if test="workFeeImplementFilter.demanderCorp != null and workFeeImplementFilter.demanderCorp > 0">
+            and demander_corp = #{workFeeImplementFilter.demanderCorp}
+        </if>
+        <if test="workFeeImplementFilter.implementName != null and workFeeImplementFilter.implementName != ''">
+            and implement_name like concat('%', #{workFeeImplementFilter.implementName}, '%')
+        </if>
+        <if test="workFeeImplementFilter.enabled != null and workFeeImplementFilter.enabled != ''">
+            and enabled = #{workFeeImplementFilter.enabled}
+        </if>
+    </sql>
+
+    <select id="pageByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeImplementDto">
+        select
+        implement_id, implement_name, implement_type, service_corp, demander_corp, note, enabled, operator, operate_time
+        from work_fee_implement_define
+        where 1 = 1
+        <include refid="commonCondition"></include>
+        order by demander_corp, operate_time
+    </select>
+
+    <select id="listByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeImplementDto">
+        select
+        implement_id, implement_name, implement_type, service_corp, demander_corp, note, enabled, operator, operate_time
+        from work_fee_implement_define
+        where 1 = 1
+        <include refid="commonCondition"></include>
+        order by demander_corp, operate_time
+    </select>
+
+</mapper>

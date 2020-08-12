@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.right.mapper.SysRoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="SysRoleResultMap" type="com.zjft.usp.uas.right.model.SysRole">
+        <id column="role_id" property="roleId"/>
+        <result column="corp_id" property="corpId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="sys_type" property="sysType"/>
+        <result column="enabled" property="enabled"/>
+        <result column="description" property="description"/>
+        <result column="operator" property="operator"/>
+        <result column="operator_time" property="operatorTime"/>
+    </resultMap>
+
+    <resultMap id="RoleDtoResultMap" type="com.zjft.usp.uas.right.dto.SysRoleDto">
+        <id column="roleId" property="roleId"/>
+        <result column="roleName" property="roleName"/>
+    </resultMap>
+
+    <!-- 模糊查询角色 -->
+    <select id="matchRole" resultMap="SysRoleResultMap">
+        select * from sys_role where corp_id=#{corpId}
+        <if test='matchFilter != null and matchFilter != ""'>
+            and role_name like concat('%',#{matchFilter},'%')
+        </if>
+        <if test='enabled != null and enabled != ""'>
+            and enabled = #{enabled}
+        </if>
+        order by sys_type desc,role_name asc limit 0,50
+    </select>
+
+    <!--  根据用户编号与企业编号获得角色  -->
+    <select id="findByUserAndCorp" resultMap="SysRoleResultMap">
+        select a.* from sys_role a join sys_role_user b on a.role_id=b.role_id
+        where a.corp_id=#{corpId} and b.user_id=#{userId}
+    </select>
+
+    <!--  用户角色列表  -->
+    <select id="listUserRole" resultMap="SysRoleResultMap">
+        select a.* from sys_role a join sys_role_user b on a.role_id=b.role_id
+        where b.user_id=#{userId}
+    </select>
+</mapper>

@@ -1,0 +1,80 @@
+server:
+  port: 10102
+
+spring:
+  application:
+    name: usp-pay
+  cloud:
+    nacos:
+      config:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        file-extension: yml
+        group: ${config-group:USP_GROUP_DEV}
+      discovery:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        ip: ${discovery-ip:${spring.cloud.client.ip-address}}
+  main:
+    allow-bean-definition-overriding: true
+
+#usp:
+#  pay:
+#    alipay:
+#      gatewayUrl: https://openapi.alipaydev.com/gateway.do
+#      appid: 2016101000656239
+#      appPrivateKey: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCWWG2wSCjzm7+qe9pCh4oh9PMHTH8Hrv91QCbeGfzZY8WA6o8b3GXe06K9GOkKkGCtrHBsTKtw9aAe0w7OiKtTXUwJsGDjvdn8YDNVlhdtAfehQJfKCf/e3eLlkoXUbiVQsguSykO6DlzB+FD+FBKa0Twh68rjgXwiocDbKMSSiQCN/kOr59WzP5dFgDtD8H2yRBlhhuxrom8BgHQ8dbHMGWBXYMvxHyvkPOYYKRpoaVgaOnsR8ce+0f4bg1ENqP77Sd0O9jE3Drin712keyA2f2wjAeRtMy+Afzlp523pwHrOz6F3KDY+PU29s2gFOEayfMldFYWu/ovKQ/Gd7v33AgMBAAECggEAZ6p/r66B9j+tcBtIStl0iKeCr8SyTpT+9lUOt9SJgUgHVjXmCZr17yhUrTiw76TP1NDzD+npyNDE4Jw9OHIKWEgbdw7UMBSnaxrWKqx8aKCTo++K+jfc40px+kQG3Yw5VKP/0O6AtpjSorja9+bVUUT2xpj0Y9zTwHlyJmu85yBbZ1CLXNX+aiBxCeu6bNGF8XKGVsjn4OWf91jPd1HbFte38OKjH1tRw7s01XxkSW6fsupZTZ6BEdNqC4T+dFvbq11NHPAdPp9MKtYNom8fxZbHjznltthhiJwSlpUEvYT/vuMnpb8RLGbfZk2i/CuWD5NhZOKgAPowbASd4jYC0QKBgQDQMvStm2gEqM9Xa/3S6YxaI1yEnarFHmOk9pzV8aKCTP7nKp3HIoOh2//Avv2bOnFn3VnxgC37ECe8DDcGkDwS1EAzkOgUF8qMQ7S9gC/a+OPhLZcfkmiSZmKCinRLwm6i/x0eRUXt04MeV6QApS8s3rcGHBMCnp4Xxs9bp6Ql+QKBgQC43RXuqKImuvayvFjIwjLcDbWfMVkPOHUJ+SoQmhJ3zrdRgpWvx5jr1Yfe94fcnuK9KILEeak0JF2zX5Vh1udlYOyBvTPhxTpVlluyGmA1HpIxzpjk/oPX2V42ixwqrS/4S62xscw3wNHJfP940DrCgpyiYL1qWXMiaBh6QUx/bwKBgQCu+3SriKa2684/0nKlVkbw5zF2ADGrtGvZFLAiHBESZHYEgcvTtw1c91MPgzYQxeDUg7R5hdqfXSeYI8gHiygCR0OiU1LKuGgy1SDN+DPAXVjhQ3j1Pw8GpGh9ALLXjZWBBttJOr2YMiHMWapsJGju1EyNJQFRPVDv+NcEWHRcuQKBgGe92lMGW4j0nwEK5aA0KyqGnwfpP5tlCXlBVLPgYsDNRt79M1dj4ZNnT0p3Cs1qdL/GfiwYQjY6ukKxPzmaylyAGfls3jKy5dul92tpldf5gf1lfTP1CLQXDeH6CyJ/8k2a2qy/pGUdVh2Ggi+gW3lQpuoQ8/s8m3oRhLsG7hENAoGBAKEXjlmzsoeE1a5SYXhuIZZFimUi/8X4OXHQ88PmaXGEfLy00Zd14fUbX3AWzX9pZPS+F7mucWuds31YZggRnJRBNq5oxefFfVv64Hf5/iTu4rJjE6klipvQwLhPVP6nAAt4lSThrdtZ8MZeKvXtBA5Mmchlb7v3S4+y56yn9+qP
+#      appCertPath: /Users/CK/git/usp/usp-service/usp-pay/csr/appCertPublicKey_2016101000656239.crt
+#      alipayCertPath: /Users/CK/git/usp/usp-service/usp-pay/csr/alipayCertPublicKey_RSA2.crt
+#      alipayRootCertPath: /Users/CK/git/usp/usp-service/usp-pay/csr/alipayRootCert.crt
+#      encryptKey: Q3tUgSwlc2nsaZoEAls9fw==
+#      returnUrl: http://5aj3er.natappfree.cc/alipayresult.html
+#      notifyUrl: http://5aj3er.natappfree.cc/alipay/notify
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*.xml
+  global-config:
+    id-type: 2
+    field-strategy: 2
+    db-column-underline: false
+    refresh-mapper: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#### feign配置
+feign:
+  sentinel:
+    enabled: false
+  hystrix:
+    enabled: true
+  okhttp:
+    enabled: true
+  httpclient:
+    enabled: false
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 15000 # 全局请求连接的超时时间,默认值1000
+
+ribbon:
+  ReadTimeout: 6000   #负载均衡超时时间，默认值5000
+  ConnectTimeout: 6000 #ribbon请求连接的超时时间，默认值2000
+  MaxAutoRetries: 0     #对当前实例的重试次数，默认0
+  MaxAutoRetriesNextServer: 0 #对切换实例的重试次数，默认1
+  OkToRetryOnAllOperations: false #对所有操作请求都进行重试,默认false
+#  eager-load:
+#    enabled: true # 开启Ribbon的饥饿加载模式
+#    clients: usp-uas, usp-anyfix # 指定需要饥饿加载的服务名
+
+logging:
+  path: "./log/usp/pay"
+  file: "./log/usp/pay/log_info.log"
+  level:
+    com:
+      alibaba:
+        nacos: error
+

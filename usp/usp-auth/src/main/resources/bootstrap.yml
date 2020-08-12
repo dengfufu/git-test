@@ -1,0 +1,43 @@
+server:
+  port: 10091
+
+spring:
+  application:
+    name: usp-auth
+  cloud:
+    nacos:
+      config:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        file-extension: yml
+        group: ${config-group:USP_GROUP_DEV}
+      discovery:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        ip: ${discovery-ip:${spring.cloud.client.ip-address}} # 服务提供方IP(防止虚拟IP找不到实例)
+  main:
+    allow-bean-definition-overriding: true
+
+##### feign配置
+feign:
+  sentinel:
+    enabled: true
+  hystrix:
+    enabled: false
+  okhttp:
+    enabled: true
+  httpclient:
+    enabled: false
+
+ribbon:
+  OkToRetryOnAllOperations: false #对所有操作请求都进行重试,默认false
+  ReadTimeout: 5000   #负载均衡超时时间，默认值5000
+  ConnectTimeout: 2000 #ribbon请求连接的超时时间，默认值2000
+  MaxAutoRetries: 0     #对当前实例的重试次数，默认0
+  MaxAutoRetriesNextServer: 0 #对切换实例的重试次数，默认1
+
+logging:
+  path: "./log/usp/auth"
+  file: "./log/usp/auth/log_info.log"
+  level:
+    com:
+      alibaba:
+        nacos: error

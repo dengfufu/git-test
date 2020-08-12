@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.baseinfo.mapper.ExpressCompanyMapper">
+
+    <!-- 模糊查询快递公司 -->
+    <select id="matchExpressCorp" resultType="com.zjft.usp.anyfix.baseinfo.model.ExpressCompany">
+        select * from express_company where corp_id=#{corpId}
+        <if test='name != null and name != ""'>
+            and name like concat('%',#{name},'%')
+        </if>
+        order by name asc, id asc limit 0,50
+    </select>
+
+</mapper>

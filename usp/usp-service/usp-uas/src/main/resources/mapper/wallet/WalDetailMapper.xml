@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.wallet.mapper.WalDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="DetailResultMap" type="com.zjft.usp.uas.wallet.model.WalDetail">
+        <id column="userid" property="userId"/>
+        <result column="txid" property="txId"/>
+        <result column="txtype" property="txType"/>
+        <result column="ccy" property="ccy"/>
+        <result column="amt" property="amt"/>
+        <result column="balance" property="balance"/>
+        <result column="addtime" property="addTime"/>
+    </resultMap>
+
+    <select id="walDetailQuery" parameterType="long" resultMap="DetailResultMap">
+        select * from uas_wal_detail where userid=#{userId}
+    </select>
+</mapper>

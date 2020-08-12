@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.user.mapper.UserDefinedSettingMapper">
+    <insert id="merge" parameterType="com.zjft.usp.uas.user.model.UserDefinedSetting">
+        insert into uas_user_defined_setting(userid,setting_key,setting_value)
+        values(#{userid}, #{settingKey}, #{settingValue})
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
+    </insert>
+
+</mapper>

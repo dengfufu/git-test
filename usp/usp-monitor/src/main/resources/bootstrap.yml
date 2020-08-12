@@ -1,0 +1,22 @@
+server:
+  port: 10101
+
+spring:
+  application:
+    name: usp-monitor
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        ip: ${discovery-ip:${spring.cloud.client.ip-address}}
+
+
+#开启端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

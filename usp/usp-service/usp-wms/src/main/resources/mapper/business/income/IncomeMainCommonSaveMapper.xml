@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.income.mapper.IncomeMainCommonSaveMapper">
+
+    <select id="countSave" resultType="com.zjft.usp.wms.business.income.dto.IncomeStatDto">
+        select save_status as income_status, count(id) as income_number from income_m_common_save
+        where save_status = 10
+        <if test="curUserId != null and curUserId > 0L">
+            and create_by = #{curUserId}
+        </if>
+        <if test="corpId != null and corpId > 0L">
+            and corp_id = #{corpId}
+        </if>
+        group by save_status
+    </select>
+
+</mapper>

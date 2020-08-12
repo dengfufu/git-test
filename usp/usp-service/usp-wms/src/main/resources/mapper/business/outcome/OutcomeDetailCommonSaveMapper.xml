@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.outcome.mapper.OutcomeDetailCommonSaveMapper">
+    <select id="listByOutcomeId" resultType="com.zjft.usp.wms.business.outcome.dto.OutcomeDetailCommonSaveDto">
+        select * from outcome_d_common_save a left join outcome_d_return_vendor_save b
+        on a.id = b.id where 1=1
+        <if test="outcomeId != null and outcomeId > 0L">
+            and outcome_id = #{outcomeId}
+        </if>
+    </select>
+</mapper>

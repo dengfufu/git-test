@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.protocol.mapper.ProtocolSignMapper">
+    <select id="checkSign" resultType="com.zjft.usp.uas.protocol.dto.ProtocolCheckDto">
+        select upd.id,upd.name ,upd.url, upd.update_date as updateDate ,ups.sign_date as signDate, 1 as needSign
+        from uas_protocol_def upd
+        left join uas_protocol_sign ups on upd.id = ups.protocol_id
+        <if test='filter.corpId != null and filter.corpId > 0'>
+            and ((ups.corp_id is null and ups.user_id is null) or ups.corp_id = #{filter.corpId})
+        </if>
+        <if test='filter.userId != null and filter.userId > 0'>
+            and ((ups.corp_id is null and ups.user_id is null) or ups.user_id = #{filter.userId})
+        </if>
+        where 1=1
+        <if test='filter.module != null'>
+            and upd.module = #{filter.module}
+        </if>
+        and (ups.sign_date is null or ups.sign_date &lt; upd.update_date)
+    </select>
+
+</mapper>

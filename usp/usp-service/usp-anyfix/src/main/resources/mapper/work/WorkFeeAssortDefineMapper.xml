@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.WorkFeeAssortDefineMapper">
+
+    <sql id="commonCondition">
+        <if test="workFeeAssortFilter.serviceCorp != null and workFeeAssortFilter.serviceCorp > 0">
+            and service_corp = #{workFeeAssortFilter.serviceCorp}
+        </if>
+        <if test="workFeeAssortFilter.assortName != null and workFeeAssortFilter.assortName != ''">
+            and assort_name like concat('%', #{workFeeAssortFilter.assortName}, '%')
+        </if>
+        <if test="workFeeAssortFilter.enabled != null and workFeeAssortFilter.assortName != ''">
+            and enabled = #{workFeeAssortFilter.enabled}
+        </if>
+    </sql>
+
+    <select id="pageByFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeAssortDto">
+        select a.*, b.* from
+        (
+        select * from work_fee_assort_define
+        where 1=1
+        <include refid="commonCondition"></include>
+        ) a
+        left join work_condition b on a.condition_id = b.id
+        where 1=1
+        <if test="workFeeAssortFilter.demanderCorp != null and workFeeAssortFilter.demanderCorp != ''">
+            and b.demander_corp=#{workFeeAssortFilter.demanderCorp}
+        </if>
+        order by demander_corp, operate_time
+    </select>
+
+
+    <!-- 匹配工单分类费用 -->
+    <select id="matchWorkFeeAssortDefine" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeAssortDto">
+        select a.*,b.*
+        from work_fee_assort_define a
+        left join work_condition b on a.condition_id = b.id
+        where 1 = 1 and a.enabled = 'Y'
+        <choose>
+            <when test="workDto.serviceCorp != null and workDto.serviceCorp > 0">
+                and a.service_corp = #{workDto.serviceCorp}
+            </when>
+            <otherwise>
+                and 1=0
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.createTime != null">
+                and (a.start_date <![CDATA[ <= ]]> Date(#{workDto.createTime}) or a.start_date is null)
+                and (a.end_date <![CDATA[ >= ]]> Date(#{workDto.createTime}) or a.end_date is null)
+            </when>
+        </choose>
+        <choose>
+            <when test="workDto.demanderCorp != null and workDto.demanderCorp > 0">
+                and b.demander_corp = #{workDto.demanderCorp}
+            </when>
+            <otherwise>
+                and (b.demander_corp is null or b.demander_corp = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.customCorp != null and workDto.customCorp > 0">
+                and (b.custom_corp = #{workDto.customCorp} or b.custom_corp = 0)
+            </when>
+            <otherwise>
+                and (b.custom_corp is null or b.custom_corp = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.customId != null and workDto.customId > 0">
+                and (b.custom_id = #{workDto.customId} or b.custom_id = 0)
+            </when>
+            <otherwise>
+                and (b.custom_id is null or b.custom_Id = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.workType != null and workDto.workType > 0">
+                and (b.work_type = #{workDto.workType} or b.work_type='' or b.work_type is null)
+            </when>
+            <otherwise>
+                and (b.work_type is null or b.work_type = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.serviceMode != null and workDto.serviceMode > 0">
+                and (a.service_mode = #{workDto.serviceMode} or a.service_mode = 0)
+            </when>
+            <otherwise>
+                and (a.service_mode is null or a.service_mode = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.serviceItem != null and workDto.serviceItem != ''">
+                and (FIND_IN_SET(a.service_item, #{workDto.serviceItem}) > 0 or a.service_item = 0)
+            </when>
+            <otherwise>
+                and (a.service_item is null or a.service_item = 0)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.largeClassId != null and workDto.largeClassId > 0">
+                and (b.large_class_id = #{workDto.largeClassId} or b.large_class_id = 0)
+            </when>
+        </choose>
+        <choose>
+            <when test="workDto.smallClass != null and workDto.smallClass > 0">
+                and (FIND_IN_SET(#{workDto.smallClass}, b.small_class_id) > 0 or b.small_class_id = '0' or
+                b.small_class_id = '')
+            </when>
+            <otherwise>
+                and (b.small_class_id is null or b.small_class_id = '')
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.specification != null and workDto.specification > 0">
+                and (FIND_IN_SET(#{workDto.specification}, b.specification) > 0 or b.specification = '')
+            </when>
+            <otherwise>
+                and (b.specification is null or b.specification = '')
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.brand != null and workDto.brand > 0">
+                and (FIND_IN_SET(#{workDto.brand}, b.brand_id) > 0 or b.brand_id = '0' or b.brand_id = '')
+            </when>
+            <otherwise>
+                and (b.brand_id is null or b.brand_id = '')
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.model != null and workDto.model > 0">
+                and (FIND_IN_SET(#{workDto.model}, b.model_id) > 0 or b.model_id = '0' or b.model_id = '')
+            </when>
+            <otherwise>
+                and (b.model_id is null or b.model_id = '')
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.zone != null and workDto.zone > 0">
+                and (b.zone = #{workDto.zone} or b.zone = 0 or b.zone is null)
+            </when>
+            <otherwise>
+                and (b.zone = 0 or b.zone is null)
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="workDto.district != null and workDto.district.length() >= 2">
+                and (((b.district_negate = 'N' and (FIND_IN_SET(substring(#{workDto.district}, 1, 2), b.district) > 0
+                <if test="workDto.district.length() >= 4">
+                    or FIND_IN_SET(substring(#{workDto.district}, 1, 4), b.district) > 0
+                    or (locate('5002', #{workDto.district}) = 1 and FIND_IN_SET('5001', b.district) > 0)
+                </if>
+                <if test="workDto.district.length() >= 6">
+                    or FIND_IN_SET(substring(#{workDto.district}, 1, 6), b.district) > 0
+                </if>
+                ))
+                or (b.district_negate = 'Y' and FIND_IN_SET(substring(#{workDto.district}, 1, 2), b.district) <![CDATA[ <= ]]> 0
+                <if test="workDto.district.length() >= 4">
+                    and FIND_IN_SET(substring(#{workDto.district}, 1, 4), b.district) <![CDATA[ <= ]]> 0
+                    and ((locate('5002', #{workDto.district}) = 1 and FIND_IN_SET('5001', b.district) <![CDATA[ <= ]]> 0)
+                    or (locate('5002', #{workDto.district}) != 1 and FIND_IN_SET('5001', b.district) > 0))
+                </if>
+                <if test="workDto.district.length() >= 6">
+                    and FIND_IN_SET(substring(#{workDto.district}, 1, 6), b.district) <![CDATA[ <= ]]> 0
+                </if>
+                ))
+                or b.district is null or b.district = '')
+            </when>
+            <otherwise>
+                and (b.district is null or b.district = '')
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 匹配满足条件的未审核工单 -->
+    <select id="selectMatchWork" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select a.*,b.work_status,b.service_corp,b.service_branch,
+        b.device_id,b.dispatch_staff,b.dispatch_time,b.handle_staff,b.assign_staff,b.together_engineers,b.help_names,
+        b.engineer,b.review_staff,b.fee_confirm_status,b.sign_time,b.finish_time,
+        b.service_mode,b.go_time,b.start_time,b.end_time,b.accept_time
+        from (
+        select request.* from work_request request where 1=1
+        <choose>
+            <when test="workFeeAssortDto.demanderCorp != null and workFeeAssortDto.demanderCorp > 0">
+                and request.demander_corp=#{workFeeAssortDto.demanderCorp}
+            </when>
+            <otherwise>
+                and (request.demander_corp is null || request.demander_corp = 0)
+            </otherwise>
+        </choose>
+        <if test="workFeeAssortDto.startDate != null">
+            and Date(request.create_time) <![CDATA[ >= ]]> Date(#{workFeeAssortDto.startDate})
+        </if>
+        <if test="workFeeAssortDto.endDate != null">
+            and Date(request.create_time) <![CDATA[ <= ]]> Date(#{workFeeAssortDto.endDate})
+        </if>
+        <if test="workFeeAssortDto.customId != null and workFeeAssortDto.customId > 0">
+            and request.custom_id=#{workFeeAssortDto.customId}
+        </if>
+        <if test="workFeeAssortDto.customCorp != null and workFeeAssortDto.customCorp > 0">
+            and request.custom_corp=#{workFeeAssortDto.customCorp}
+        </if>
+        <if test="workFeeAssortDto.workType != null and workFeeAssortDto.workType != ''">
+            and FIND_IN_SET(request.work_type, #{workFeeAssortDto.workType}) > 0
+        </if>
+        <if test="workFeeAssortDto.largeClassId != null and workFeeAssortDto.largeClassId > 0">
+            <choose>
+                <when test="workFeeAssortDto.smallClassIdList != null and workFeeAssortDto.smallClassIdList.size() > 0">
+                    and request.small_class in
+                    <foreach collection="workFeeAssortDto.smallClassIdList" open="(" close=")" item="item" separator=",">
+                        #{item}
+                    </foreach>
+                </when>
+                <otherwise>
+                    and (request.small_class = 0 or request.small_class is null)
+                </otherwise>
+            </choose>
+        </if>
+        <if test="workFeeAssortDto.smallClassId != null and workFeeAssortDto.smallClassId != ''">
+            and FIND_IN_SET(request.small_class, #{workFeeAssortDto.smallClassId}) > 0
+        </if>
+        <if test="workFeeAssortDto.specification != null and workFeeAssortDto.specification != ''">
+            and FIND_IN_SET(request.specification, #{workFeeAssortDto.specification}) > 0
+        </if>
+        <if test="workFeeAssortDto.brandId != null and workFeeAssortDto.brandId != ''">
+            and FIND_IN_SET(request.brand, #{workFeeAssortDto.brandId}) > 0
+        </if>
+        <if test="workFeeAssortDto.modelId != null and workFeeAssortDto.modelId != ''">
+            and FIND_IN_SET(request.model, #{workFeeAssortDto.modelId}) > 0
+        </if>
+        <if test="workFeeAssortDto.zone != null and workFeeAssortDto.zone > 0">
+            and FIND_IN_SET(request.zone, #{workFeeAssortDto.zone}) > 0
+        </if>
+        <if test='workFeeAssortDto.district != null and workFeeAssortDto.district != "" and workFeeAssortDto.districtNegate == "N"'>
+            and
+            <foreach item="district" collection="workFeeAssortDto.district.split(',')" separator=" or " open="(" close=")">
+                (locate(#{district}, request.district) = 1 or (locate('5002', request.district) = 1 and #{district} =
+                '5001'))
+            </foreach>
+        </if>
+        <if test='workFeeAssortDto.district != null and workFeeAssortDto.district != "" and workFeeAssortDto.districtNegate == "Y"'>
+            and
+            <foreach item="district" collection="workFeeAssortDto.district.split(',')" separator=" or " open="(" close=")">
+                (locate(${district}, request.district) != 1 and
+                ((locate('5002', request.district) = 1 and #{district} <![CDATA[ <> ]]> '5001')
+                or (locate('5002', request.district) <![CDATA[ <> ]]> 1 and #{district} = '5001')))
+            </foreach>
+        </if>
+        ) a join (
+        select * from work_deal deal where 1=1 and deal.work_status in (80, 90)
+        and deal.fee_check_status != 2 and deal.fee_confirm_status != 2
+        <choose>
+            <when test="workFeeAssortDto.serviceCorp != null and workFeeAssortDto.serviceCorp > 0">
+                and deal.service_corp=#{workFeeAssortDto.serviceCorp}
+            </when>
+        </choose>
+        <if test="workFeeAssortDto.serviceMode != null and workFeeAssortDto.serviceMode > 0">
+            and deal.service_mode=#{workFeeAssortDto.serviceMode}
+        </if>
+        <choose>
+            <when test='workFeeAssortDto.together == "Y"'>
+                and ((deal.together_engineers != '' and deal.together_engineers is not null and deal.together_engineers != '0')
+                or (deal.help_names != '' and deal.help_names is not null))
+            </when>
+        </choose>
+        ) b on a.work_id = b.work_id
+        <if test="workFeeAssortDto.serviceItem != null and workFeeAssortDto.serviceItem > 0">
+        join (
+            select * from work_finish finish where 1=1
+                and FIND_IN_SET(#{workFeeAssortDto.serviceItem}, finish.service_item) > 0
+        ) c on a.work_id = c.work_id
+        </if>
+    </select>
+
+</mapper>

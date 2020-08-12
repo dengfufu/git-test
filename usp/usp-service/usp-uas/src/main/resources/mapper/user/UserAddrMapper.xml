@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.user.mapper.UserAddrMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="UserAddrResultMap" type="com.zjft.usp.uas.user.model.UserAddr">
+        <id column="userid" property="userId" jdbcType="BIGINT"/>
+        <id column="addrid" property="addrId" jdbcType="BIGINT"/>
+        <result column="addtime" property="addTime"/>
+        <result column="isdefault" property="isDefault"/>
+        <result column="province" property="province"/>
+        <result column="city" property="city"/>
+        <result column="district" property="district"/>
+        <result column="detail" property="detail"/>
+    </resultMap>
+
+    <select id="listUserAddr" resultMap="UserAddrResultMap">
+        select * from uas_user_addr
+        where userid = #{userId} order by isdefault desc, addtime desc
+    </select>
+
+    <select id="findUserAddr" resultMap="UserAddrResultMap">
+        select * from uas_user_addr where addrid=#{addrId}
+    </select>
+
+    <delete id="deleteUserAddr">
+        delete from uas_user_addr
+        where addrid = #{addrId}
+    </delete>
+
+    <update id="updateUserAddr" parameterType="com.zjft.usp.uas.user.model.UserAddr">
+        update uas_user_addr
+        <set>
+            <trim suffixOverrides=",">
+                <if test="isDefault != null">
+                    isdefault = #{isDefault},
+                </if>
+                <if test="province != null">
+                    province = #{province},
+                </if>
+                <if test="city != null">
+                    city = #{city},
+                </if>
+                <if test="district != null">
+                    district = #{district},
+                </if>
+                <if test="detail != null">
+                    detail = #{detail},
+                </if>
+            </trim>
+        </set>
+        where addrid = ${addrId} and userid = ${userId}
+    </update>
+
+    <insert id="addUserAddr" parameterType="com.zjft.usp.uas.user.model.UserAddr">
+        insert into uas_user_addr(addrid,userid,addtime,isdefault,province,city,district,detail)
+        values(#{addrId}, #{userId}, #{addTime}, #{isDefault}, #{province}, #{city}, #{district}, #{detail})
+    </insert>
+
+    <update id="updateIsNotDefault">
+        update uas_user_addr set isdefault='' where userid=#{userId} and addrid!=#{addrId}
+    </update>
+</mapper>

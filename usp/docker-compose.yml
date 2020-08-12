@@ -1,0 +1,119 @@
+version: '3.3'
+services:
+  gateway:
+    image: usp/usp-gateway
+    restart: always
+    ports:
+      - 10090:10090
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/gateway:/log/usp/gateway
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  auth:
+    image: usp/usp-auth
+    restart: always
+    ports:
+      - 10091:10091
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/auth:/log/usp/auth
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  uas:
+    image: usp/usp-uas
+    restart: always
+    ports:
+      - 10092:10092
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/uas:/log/usp/uas
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  file:
+    image: usp/usp-file
+    restart: always
+    ports:
+      - 10093:10093
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/file:/log/usp/file
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  pos:
+    image: usp/usp-pos
+    restart: always
+    ports:
+      - 10094:10094
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/pos:/log/usp/pos
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  msg:
+    image: usp/usp-msg
+    restart: always
+    ports:
+      - 10095:10095
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/msg:/log/usp/msg
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  anyfix:
+    image: usp/usp-anyfix
+    restart: always
+    ports:
+      - 10097:10097
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/anyfix:/log/usp/anyfix
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  device:
+    image: usp/usp-device
+    restart: always
+    ports:
+      - 10099:10099
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/device:/log/usp/device
+      - ${PWD}/skywalking/agent:/skywalking/agent
+  monitor:
+    image: usp/usp-monitor
+    restart: always
+    ports:
+      - 10101:10101
+    environment:
+      - nacos-server=10.2.21.103:8848
+      - discovery-ip=10.34.12.153
+      - config-group=USP_GROUP_DEV
+      - sw_backend_service=10.2.21.103:11800
+    volumes:
+      - ${PWD}/logs/usp/monitor:/log/usp/monitor
+      - ${PWD}/skywalking/agent:/skywalking/agent

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.pos.mapper.PosTrackMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zjft.usp.pos.model.PosTrack">
+        <id column="userid" property="userId"/>
+        <result column="postime" property="posTime"/>
+        <result column="lon" property="lon"/>
+        <result column="lat" property="lat"/>
+        <result column="addr" property="addr"/>
+        <result column="bdlon" property="bdLon"/>
+        <result column="bdlat" property="bdLat"/>
+        <result column="radius" property="radius"/>
+        <result column="client" property="client"/>
+        <result column="poshour" property="posHour"/>
+    </resultMap>
+
+    <select id="listPosTrack" resultMap="BaseResultMap">
+        select userid,postime,lon,lat,addr,bdlon,bdlat,radius,client from ${posTrackTableName}
+        where userid=#{userId}
+        <if test="posStartTime !=null and posStartTime !=''">
+            and postime <![CDATA[ >= ]]> #{posStartTime}
+        </if>
+        <if test="posEndTime !=null and posEndTime !=''">
+            and postime <![CDATA[ <= ]]> #{posEndTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="posHourStart !=null and posHourStart !=''">
+            and poshour <![CDATA[ >= ]]> #{posHourStart,jdbcType=INTEGER}
+        </if>
+        <if test="posHourEnd !=null and posHourEnd !=''">
+            and poshour <![CDATA[ <= ]]> #{posHourEnd,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <insert id="insertPosInfo" parameterType="com.zjft.usp.pos.dto.PositionDto">
+        insert into ${posTrackTableName}(userid,postime,lon,lat,addr,bdlon,bdlat,radius,client,poshour)
+            values (#{userId},#{posTime},#{lon},#{lat},#{addr},#{bdLon},#{bdLat},#{radius},#{client},#{posHour})
+    </insert>
+
+    <select id="existTable" parameterType="String" resultType="Integer">
+        select count(*) from information_schema.TABLES
+        where table_name=#{tableName}
+    </select>
+
+    <update id="dropTable">
+        drop table if exists ${tableName}
+    </update>
+
+    <update id="createTable" parameterType="String">
+        CREATE TABLE ${tableName} (
+          `userid` bigint(20) NOT NULL COMMENT '用户ID',
+          `postime` datetime NOT NULL DEFAULT current_timestamp() COMMENT '定位时间',
+          `lon` decimal(10,6) NOT NULL DEFAULT 0.000000 COMMENT '经度',
+          `lat` decimal(10,6) NOT NULL DEFAULT 0.000000 COMMENT '纬度',
+          `client` smallint(6) NOT NULL DEFAULT 0 COMMENT '终端类型 1=Android，2=IOS，3=微信',
+          `poshour` smallint(6) NOT NULL DEFAULT 0 COMMENT '小时区间，0 - 23',
+          `addr` varchar(100) DEFAULT NULL COMMENT '地址信息',
+          `bdlon` decimal(10,6) NOT NULL COMMENT '百度坐标系经度',
+          `bdlat` decimal(10,6) NOT NULL COMMENT '百度坐标系纬度',
+          `radius` double DEFAULT NULL COMMENT '定位精度',
+          KEY ${userIdIdx} (`userid`) USING BTREE,
+          KEY ${postTimeIdx} (`postime`) USING BTREE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户轨迹表';
+    </update>
+
+</mapper>

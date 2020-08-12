@@ -1,0 +1,22 @@
+server:
+  port: 10111
+logging:
+  config: classpath:logback.xml
+spring:
+  profiles: dev,default
+  application:
+    name: xxl-job-executor-sample
+  cloud:
+    nacos:
+      bootstrap:
+        enable: true
+      config:
+        data-id: xxl-job-executor-sample
+        group: ${config-group:USP_GROUP_DEV}
+        type: yml
+        auto-refresh: true
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        file-extension: yml
+        ip: ${discovery-ip:${spring.cloud.client.ip-address}} # 服务提供方IP(防止虚拟IP找不到实例)
+    main:
+      allow-bean-definition-overriding: true

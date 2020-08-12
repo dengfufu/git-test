@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.trans.mapper.TransWareCommonMapper">
+    <sql id="commonCondition">
+        select a.id,a.trans_code,a.group_code,a.corp_id,a.flow_instance_id,a.large_class_id,a.small_class_id,a.from_depot_id,a.to_depot_id,
+        a.apply_date,a.trans_status,a.priority_level,a.description,a.create_by,a.create_time,a.update_by,a.update_time,a.model_id,
+        a.norms_value,a.sn,a.barcode,a.status,a.apply_quantity,a.passed_quantity,a.consigned_quantity,ftn.node_type as flowNodeType,
+        ftn.name as cur_node_name
+        from trans_ware_common  a left join flow_instance f on a.flow_instance_id=f.id
+        left join flow_instance_node n on f.current_node_id=n.id
+        left join flow_template_node ftn on n.template_node_id=ftn.id where 1=1
+        <if test="transFilter.largeClassId != null and transFilter.largeClassId > 0L">
+            and a.large_class_id = #{transFilter.largeClassId}
+        </if>
+        <if test="transFilter.smallClassId != null and transFilter.smallClassId > 0L">
+            and a.small_class_id = #{transFilter.smallClassId}
+        </if>
+        <if test="transFilter.corpId != null and transFilter.corpId > 0L">
+            and a.corp_id = #{transFilter.corpId}
+        </if>
+        <if test="transFilter.transId != null and transFilter.transId  > 0L">
+            and a.id = #{transFilter.transId}
+        </if>
+        <if test="transFilter.transCode != null and transFilter.transCode != ''">
+            and a.trans_code like concat('%', #{transFilter.transCode}, '%')
+        </if>
+        <if test="transFilter.groupCode != null and transFilter.groupCode != ''">
+            and a.group_code like concat('%', #{transFilter.groupCode}, '%')
+        </if>
+        <if test="transFilter.fromDepotId != null and transFilter.fromDepotId > 0L">
+            and a.from_depot_id = #{transFilter.fromDepotId}
+        </if>
+        <if test="transFilter.toDepotId != null and transFilter.toDepotId > 0L">
+            and a.to_depot_id = #{transFilter.toDepotId}
+        </if>
+        <if test="transFilter.transStatusList != null and transFilter.transStatusList.size > 0">
+            and a.trans_status in
+            <foreach collection="transFilter.transStatusList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="transFilter.createBy != null and transFilter.createBy > 0L">
+            and a.create_by = #{transFilter.createBy}
+        </if>
+        <if test="transFilter.catalogId != null and transFilter.catalogId > 0L">
+            and a.model_id in (select id from ware_model where catalog_id = #{transFilter.catalogId})
+        </if>
+        <if test="transFilter.brandId != null and transFilter.brandId > 0L">
+            and a.model_id in (select id from ware_model where brand_id = #{transFilter.brandId})
+        </if>
+        <if test="transFilter.modelId != null and transFilter.modelId > 0L">
+            and a.model_id = #{transFilter.modelId}
+        </if>
+        <if test="transFilter.sn != null and transFilter.sn != ''">
+            and a.sn like ('%', #{transFilter.sn}, '%')
+        </if>
+        <if test="transFilter.barcode != null and transFilter.barcode != ''">
+            and a.barcode like ('%', #{transFilter.barcode}, '%')
+        </if>
+        <if test="transFilter.flowNodeTypeList !=null and transFilter.flowNodeTypeList.size > 0 ">
+            and ftn.node_type in
+            <foreach item="flowNodeType" collection="transFilter.flowNodeTypeList" open="(" close=")" separator=",">
+                #{flowNodeType}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="queryByPage" resultType="com.zjft.usp.wms.business.trans.dto.TransWareCommonDto">
+        select * from (
+        <include refid="commonCondition"></include>
+        ) t
+    </select>
+    
+    <select id="countByWareStatus" resultType="com.zjft.usp.wms.business.trans.dto.TransStatCountDto">
+        select flowNodeType, count(id) as transNumber, trans_status as transStatus from (
+        <include refid="commonCondition"></include>
+        ) cou group by flowNodeType
+    </select>
+
+</mapper>

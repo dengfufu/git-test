@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.device.baseinfo.mapper.DeviceModelMapper">
+
+    <resultMap type="com.zjft.usp.device.baseinfo.dto.DeviceModelDto" id="dtoMap">
+        <id property="id" column="model_id"/>
+        <result property="name" column="model_name"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="brandName" column="brand_name"/>
+    </resultMap>
+
+    <!-- 分页查询设备型号 -->
+    <select id="queryDeviceModel" resultType="com.zjft.usp.device.baseinfo.dto.DeviceModelDto">
+        select * from (
+        select a.corp as corp, a.enabled, a.id,a.name,b.id as brand_id,b.name as brand_name,
+        c.id as small_class_id,c.name as small_class_name,d.id as large_class_id,d.name as large_class_name
+        from (select * from device_model where corp in
+        <foreach item="corpId" collection="deviceModelFilter.demanderCorpList" open="(" separator="," close=")">
+            #{corpId}
+        </foreach>
+        ) a
+        left join device_brand b on a.brand_id=b.id
+        left join device_small_class c on a.small_class_id=c.id
+        left join device_large_class d on c.large_class_id=d.id) t1 where 1=1
+        <if test='deviceModelFilter.largeClassId != null and deviceModelFilter.largeClassId > 0'>
+            and large_class_id = #{deviceModelFilter.largeClassId}
+        </if>
+        <if test='deviceModelFilter.smallClassId != null and deviceModelFilter.smallClassId > 0'>
+            and small_class_id = #{deviceModelFilter.smallClassId}
+        </if>
+        <if test='deviceModelFilter.name != null and deviceModelFilter.name != ""'>
+            and name like concat('%',#{deviceModelFilter.name},'%')
+        </if>
+        <if test='deviceModelFilter.brandId != null and deviceModelFilter.brandId > 0'>
+            and brand_id = #{deviceModelFilter.brandId}
+        </if>
+        <if test='deviceModelFilter.enabled != null and deviceModelFilter.enabled != ""'>
+            and enabled = #{deviceModelFilter.enabled}
+        </if>
+        order by corp asc
+    </select>
+
+    <select id="listDeviceModelDto" resultMap="dtoMap">
+        select
+            a.id as model_id,
+            a.name as model_name,
+            b.id as brand_id,
+            b.name as brand_name
+        from (select * from device_model where corp=#{corpId} and small_class_id=#{smallClassId} and enabled = 'Y') a
+        right join ( select * from device_brand where corp=#{corpId} and enabled = 'Y') b
+        on a.brand_id=b.id
+    </select>
+
+    <!-- 模糊查询设备型号列表 -->
+    <select id="matchDeviceModel" resultType="com.zjft.usp.device.baseinfo.model.DeviceModel">
+        select * from device_model where 1=1 and corp=#{deviceModelFilter.corp}
+        <if test='deviceModelFilter.smallClassIdList != null and deviceModelFilter.smallClassIdList.size() > 0'>
+            and small_class_id in
+            <foreach item="smallClassId" collection="deviceModelFilter.smallClassIdList" open="(" separator=","
+                     close=")">
+                #{smallClassId}
+            </foreach>
+        </if>
+        <if test='deviceModelFilter.brandIdList != null and deviceModelFilter.brandIdList.size() > 0'>
+            and brand_id in
+            <foreach item="brandId" collection="deviceModelFilter.brandIdList" open="(" separator="," close=")">
+                #{brandId}
+            </foreach>
+        </if>
+        <if test='deviceModelFilter.smallClassId != null and deviceModelFilter.smallClassId > 0'>
+            and small_class_id = #{deviceModelFilter.smallClassId}
+        </if>
+        <if test='deviceModelFilter.brandId != null and deviceModelFilter.brandId > 0'>
+            and brand_id = #{deviceModelFilter.brandId}
+        </if>
+        <if test='deviceModelFilter.enabled != null and deviceModelFilter.enabled != ""'>
+            and enabled = #{deviceModelFilter.enabled}
+        </if>
+        <if test='deviceModelFilter.matchFilter != null and deviceModelFilter.matchFilter != ""'>
+            and name like concat('%',#{deviceModelFilter.matchFilter},'%')
+        </if>
+        order by name asc limit 0,50
+    </select>
+</mapper>

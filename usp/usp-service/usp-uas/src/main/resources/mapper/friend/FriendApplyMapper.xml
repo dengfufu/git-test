@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.friend.mapper.FriendApplyMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.friend.model.FriendApply">
+    <id column="userid" jdbcType="BIGINT" property="userId" />
+    <id column="friendid" jdbcType="BIGINT" property="friendId" />
+    <id column="txid" jdbcType="BIGINT" property="txId" />
+    <result column="status" jdbcType="SMALLINT" property="status" />
+    <result column="applynote" jdbcType="VARCHAR" property="applyNote" />
+    <result column="applytime" jdbcType="TIMESTAMP" property="applyTime" />
+    <result column="checktime" jdbcType="TIMESTAMP" property="checkTime" />
+    <result column="checknote" jdbcType="VARCHAR" property="checkNote" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    userid, friendid, txid, status, applynote, applytime, checktime, checknote
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="com.zjft.usp.uas.friend.model.FriendApplyKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from uas_link_friend_apply
+    where userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.zjft.usp.uas.friend.model.FriendApplyKey">
+    delete from uas_link_friend_apply
+    where userid = #{userid,jdbcType=BIGINT}
+      and friendid = #{friendid,jdbcType=BIGINT}
+      and txid = #{txid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.zjft.usp.uas.friend.model.FriendApply">
+    insert into uas_link_friend_apply (userid, friendid, txid, 
+      status, applynote, applytime, 
+      checktime, checknote)
+    values (#{userId,jdbcType=BIGINT}, #{friendId,jdbcType=BIGINT}, #{txId,jdbcType=BIGINT},
+      #{status,jdbcType=SMALLINT}, #{applyNote,jdbcType=VARCHAR}, #{applyTime,jdbcType=TIMESTAMP},
+      #{checkTime,jdbcType=TIMESTAMP}, #{checkNote,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zjft.usp.uas.friend.model.FriendApply">
+    insert into uas_link_friend_apply
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        userid,
+      </if>
+      <if test="friendId != null">
+        friendid,
+      </if>
+      <if test="txId != null">
+        txid,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="applyNote != null">
+        applynote,
+      </if>
+      <if test="applyTime != null">
+        applytime,
+      </if>
+      <if test="checkTime != null">
+        checktime,
+      </if>
+      <if test="checkNote != null">
+        checknote,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="friendId != null">
+        #{friendId,jdbcType=BIGINT},
+      </if>
+      <if test="txId != null">
+        #{txId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="applyNote != null">
+        #{applyNote,jdbcType=VARCHAR},
+      </if>
+      <if test="applyTime != null">
+        #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkTime != null">
+        #{checkTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkNote != null">
+        #{checkNote,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjft.usp.uas.friend.model.FriendApply">
+    update uas_link_friend_apply
+    <set>
+      <if test="status != null">
+        status = #{status,jdbcType=SMALLINT},
+      </if>
+      <if test="applyNote != null">
+        applynote = #{applyNote,jdbcType=VARCHAR},
+      </if>
+      <if test="applyTime != null">
+        applytime = #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkTime != null">
+        checktime = #{checkTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkNote != null">
+        checknote = #{checkNote,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjft.usp.uas.friend.model.FriendApply">
+    update uas_link_friend_apply
+    set status = #{status,jdbcType=SMALLINT},
+      applynote = #{applyNote,jdbcType=VARCHAR},
+      applytime = #{applyTime,jdbcType=TIMESTAMP},
+      checktime = #{checkTime,jdbcType=TIMESTAMP},
+      checknote = #{checkNote,jdbcType=VARCHAR}
+    where userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+      and txid = #{txId,jdbcType=BIGINT}
+  </update>
+
+  <delete id="deleteFriendApply" parameterType="com.zjft.usp.uas.friend.model.FriendApplyKey">
+    delete from uas_link_friend_apply
+    where ( userid = #{userid,jdbcType=BIGINT} and friendid = #{friendid,jdbcType=BIGINT}) or ( userid = #{friendid,jdbcType=BIGINT} and friendid = #{userid,jdbcType=BIGINT} )
+  </delete>
+
+  <select id="selectFriendApplyRel"  parameterType="com.zjft.usp.uas.friend.model.FriendApply" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from uas_link_friend_apply
+    where (userid = #{userId,jdbcType=BIGINT} and friendid = #{friendId,jdbcType=BIGINT}) or ( userid = #{friendId,jdbcType=BIGINT} and friendid = #{userId,jdbcType=BIGINT} )
+  </select>
+
+  <update id="updateFriendApplyRel" parameterType="com.zjft.usp.uas.friend.model.FriendApply">
+    update uas_link_friend_apply
+    <set>
+      status = #{status,jdbcType=SMALLINT},
+      checktime = #{checkTime,jdbcType=TIMESTAMP},
+      checknote = #{checkNote,jdbcType=VARCHAR},
+    </set>
+    where (userid = #{userId,jdbcType=BIGINT} and friendid = #{friendId,jdbcType=BIGINT}) or
+    (userid = #{friendId,jdbcType=BIGINT} and friendid = #{userId,jdbcType=BIGINT})
+  </update>
+</mapper>

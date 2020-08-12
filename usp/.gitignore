@@ -1,0 +1,55 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+.DS_Store
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+log/
+upload/
+
+### midware 注意要不要上传日志类多余文件 ###
+usp-midware/apache-skywalking-apm-bin-es7
+usp-midware/consul
+usp-midware/nacos
+usp-midware/kafka_2.12-2.4.0
+usp-midware/redis-5.0.7
+
+### docker ###
+docker/elasticsearch
+docker/naocs
+docker/redis
+
+### log ###
+logs/
+nohup.out
+
+
+/usp-midware/start-dev - 副本.sh
+/usp-midware/start-dev.sh
+/usp-midware/nacos/

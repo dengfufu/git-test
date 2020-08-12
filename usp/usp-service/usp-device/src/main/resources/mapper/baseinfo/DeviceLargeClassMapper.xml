@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.device.baseinfo.mapper.DeviceLargeClassMapper">
+
+    <!-- 查询最大的顺序号 -->
+    <select id="findMaxSortNo" resultType="Integer" parameterType="Long">
+        select max(sort_no) as sort_no from device_large_class where corp=#{corpId}
+    </select>
+
+    <!-- 模糊查询设备大类列表 -->
+    <select id="matchDeviceLargeClass" resultType="com.zjft.usp.device.baseinfo.model.DeviceLargeClass">
+        select * from device_large_class where 1=1 and corp=#{deviceLargeClassFilter.corp}
+        <if test='deviceLargeClassFilter.matchFilter != null and deviceLargeClassFilter.matchFilter != ""'>
+            and name like concat('%',#{deviceLargeClassFilter.matchFilter},'%')
+        </if>
+        <if test='deviceLargeClassFilter.enabled != null and deviceLargeClassFilter.enabled != ""'>
+            and enabled = #{deviceLargeClassFilter.enabled}
+        </if>
+        order by sort_no asc limit 0,50
+    </select>
+</mapper>

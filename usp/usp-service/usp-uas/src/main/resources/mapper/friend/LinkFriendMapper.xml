@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.friend.mapper.LinkFriendMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.friend.model.LinkFriend">
+    <id column="userid" jdbcType="BIGINT" property="userid" />
+    <id column="friendid" jdbcType="BIGINT" property="friendid" />
+    <result column="notename" jdbcType="VARCHAR" property="notename" />
+    <result column="notes" jdbcType="VARCHAR" property="notes" />
+    <result column="labels" jdbcType="VARCHAR" property="labels" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    userid, friendid, notename, notes, labels
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="com.zjft.usp.uas.friend.model.LinkFriendKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from uas_link_friend
+    where userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.zjft.usp.uas.friend.model.LinkFriendKey">
+    delete from uas_link_friend
+    where userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.zjft.usp.uas.friend.model.LinkFriend">
+    insert into uas_link_friend (userid, friendid, notename, 
+      notes, labels)
+    values (#{userId,jdbcType=BIGINT}, #{friendId,jdbcType=BIGINT}, #{noteName,jdbcType=VARCHAR},
+      #{notes,jdbcType=VARCHAR}, #{labels,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zjft.usp.uas.friend.model.LinkFriend">
+    insert into uas_link_friend
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        userid,
+      </if>
+      <if test="friendId != null">
+        friendid,
+      </if>
+      <if test="noteName != null">
+        notename,
+      </if>
+      <if test="notes != null">
+        notes,
+      </if>
+      <if test="labels != null">
+        labels,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="friendId != null">
+        #{friendId,jdbcType=BIGINT},
+      </if>
+      <if test="noteName != null">
+        #{noteName,jdbcType=VARCHAR},
+      </if>
+      <if test="notes != null">
+        #{notes,jdbcType=VARCHAR},
+      </if>
+      <if test="labels != null">
+        #{labels,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjft.usp.uas.friend.model.LinkFriend">
+    update uas_link_friend
+    <set>
+      <if test="noteName != null">
+        notename = #{noteName,jdbcType=VARCHAR},
+      </if>
+      <if test="notes != null">
+        notes = #{notes,jdbcType=VARCHAR},
+      </if>
+      <if test="labels != null">
+        labels = #{labels,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjft.usp.uas.friend.model.LinkFriend">
+    update uas_link_friend
+    set notename = #{noteName,jdbcType=VARCHAR},
+      notes = #{notes,jdbcType=VARCHAR},
+      labels = #{labels,jdbcType=VARCHAR}
+    where userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+  </update>
+  <delete id="deleteByUserIdAndFriendId" parameterType="java.lang.Integer">
+    delete
+    from uas_link_friend
+    where  userid = #{userId,jdbcType=BIGINT}
+      and friendid = #{friendId,jdbcType=BIGINT}
+  </delete>
+</mapper>

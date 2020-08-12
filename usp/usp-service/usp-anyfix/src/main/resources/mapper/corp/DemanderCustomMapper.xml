@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.manage.mapper.DemanderCustomMapper">
+
+    <!-- 根据供应商查询客户列表 -->
+    <select id="listCustomByDemander" resultType="com.zjft.usp.anyfix.corp.manage.dto.DemanderCustomDto">
+        select * from demander_custom where 1=1
+        <if test='demanderCustomFilter.demanderCorp != null and demanderCustomFilter.demanderCorp > 0'>
+            and demander_corp=#{demanderCustomFilter.demanderCorp}
+        </if>
+        <if test='demanderCustomFilter.enabled != null and demanderCustomFilter.enabled != ""'>
+            and enabled=#{demanderCustomFilter.enabled}
+        </if>
+        <if test='demanderCustomFilter.customCorpName != null and demanderCustomFilter.customCorpName != ""'>
+            and custom_corp_name  like concat('%',#{demanderCustomFilter.customCorpName},'%')
+        </if>
+        <if test='demanderCustomFilter.serviceCorp != null and demanderCustomFilter.serviceCorp > 0'>
+            and demander_corp in (select demander_corp from demander_service
+            where service_corp=#{demanderCustomFilter.serviceCorp}
+            )
+        </if>
+    </select>
+
+    <!-- 根据委托商获得客户下拉列表 -->
+    <select id="selectCustomByDemander" resultType="com.zjft.usp.anyfix.corp.manage.model.DemanderCustom">
+        select * from demander_custom
+        where demander_corp=#{demanderCorp} and enabled='Y' order by custom_corp_name asc
+    </select>
+
+    <!-- 根据供应商或服务商查询客户列表 -->
+    <select id="listCustomByCorpId" resultType="com.zjft.usp.anyfix.corp.manage.model.DemanderCustom">
+        select * from demander_custom where demander_corp=#{corpId} or demander_corp in (
+        select demander_corp from demander_service where service_corp=#{corpId}
+        ) order by custom_corp_name asc
+    </select>
+
+    <!-- 根据供应商或服务商查询客户列表 -->
+    <select id="listCustomByCorpId" resultType="com.zjft.usp.anyfix.corp.manage.model.DemanderCustom">
+        select * from demander_custom where demander_corp=#{corpId} or demander_corp in (
+        select demander_corp from demander_service where service_corp=#{corpId}
+        )
+        order by custom_corp_name asc
+    </select>
+
+    <!-- 根据供应商或服务商查询客户列表 -->
+    <select id="matchCustomByCorp" resultType="com.zjft.usp.anyfix.corp.manage.dto.DemanderCustomDto">
+        select * from
+        (
+        select * from demander_custom where (demander_corp=#{corpId} or demander_corp
+        in ( select demander_corp from demander_service where service_corp=#{corpId} ))
+        ) custom
+        <if test="customCorpName != null and customCorpName != '' " >
+            where  custom_corp_name like concat('%',#{customCorpName},'%') or custom_corp !=0
+        </if>
+        order by custom_corp_name asc
+        limit 0,50
+    </select>
+</mapper>

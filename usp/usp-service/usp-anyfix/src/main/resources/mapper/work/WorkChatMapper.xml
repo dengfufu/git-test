@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.chat.mapper.WorkChatMapper">
+
+    <select id="selectMaxOrder" resultType="java.lang.Integer">
+        SELECT MAX(msg_order)
+        from work_chat
+        where work_id = #{workId} FOR UPDATE
+    </select>
+
+</mapper>

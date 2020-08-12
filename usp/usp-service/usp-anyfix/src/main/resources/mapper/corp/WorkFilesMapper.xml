@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.fileconfig.mapper.WorkFilesMapper">
+
+    <select id="selectWorkFiles" resultType="com.zjft.usp.anyfix.corp.fileconfig.dto.WorkFilesDto">
+     select config.group_name, config.max_num, config.min_num, config.description, files.id, files.file_ids, config.id as configId
+        from (
+        select * from file_config
+        where ref_id = (
+        select id
+        from demander_service
+        where  demander_corp = #{filter.demanderCorp} and service_corp = #{filter.serviceCorp}
+        )
+       and work_type = #{filter.workType} and form_type = #{filter.formType}
+       ) config left join (select * from work_files where work_id = #{filter.workId} ) files
+       on config.id = files.config_id   ;
+    </select>
+
+    <select id="selectDetailById" resultType="com.zjft.usp.anyfix.corp.fileconfig.dto.WorkFilesDto">
+        select config.min_num, config.max_num, config.description, config.group_name, files.file_ids, files.id, files.config_id
+        from file_config config, work_files files
+        where config.id =  files.config_id
+        and files.id = #{id}
+    </select>
+
+
+    <select id="selectWorkFilesByConfigIdAndWorkId"  resultType="com.zjft.usp.anyfix.corp.fileconfig.dto.WorkFilesDto">
+         select config.group_name, config.max_num, config.min_num, config.description, files.id, files.file_ids, config.id as configId
+         from (
+           select * from file_config
+           where id =  #{configId}
+           ) config left join (select * from work_files where work_id = #{workId} ) files
+           on config.id = files.config_id
+    </select>
+</mapper>

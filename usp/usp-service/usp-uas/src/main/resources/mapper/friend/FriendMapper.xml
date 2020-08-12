@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.friend.mapper.FriendMapper">
+
+  <select id="selectNewFriendList" parameterType="long" resultType="com.zjft.usp.uas.friend.dto.NewFriendDto">
+      SELECT
+	temp.userid as userId , temp.faceimg as faceImg, temp.status as status , temp.applynote as applyNote,
+    (case lfriend.notename  when  not  null  then  lfriend.notename  else  temp.nickname end) as friendName
+    FROM(
+	select afriend.userid, info.nickname , info.faceimg, afriend.status , afriend.applynote
+    from uas_user_info info, uas_link_friend_apply afriend
+    where info.userid = afriend.userid  and afriend.friendid=#{userId} and ( afriend.status = 1 or afriend.status = 2)
+    order by afriend.applyTime desc
+    ) temp LEFT JOIN uas_link_friend lfriend ON  temp.userid = lfriend.friendid and lfriend.userid=#{userId}
+
+  </select>
+
+
+    <select id="selectFriendList" parameterType="long" resultType="com.zjft.usp.uas.friend.dto.FriendDto">
+
+        select lfriend.friendid as userId , info.faceimg as faceImg,
+        (case lfriend.notename when '' then info.nickname else lfriend.notename end) as friendName
+        from uas_link_friend lfriend  left join  uas_user_info info
+        on lfriend.friendid = info.userid
+        where lfriend.userid = #{userId}
+
+    </select>
+
+    <select id="selectFriendDetail" resultType="com.zjft.usp.uas.friend.dto.FriendDetailDto">
+      select userid as userId , faceImg , nickname , faceImgBig , signature, sex , mobile,  labels , notes, notename,   a.name as province, a1.name  as city , a2.name as district
+        from
+        (
+            select  info.userid as userId , info.faceimg as faceImg, info.nickname , info.faceimgbig as faceImgBig, info.signature, info.sex , info.mobile,  lfriend.labels , lfriend.notes, lfriend.notename as noteName, province,city,district
+            from uas_user_info info , uas_link_friend lfriend
+            where info.userid = lfriend.friendid and   info.userid = #{friendId}   and lfriend.userid = #{userId}
+        ) as temp
+        left join uas_cfg_area a  on a.code = temp.province
+        left join uas_cfg_area a1  on  a1.code = temp.city
+        left join uas_cfg_area a2  on  a2.code = temp.district
+    </select>
+
+
+    <select id="selectCorpList" parameterType="java.lang.String" resultType="com.zjft.usp.uas.corp.dto.CorpInfoDto">
+        select corpName , logoImg , address
+        from (
+        select corpname  as corpName, logoimg as logoImg , concat( a.name  , a1.name , a2.name , address) as address , telephone
+        from (
+        select corpname, logoimg , address , province ,    city as city  ,  district  as district , telephone
+        from uas_corp_reg
+        ) as temp
+        left join uas_cfg_area a  on a.code = temp.province
+        left join uas_cfg_area a1  on  a1.code = temp.city
+        left join uas_cfg_area a2  on  a2.code = temp.district
+        )  as temp2
+        <if test="condition!=null and condition!=''">
+            where address like #{condition}  or telephone  like #{condition} or corpname like #{condition}
+        </if>
+        order by corpname
+    </select>
+
+    <select id="selectColleagueList" parameterType="long" resultType="map">
+        select info.nickname , info.mobile , reg.corpname as corpName, info.faceImg as faceImg
+        from
+        uas_corp_user cuser , uas_user_info info , uas_corp_reg reg
+        where cuser.userid = info.userid and cuser.corpid = reg.corpid and
+        cuser.corpid  in (select corpid from uas_corp_user where userid = #{userId,jdbcType=BIGINT}) and cuser.userid != #{userId,jdbcType=BIGINT}
+
+    </select>
+
+    <select id="selectUserShortDetail" resultType="com.zjft.usp.uas.friend.dto.SearchFriendDto">
+      select userid as userId, faceImg , nickname, faceImgBig, signature, sex, a.name as province, a1.name  as city
+        from
+        (
+            select userid as userId ,faceimg as faceImg,nickname , faceimgbig as faceImgBig,  signature, sex ,   province ,  concat(province,'' ,city) as city
+            from uas_user_info
+            where  userid = (
+				select userid
+                from uas_user_mobile
+                where mobile = #{mobile}
+            )
+        ) as temp
+        left join uas_cfg_area a  on a.code = temp.province
+        left join uas_cfg_area a1  on  a1.code = temp.city
+    </select>
+</mapper>

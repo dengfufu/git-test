@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>usp</artifactId>
+        <groupId>com.zjft</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>usp-service</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>usp-uas</module>
+        <module>usp-file</module>
+        <module>usp-pos</module>
+        <module>usp-msg</module>
+        <module>usp-anyfix</module>
+        <module>usp-device</module>
+        <module>usp-wms</module>
+        <module>usp-wechat</module>
+        <module>usp-pay</module>
+    </modules>
+
+</project>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.stock.mapper.StockCommonMapper">
+    <select id="listByPage" resultType="com.zjft.usp.wms.business.stock.dto.StockCommonResultDto">
+        select * from (
+            select sc.*,wm.catalog_id,wm.brand_id from stock_common sc left join ware_model wm on sc.model_id = wm.id
+            where 1=1 and income_qty > 0 and sc.enabled = 'Y'
+            <if test="stockCommonFilter.corpId != null and stockCommonFilter.corpId > 0L">
+                and sc.corp_id = #{stockCommonFilter.corpId}
+            </if>
+            <if test="stockCommonFilter.depotId !=null and stockCommonFilter.depotId >0L ">
+                and sc.depot_id = #{stockCommonFilter.depotId}
+            </if>
+            <if test="stockCommonFilter.largeClassId !=null and stockCommonFilter.largeClassId >0L ">
+                and sc.in_large_class_id = #{stockCommonFilter.largeClassId}
+            </if>
+            <if test="stockCommonFilter.smallClassId !=null and stockCommonFilter.smallClassId >0L ">
+                and sc.in_small_class_id = #{stockCommonFilter.smallClassId}
+            </if>
+            <if test="stockCommonFilter.modelId !=null and stockCommonFilter.modelId >0L ">
+                and sc.model_id = #{stockCommonFilter.modelId}
+            </if>
+            <if test="stockCommonFilter.status !=null and stockCommonFilter.status >0L ">
+                and sc.status = #{stockCommonFilter.status}
+            </if>
+            <if test="stockCommonFilter.propertyRight !=null and stockCommonFilter.propertyRight >0L ">
+                and sc.property_right = #{stockCommonFilter.propertyRight}
+            </if>
+            <if test="stockCommonFilter.situation !=null and stockCommonFilter.situation >0L ">
+                and sc.situation = #{stockCommonFilter.situation}
+            </if>
+            <if test="stockCommonFilter.sn != null and stockCommonFilter.sn != ''">
+                and sc.sn like CONCAT('%', #{stockCommonFilter.sn}, '%')
+            </if>
+            <if test="stockCommonFilter.barcode != null and stockCommonFilter.barcode != ''">
+                and sc.barcode like CONCAT('%', #{stockCommonFilter.barcode}, '%')
+            </if>
+            <if test="stockCommonFilter.createTimeList !=null and stockCommonFilter.createTimeList.size > 0 ">
+                and sc.create_time > #{stockCommonFilter.createTimeList[0]}
+                and sc.create_time &lt; #{stockCommonFilter.createTimeList[1]}
+            </if>
+            <if test="stockCommonFilter.catalogId != null and stockCommonFilter.catalogId != ''">
+                and wm.catalog_id = #{stockCommonFilter.catalogId}
+            </if>
+            <if test="stockCommonFilter.brandId != null and stockCommonFilter.brandId != ''">
+                and wm.brand_id = #{stockCommonFilter.brandId}
+            </if>
+        ) t
+    </select>
+
+    <select id="selectByTrans" resultType="com.zjft.usp.wms.business.stock.model.StockCommon" >
+        select model_id, sum(income_qty) as actual_qty
+        from stock_common
+        where depot_id = #{depotId} and
+             in_large_class_id  = #{largeClassId} and
+              enabled = 'Y' and
+              in_small_class_id = #{smallClassId} and (
+        <foreach collection="list" index="index" item="item" open="(" separator="or" close=")">
+            model_id = #{item.modelId}
+         </foreach>
+        )
+
+        group by model_id
+    </select>
+</mapper>

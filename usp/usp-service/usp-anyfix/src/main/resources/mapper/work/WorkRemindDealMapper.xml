@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.remind.mapper.WorkRemindDealMapper">
+    <update id="modWorkRemindDeal" parameterType="com.zjft.usp.anyfix.work.remind.dto.WorkRemindDealDto">
+        update work_remind_deal set remind_time=#{remindTime},num=num+1,note=#{note},operator=#{operator},
+        operate_time=#{operateTime} where work_id=#{workId} and remind_type=#{remindType}
+    </update>
+    <insert id="addWorkRemindDeal" parameterType="com.zjft.usp.anyfix.work.remind.dto.WorkRemindDealDto">
+        insert into work_remind_deal(id,work_id,remind_type,remind_time,enabled,num,note,operator,operate_time)
+        values(#{id},#{workId},#{remindType},#{remindTime},#{enabled},num+1,#{note},#{operator},#{operateTime})
+    </insert>
+</mapper>

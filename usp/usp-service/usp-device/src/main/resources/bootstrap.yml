@@ -1,0 +1,50 @@
+server:
+  port: 10099
+spring:
+  application:
+    name: usp-device
+  cloud:
+    nacos:
+      config:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        file-extension: yml
+        group: ${config-group:USP_GROUP_DEV}
+      discovery:
+        server-addr: ${nacos-server:127.0.0.1:8848}
+        ip: ${discovery-ip:${spring.cloud.client.ip-address}}
+  main:
+    allow-bean-definition-overriding: true
+
+##### feign配置
+feign:
+  sentinel:
+    enabled: false
+  hystrix:
+    enabled: true
+  okhttp:
+    enabled: true
+  httpclient:
+    enabled: false
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 15000 # 全局请求连接的超时时间,默认值1000
+
+ribbon:
+  ReadTimeout: 6000   #负载均衡超时时间，默认值5000
+  ConnectTimeout: 6000 #ribbon请求连接的超时时间，默认值2000
+  MaxAutoRetries: 0     #对当前实例的重试次数，默认0
+  MaxAutoRetriesNextServer: 0 #对切换实例的重试次数，默认1
+  OkToRetryOnAllOperations: false #对所有操作请求都进行重试,默认false
+
+logging:
+  path: "./log/usp/device"
+  file: "./log/usp/device/log_info.log"
+  level:
+    com:
+      alibaba:
+        nacos: error

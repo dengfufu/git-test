@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.auto.mapper.WorkAssignModeMapper">
+
+    <resultMap type="com.zjft.usp.anyfix.work.auto.dto.WorkAssignModeDto" id="workAssignModeDto">
+        <id property="id" column="id"/>
+        <result property="serviceCorp" column="service_corp"/>
+        <result property="autoMode" column="auto_mode"/>
+        <result property="manualMode" column="manual_mode"/>
+        <result property="assignRule" column="assign_rule"/>
+        <result property="conditionId" column="condition_id"/>
+        <result property="customCorp" column="custom_corp"/>
+        <result property="demanderCorp" column="demander_corp"/>
+        <result property="workType" column="work_type"/>
+        <result property="largeClassId" column="large_class_id"/>
+        <result property="smallClassId" column="small_class_id"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="modelId" column="model_id"/>
+        <result property="district" column="district"/>
+        <result property="deviceBranch" column="device_branch"/>
+        <result property="userList" column="user_list"/>
+        <result property="distance" column="distance"/>
+        <result property="waiting" column="waiting"/>
+        <result property="skilled" column="skilled"/>
+    </resultMap>
+
+    <select id="query" resultMap="workAssignModeDto">
+        select
+        a.id as id,
+        a.service_corp as service_corp,
+        a.auto_mode as auto_mode,
+        a.manual_mode as manual_mode,
+        a.assign_rule as assign_rule,
+        a.condition_id as condition_id,
+        c.custom_corp as custom_corp,
+        c.demander_corp as demander_corp,
+        c.work_type as work_type,
+        c.large_class_id as large_class_id,
+        c.small_class_id as small_class_id,
+        c.brand_id as brand_id,
+        c.model_id as model_id,
+        c.district as district,
+        c.device_branch as device_branch,
+        r.user_list as user_list,
+        r.distance as distance,
+        r.waiting as waiting,
+        r.skilled as skilled
+        from
+        work_assign_mode a
+        left join work_condition c on
+        a.condition_id=c.id
+        left join work_assign_rule r
+        on a.assign_rule=r.id
+        where
+        1=1
+        and a.service_corp=#{filter.serviceCorp}
+        <if test='filter.district != null and filter.district != ""'>
+            and (c.district like concat(#{filter.district}, '%') or (#{filter.district} = '5001' and c.district like '5002%'))
+        </if>
+        <if test='filter.customCorp != null and filter.customCorp > 0'>
+            and c.custom_corp=#{filter.customCorp}
+        </if>
+        <if test='filter.demanderCorp != null and filter.demanderCorp > 0'>
+            and c.demander_corp=#{filter.demanderCorp}
+        </if>
+    </select>
+
+    <!-- 根据条件获得自动派单规则 -->
+    <select id="matchAssignMode" resultMap="workAssignModeDto">
+        select
+        a.id as id,
+        a.service_corp as service_corp,
+        a.auto_mode as auto_mode,
+        a.manual_mode as manual_mode,
+        a.assign_rule as assign_rule,
+        a.condition_id as condition_id,
+        c.custom_corp as custom_corp,
+        c.demander_corp as demander_corp,
+        c.work_type as work_type,
+        c.large_class_id as large_class_id,
+        c.small_class_id as small_class_id,
+        c.brand_id as brand_id,
+        c.model_id as model_id,
+        c.district as district,
+        c.device_branch as device_branch,
+        r.user_list as user_list,
+        r.distance as distance,
+        r.waiting as waiting,
+        r.skilled as skilled
+        from
+        work_assign_mode a
+        left join work_condition c on
+        a.condition_id=c.id
+        left join work_assign_rule r
+        on a.assign_rule=r.id
+        where
+        1=1
+        and a.service_corp=#{serviceCorp}
+        <if test='customCorp != null and customCorp > 0'>
+            and (c.custom_corp=#{customCorp} or c.custom_corp = 0)
+        </if>
+        <if test='demanderCorp != null and demanderCorp > 0'>
+            and (c.demander_corp=#{customCorp} or c.demander_corp = 0)
+        </if>
+        <if test='workType != null and workType != ""'>
+            and (c.work_type=#{workType} or c.work_type = '')
+        </if>
+        <if test='largeClassId != null and largeClassId > 0'>
+            and (c.large_class_id=#{largeClassId} or c.large_class_id = 0)
+        </if>
+        <if test='smallClassId != null and smallClassId != ""'>
+            and (FIND_IN_SET(#{smallClassId}, c.small_class_id) > 0 or c.small_class_id = '0' or c.small_class_id = '')
+        </if>
+        <if test='brandId != null and brandId != ""'>
+            and (FIND_IN_SET(#{brandId}, c.brand_id) > 0 or c.brand_id = '0' or c.brand_id = '')
+        </if>
+        <if test='modelId != null and modelId != ""'>
+            and (FIND_IN_SET(#{modelId}, c.model_id) > 0 or c.model_id = '0' or c.model_id = '')
+        </if>
+        <if test='district != null and district != ""'>
+            and (FIND_IN_SET(#{district}, c.district) > 0 or c.district = '')
+        </if>
+        <if test='deviceBranch != null and deviceBranch != ""'>
+            and (FIND_IN_SET(#{deviceBranch}, c.device_branch) > 0 or c.device_branch = '0' or c.device_branch = '')
+        </if>
+    </select>
+</mapper>

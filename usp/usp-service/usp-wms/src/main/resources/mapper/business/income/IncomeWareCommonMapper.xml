@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.income.mapper.IncomeWareCommonMapper">
+
+    <sql id="commonCondition">
+        select a.id,a.corp_id,a.depot_id,a.property_right,a.flow_instance_id,ftn.name as cur_node_name,
+        ftn.node_type as cur_node_type,a.description,
+        a.create_by,a.create_time,a.update_by,a.update_time,a.group_code,a.income_date,a.income_status,
+        a.large_class_id,a.small_class_id,a.model_id,a.norms_value,a.quantity,a.service_end_date,
+        a.situation,a.barcode,a.sn,a.status,a.unit_price,ftn.node_type as flowNodeType
+        from income_ware_common a left join flow_instance f on a.flow_instance_id=f.id
+        left join flow_instance_node n on f.current_node_id=n.id
+        left join flow_template_node ftn on n.template_node_id=ftn.id where 1=1
+        <if test="incomeFilter.corpId != null and incomeFilter.corpId > 0L">
+            and a.corp_id = #{incomeFilter.corpId}
+            
+        </if>
+        <if test="incomeFilter.largeClassId !=null and incomeFilter.largeClassId >0L ">
+            and a.large_class_id = #{incomeFilter.largeClassId}
+        </if>
+        <if test="incomeFilter.smallClassId !=null and incomeFilter.smallClassId >0L ">
+            and a.small_class_id = #{incomeFilter.smallClassId}
+        </if>
+        <if test="incomeFilter.depotId !=null and incomeFilter.depotId >0L ">
+            and a.depot_id = #{incomeFilter.depotId}
+        </if>
+        <if test="incomeFilter.incomeDateStart !=null and incomeFilter.incomeDateStart !='' ">
+            and a.income_date <![CDATA[ >= ]]> #{incomeFilter.incomeDateStart}
+        </if>
+        <if test="incomeFilter.incomeDateEnd !=null and incomeFilter.incomeDateEnd !='' ">
+            and a.income_date <![CDATA[ <= ]]>  #{incomeFilter.incomeDateEnd}
+        </if>
+        <if test="incomeFilter.incomeStatuses !=null and incomeFilter.incomeStatuses.size > 0 ">
+            and a.income_status in
+            <foreach item="incomeStatus" collection="incomeFilter.incomeStatuses" open="(" close=")" separator=",">
+                #{incomeStatus}
+            </foreach>
+        </if>
+        <if test="incomeFilter.propertyRight !=null and incomeFilter.propertyRight >0L ">
+            and a.property_right = #{incomeFilter.propertyRight}
+        </if>
+        <if test="incomeFilter.auditStatus !=null and incomeFilter.auditStatus >0 ">
+            and a.small_class_id = #{incomeFilter.auditStatus}
+        </if>
+        <if test="incomeFilter.sn != null and incomeFilter.sn != ''">
+            and a.sn like CONCAT('%', #{a.sn}, '%')
+        </if>
+        <if test="incomeFilter.barcode != null and barcode.barcode != ''">
+            and a.barcode like CONCAT('%', #{a.barcode}, '%')
+        </if>
+        <if test="incomeFilter.catalogId != null and incomeFilter.catalogId > 0L">
+            and a.model_id in (select id from ware_model where catalog_id = #{incomeFilter.catalogId})
+        </if>
+        <if test="incomeFilter.brandId != null and incomeFilter.brandId > 0L">
+            and a.model_id in (select id from ware_model where brand_id = #{incomeFilter.brandId})
+        </if>
+        <if test="incomeFilter.modelId != null and incomeFilter.modelId > 0L">
+            and a.model_id = #{incomeFilter.modelId}
+        </if>
+        <if test="incomeFilter.curAuditUserId != null and incomeFilter.curAuditUserId > 0L">
+            and f.current_node_id in (select instance_node_id from flow_instance_node_handler
+            where assigned_to_by = #{incomeFilter.curAuditUserId})
+            and ftn.node_type != 10
+        </if>
+    </sql>
+
+    <select id="listByPage" resultType="com.zjft.usp.wms.business.income.dto.IncomeWareCommonDto">
+        select * from (
+        <include refid="commonCondition"></include>
+        ) t
+    </select>
+
+    <select id="countByStatus" resultType="com.zjft.usp.wms.business.income.dto.IncomeStatDto">
+        select income_status as income_status, count(id) as income_number from (
+        <include refid="commonCondition"></include>
+        ) cou group by income_status
+    </select>
+</mapper>

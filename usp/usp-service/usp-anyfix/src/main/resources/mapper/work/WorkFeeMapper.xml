@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.WorkFeeMapper">
+
+    <select id="queryByWorkFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDto">
+        select r.work_id,r.check_work_code,r.work_type,r.service_request,r.custom_id,r.custom_corp,r.device_branch,r.district,r.address,r.create_time,
+        r.small_class as smallClassId,r.device_code,r.serial,r.brand,r.model,r.specification,r.warranty,d.work_code,d.work_status,
+        d.service_corp,d.service_branch,d.engineer,d.finish_time,d.fee_confirm_status,f.total_fee,d.fee_check_status,d.end_time
+        from (
+            select * from work_request where 1=1
+            <if test="workFilter.warrantyModes != null and workFilter.warrantyModes != ''">
+                and warranty_mode in
+                <foreach collection='workFilter.warrantyModes.split(",")' open="(" close=")" separator="," item="warrantyMode">
+                    #{warrantyMode}
+                </foreach>
+            </if>
+            <if test='workFilter.district != null and workFilter.district != ""'>
+                and (district like concat(#{workFilter.district}, '%')
+                    or (district like '5002%' and #{workFilter.district}='5001'))
+            </if>
+        ) r join (
+            select * from work_deal where 1=1
+            <if test="workFilter.startDate != null">
+                and Date(end_time) <![CDATA[ >= ]]> Date(#{workFilter.startDate})
+            </if>
+            <if test="workFilter.endDate != null">
+                and Date(end_time) <![CDATA[ <= ]]> Date(#{workFilter.endDate})
+            </if>
+            <if test="workFilter.demanderCorp != null and workFilter.demanderCorp > 0">
+                and demander_corp = #{workFilter.demanderCorp}
+            </if>
+            <if test="workFilter.serviceCorp != null and workFilter.serviceCorp > 0">
+                and service_corp = #{workFilter.serviceCorp}
+            </if>
+            <if test="workFilter.workStatus != null and workFilter.workStatus > 0">
+                and work_status = #{workFilter.workStatus}
+            </if>
+            <if test='workFilter.workStatuses != null and workFilter.workStatuses != ""'>
+                and work_status in
+                <foreach item="workStatus" collection="workFilter.workStatuses.split(',')" open="(" separator="," close=")">
+                    #{workStatus}
+                </foreach>
+            </if>
+            <if test="workFilter.feeCheckStatus != null and workFilter.feeCheckStatus > 0">
+                and fee_check_status = #{workFilter.feeCheckStatus}
+            </if>
+            <if test="workFilter.feeConfirmStatuses != null and workFilter.feeConfirmStatuses != ''">
+                and fee_confirm_status in
+                <foreach item="feeConfirmStatus" collection="workFilter.feeConfirmStatuses.split(',')" open="(" separator="," close=")">
+                    #{feeConfirmStatus}
+                </foreach>
+            </if>
+            <if test="workFilter.settleDemanderStatus != null and workFilter.settleDemanderStatus > 0">
+                and settle_demander_status = #{workFilter.settleDemanderStatus}
+            </if>
+            <if test="workFilter.settleDemanderStatuses != null and workFilter.settleDemanderStatuses != ''">
+                and settle_demander_status in
+                <foreach item="settleDemanderStatus" collection="workFilter.settleDemanderStatuses.split(',')" open="(" separator="," close=")">
+                    #{settleDemanderStatus}
+                </foreach>
+            </if>
+            <if test="workFilter.verifyId != null and workFilter.verifyId > 0">
+                and (settle_demander_status = 1 or
+                (settle_demander_status = 2 and
+                work_id in (select work_id from work_fee_verify_detail where verify_id = #{workFilter.verifyId})))
+            </if>
+            <if test="workFilter.settleId != null and workFilter.settleId > 0">
+                and (settle_demander_status = 1 or settle_demander_status = 2 or
+                (settle_demander_status = 4 and
+                work_id in (select work_id from settle_demander_detail where settle_id = #{workFilter.settleId})))
+            </if>
+        ) d on r.work_id = d.work_id
+        left join work_fee f on d.work_id = f.work_id
+        order by r.create_time
+    </select>
+
+    <select id="listByWorkFilter" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDto">
+        select r.work_id,r.create_time,r.work_type,r.service_request,r.custom_id,r.custom_corp,r.device_branch,r.district,r.address,r.create_time,
+        r.small_class as smallClassId,r.device_code,r.serial,r.brand,r.model,r.warranty,d.work_code,d.work_status,
+        d.service_corp,d.service_branch,d.engineer,d.finish_time,d.fee_confirm_status,f.total_fee,d.fee_check_status
+        from (
+            select * from work_request t where 1=1
+            <if test="workFilter.warrantyModes != null and workFilter.warrantyModes != ''">
+                and warranty_mode in
+                <foreach collection='workFilter.warrantyModes.split(",")' open="(" close=")" separator="," item="warrantyMode">
+                    #{warrantyMode}
+                </foreach>
+            </if>
+            <if test='workFilter.district != null and workFilter.district != ""'>
+                and (district like concat(#{workFilter.district}, '%')
+                or (district like '5002%' and #{workFilter.district}='5001'))
+            </if>
+        ) r join (
+            select * from work_deal t where 1=1
+            <if test="workFilter.startDate != null">
+                and Date(end_time) <![CDATA[ >= ]]> Date(#{workFilter.startDate})
+            </if>
+            <if test="workFilter.endDate != null">
+                and Date(end_time) <![CDATA[ <= ]]> Date(#{workFilter.endDate})
+            </if>
+            <if test="workFilter.demanderCorp != null and workFilter.demanderCorp > 0">
+                and demander_corp = #{workFilter.demanderCorp}
+            </if>
+            <if test="workFilter.serviceCorp != null and workFilter.serviceCorp > 0">
+                and service_corp = #{workFilter.serviceCorp}
+            </if>
+            <if test="workFilter.workStatus != null and workFilter.workStatus > 0">
+                and work_status = #{workFilter.workStatus}
+            </if>
+            <if test='workFilter.workStatuses != null and workFilter.workStatuses != ""'>
+                and work_status in
+                <foreach item="workStatus" collection="workFilter.workStatuses.split(',')" open="(" separator="," close=")">
+                    #{workStatus}
+                </foreach>
+            </if>
+            <if test="workFilter.feeCheckStatus != null and workFilter.feeCheckStatus > 0">
+                and fee_check_status = #{workFilter.feeCheckStatus}
+            </if>
+            <if test="workFilter.feeConfirmStatuses != null and workFilter.feeConfirmStatuses != ''">
+                and fee_confirm_status in
+                <foreach item="feeConfirmStatus" collection="workFilter.feeConfirmStatuses.split(',')" open="(" separator="," close=")">
+                    #{feeConfirmStatus}
+                </foreach>
+            </if>
+            <if test="workFilter.settleDemanderStatus != null and workFilter.settleDemanderStatus > 0">
+                and settle_demander_status = #{workFilter.settleDemanderStatus}
+            </if>
+            <if test="workFilter.settleDemanderStatuses != null and workFilter.settleDemanderStatuses != ''">
+                and settle_demander_status in
+                <foreach item="settleDemanderStatus" collection="workFilter.settleDemanderStatuses.split(',')" open="(" separator="," close=")">
+                    #{settleDemanderStatus}
+                </foreach>
+            </if>
+            <if test="workFilter.verifyId != null and workFilter.verifyId > 0">
+                and (settle_demander_status = 1 or
+                (settle_demander_status = 2 and
+                work_id in (select work_id from work_fee_verify_detail where verify_id = #{workFilter.verifyId})))
+            </if>
+            <if test="workFilter.settleId != null and workFilter.settleId > 0">
+                and and (settle_demander_status = 1 or settle_demander_status = 2 or
+                (settle_demander_status = 4 and
+                work_id in (select work_id from settle_demander_detail where settle_id = #{workFilter.settleId})))
+            </if>
+        ) d on r.work_id = d.work_id
+        left join work_fee f on d.work_id = f.work_id
+        order by r.create_time
+    </select>
+
+<!--    根据对账单号查询-->
+    <select id="listByVerifyIdList" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDto">
+        select f.*, vd.verify_id from work_fee f
+        left join work_fee_verify_detail vd on f.work_id=vd.work_id
+        where 1=1
+        <if test="verifyIdList != null and verifyIdList.size() > 0">
+            and vd.verify_id in
+            <foreach collection="verifyIdList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

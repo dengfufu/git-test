@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.flow.mapper.FlowInstanceNodeHandlerMapper">
+
+    <select id="listCurAssignedTo" resultType="com.zjft.usp.wms.flow.dto.FlowInstanceNodeHandlerDto">
+        select a.*, b.id as flow_instance_id from flow_instance_node_handler a
+        left join flow_instance b on a.instance_node_id = b.current_node_id
+        where 1 = 1
+        <if test="flowInstanceIdList != null and flowInstanceIdList.size > 0">
+            and b.id in
+            <foreach collection="flowInstanceIdList" item="instanceId" open="(" close=")" separator=",">
+                #{instanceId}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

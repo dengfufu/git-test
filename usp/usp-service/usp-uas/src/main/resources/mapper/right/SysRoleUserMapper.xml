@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.right.mapper.SysRoleUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="SysRoleUserDtoResultMap" type="com.zjft.usp.uas.right.dto.SysRoleUserDto">
+        <result column="corp_id" property="corpId"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+    </resultMap>
+
+    <!--  角色人员列表  -->
+    <select id="listRoleUser" resultMap="SysRoleUserDtoResultMap">
+        select a.role_id,a.user_id,b.role_name from sys_role_user a join sys_role b
+        on a.role_id=b.role_id where b.corp_id=#{corpId}
+    </select>
+
+    <!--  根据人员列表获得角色人员列表  -->
+    <select id="listRoleUserByUserIdList" resultMap="SysRoleUserDtoResultMap">
+        select a.role_id,a.user_id,b.role_name from sys_role_user a join sys_role b
+        on a.role_id=b.role_id where b.corp_id=#{corpId} and a.user_id in
+        <foreach item="userId" collection="userIdList" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <!--  获得企业系统管理员人员列表  -->
+    <select id="listCorpSysRoleUser" resultMap="SysRoleUserDtoResultMap">
+        select * from sys_role a join sys_role_user b on a.role_id =b.role_id
+        where a.sys_type =1 and a.enabled ='Y'
+        <if test='corpId != null and corpId > 0'>
+            and a.corp_id=#{corpId}
+        </if>
+    </select>
+</mapper>

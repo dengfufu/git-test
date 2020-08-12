@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.goods.mapper.GoodsPostMapper">
+
+    <!-- 分页查询寄送单 -->
+    <select id="queryGoodsPost" resultType="com.zjft.usp.anyfix.goods.dto.GoodsPostDto">
+        select * from goods_post_m where 1=1
+        <include refid="whereCondition"></include>
+        <include refid="rightCondition"></include>
+        order by sign_status asc,create_time desc
+    </select>
+
+
+    <!-- 查询条件 -->
+    <sql id="whereCondition">
+        <if test='goodsPostFilter.postNo != null and goodsPostFilter.postNo != ""'>
+            and post_no = #{goodsPostFilter.postNo}
+        </if>
+        <if test='goodsPostFilter.signStatusList != null and goodsPostFilter.signStatusList.size() >0'>
+            and sign_status in
+            <foreach item="signStatus" collection="goodsPostFilter.signStatusList" open="(" separator="," close=")">
+                #{signStatus}
+            </foreach>
+        </if>
+        <if test='goodsPostFilter.consignCorp != null and goodsPostFilter.consignCorp > 0'>
+            and consign_corp = #{goodsPostFilter.consignCorp}
+        </if>
+        <if test='goodsPostFilter.consignBranch != null and goodsPostFilter.consignBranch > 0'>
+            and consign_branch = #{goodsPostFilter.consignBranch}
+        </if>
+        <if test='goodsPostFilter.consignUserName != null and goodsPostFilter.consignUserName != ""'>
+            and consign_user_name = #{goodsPostFilter.consignUserName}
+        </if>
+        <if test='goodsPostFilter.consignArea != null and goodsPostFilter.consignArea != ""'>
+            and consign_area like concat(#{goodsPostFilter.consignArea},'%')
+        </if>
+        <if test='goodsPostFilter.transportTypeList != null and goodsPostFilter.transportTypeList.size() >0'>
+            and transport_type in
+            <foreach item="transportType" collection="goodsPostFilter.transportTypeList" open="(" separator=","
+                     close=")">
+                #{transportType}
+            </foreach>
+        </if>
+        <if test='goodsPostFilter.consignTypeList != null and goodsPostFilter.consignTypeList.size() >0'>
+            and consign_type in
+            <foreach item="consignType" collection="goodsPostFilter.consignTypeList" open="(" separator="," close=")">
+                #{consignType}
+            </foreach>
+        </if>
+        <if test='goodsPostFilter.expressTypeList != null and goodsPostFilter.expressTypeList.size() >0'>
+            and express_type in
+            <foreach item="expressType" collection="goodsPostFilter.expressTypeList" open="(" separator="," close=")">
+                #{expressType}
+            </foreach>
+        </if>
+        <if test='goodsPostFilter.payWayList != null and goodsPostFilter.payWayList.size() >0'>
+            and pay_way in
+            <foreach item="payWay" collection="goodsPostFilter.payWayList" open="(" separator="," close=")">
+                #{payWay}
+            </foreach>
+        </if>
+        <if test='goodsPostFilter.expressCorpName != null and goodsPostFilter.expressCorpName != ""'>
+            and express_corp_name = #{goodsPostFilter.expressCorpName}
+        </if>
+        <if test='goodsPostFilter.expressNo != null and goodsPostFilter.expressNo != ""'>
+            and express_no = #{goodsPostFilter.expressNo}
+        </if>
+        <if test='goodsPostFilter.consignStartDate != null'>
+            and Date(consign_time) <![CDATA[ >= ]]> Date(#{goodsPostFilter.consignStartDate})
+        </if>
+        <if test='goodsPostFilter.consignEndDate != null'>
+            and Date(consign_time) <![CDATA[ <= ]]> Date(#{goodsPostFilter.consignEndDate})
+        </if>
+        <if test='goodsPostFilter.receiveCorp != null and goodsPostFilter.receiveCorp > 0'>
+            and receive_corp = #{goodsPostFilter.receiveCorp}
+        </if>
+        <if test='goodsPostFilter.receiveBranch != null and goodsPostFilter.receiveBranch > 0'>
+            and receive_branch = #{goodsPostFilter.receiveBranch}
+        </if>
+        <if test='goodsPostFilter.receiverName != null and goodsPostFilter.receiverName != ""'>
+            and receiver_name = #{goodsPostFilter.receiverName}
+        </if>
+        <if test='goodsPostFilter.receiveArea != null and goodsPostFilter.receiveArea != ""'>
+            and receive_area like concat(#{goodsPostFilter.receiveArea},'%')
+        </if>
+        <if test='goodsPostFilter.createStartDate != null'>
+            and Date(create_time) <![CDATA[ >= ]]> Date(#{goodsPostFilter.createStartDate})
+        </if>
+        <if test='goodsPostFilter.createEndDate != null'>
+            and Date(create_time) <![CDATA[ <= ]]> Date(#{goodsPostFilter.createEndDate})
+        </if>
+    </sql>
+
+    <!-- 范围权限条件 -->
+    <sql id="rightCondition">
+        <!-- 是创建人 -->
+        and (
+        <!-- 是创建人、修改人、签收人、发货人、收货人 -->
+        ((creator=#{goodsPostFilter.userId} or editor=#{goodsPostFilter.userId}
+        or signer=#{goodsPostFilter.userId} or consign_user=#{goodsPostFilter.userId}
+        or receiver=#{goodsPostFilter.userId}) and (consign_corp=#{goodsPostFilter.corpId}
+        or receive_corp=#{goodsPostFilter.corpId}))
+        <if test="goodsPostFilter.rightScopeList != null and goodsPostFilter.rightScopeList.size() > 0">
+            <foreach item="rightScope" collection="goodsPostFilter.rightScopeList">
+                <choose>
+                    <!-- 服务网点范围 -->
+                    <when test='rightScope.scopeType == 10'>
+                        <choose>
+                            <!-- 所有权限 -->
+                            <when test='rightScope.hasAllScope == "Y"'>
+                                or (
+                                consign_corp=#{goodsPostFilter.corpId} or receive_corp=#{goodsPostFilter.corpId}
+                                )
+                            </when>
+                            <!-- 服务网点范围权限 -->
+                            <when test='rightScope.hasAllScope != "Y" and rightScope.orgIdList != null
+                                           and rightScope.orgIdList.size() > 0'>
+                                or (consign_branch in
+                                <foreach item="branchId" collection="rightScope.orgIdList" open="("
+                                         separator=","
+                                         close=")">
+                                    #{branchId}
+                                </foreach>
+                                )
+                                or (receive_branch in
+                                <foreach item="branchId" collection="rightScope.orgIdList" open="("
+                                         separator=","
+                                         close=")">
+                                    #{branchId}
+                                </foreach>
+                                )
+                            </when>
+                        </choose>
+                    </when>
+                    <!-- 省份范围 -->
+                    <when test='rightScope.scopeType == 20'>
+                        <choose>
+                            <!-- 所有权限 -->
+                            <when test='rightScope.hasAllScope == "Y"'>
+                                or (
+                                consign_corp=#{goodsPostFilter.corpId} or receive_corp=#{goodsPostFilter.corpId}
+                                )
+                            </when>
+                            <!-- 省份范围权限 -->
+                            <when test='rightScope.hasAllScope != "Y" and rightScope.orgIdList != null
+                                           and rightScope.orgIdList.size() > 0'>
+                                or (left(consign_area,2) in
+                                <foreach item="province" collection="rightScope.orgIdList" open="("
+                                         separator=","
+                                         close=")">
+                                    #{province}
+                                </foreach>
+                                and (
+                                consign_corp=#{goodsPostFilter.corpId} or receive_corp=#{goodsPostFilter.corpId}
+                                ))
+                                or (left(receive_area,2) in
+                                <foreach item="province" collection="rightScope.orgIdList" open="("
+                                         separator=","
+                                         close=")">
+                                    #{province}
+                                </foreach>
+                                and (
+                                    consign_corp=#{goodsPostFilter.corpId} or receive_corp=#{goodsPostFilter.corpId}
+                                ))
+                            </when>
+                        </choose>
+                    </when>
+                    <!-- 委托商范围 -->
+                    <when test='rightScope.scopeType == 30'>
+                        <choose>
+                            <!-- 所有权限 -->
+                            <when test='rightScope.hasAllScope == "Y"'>
+                                or (
+                                consign_corp=#{goodsPostFilter.corpId} or receive_corp=#{goodsPostFilter.corpId}
+                                )
+                            </when>
+                            <!-- 委托商范围权限 -->
+                            <when test='rightScope.hasAllScope != "Y" and rightScope.orgIdList != null
+                                           and rightScope.orgIdList.size() > 0'>
+                                or (consign_corp in
+                                <foreach item="corpId" collection="rightScope.orgIdList" open="(" separator=","
+                                         close=")">
+                                    #{corpId}
+                                </foreach>
+                                and (
+                                    consign_corp=#{goodsPostFilter.corpId} or receive_corp=#{goodsPostFilter.corpId}
+                                ))
+                                or (receive_corp in
+                                <foreach item="corpId" collection="rightScope.orgIdList" open="(" separator=","
+                                         close=")">
+                                    #{corpId}
+                                </foreach>
+                                and (
+                                    consign_corp=#{goodsPostFilter.corpId} or receive_corp=#{goodsPostFilter.corpId}
+                                ))
+                            </when>
+                        </choose>
+                    </when>
+                </choose>
+            </foreach>
+        </if>
+        )
+    </sql>
+</mapper>

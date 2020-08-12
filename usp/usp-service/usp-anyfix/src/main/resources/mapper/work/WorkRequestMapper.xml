@@ -1,0 +1,1239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.request.mapper.WorkRequestMapper">
+
+    <!-- 查询条件 -->
+    <sql id="workCondition">
+        select a.*,b.work_status,b.service_corp,b.service_branch,
+        b.device_id,b.dispatch_staff,b.dispatch_time,b.handle_staff,b.assign_staff,b.together_engineers,
+        b.engineer,b.review_staff,b.finish_check_status,b.finish_check_time,b.fee_check_status,b.fee_check_time,
+        b.finish_confirm_status,b.finish_confirm_time,b.fee_confirm_status,b.fee_confirm_time,b.work_fee_status,
+        b.sign_time,b.finish_time,b.service_mode,b.go_time,b.start_time,b.end_time,b.accept_time,b.man_day
+        from (
+        select request.*, fault.name as fault_type_name from work_request request
+        left join fault_type fault
+        on request.fault_type = fault.id where 1=1
+        <if test='workFilter.workId != null and workFilter.workId > 0'>
+            and request.work_id=#{workFilter.workId}
+        </if>
+        <if test='workFilter.checkWorkCode != null and workFilter.checkWorkCode != ""'>
+            and request.check_work_code=#{workFilter.checkWorkCode}
+        </if>
+        <if test='workFilter.deviceBranch != null and workFilter.deviceBranch > 0 '>
+            and request.device_branch=#{workFilter.deviceBranch}
+        </if>
+        <if test='workFilter.smallClassId != null and workFilter.smallClassId > 0'>
+            and request.small_class=#{workFilter.smallClassId}
+        </if>
+        <if test='workFilter.district != null and workFilter.district != ""'>
+            and request.district like concat(#{workFilter.district}, '%')
+        </if>
+        <if test='workFilter.provinceCode != null and workFilter.provinceCode != ""'>
+            and left(request.district,2) = #{workFilter.provinceCode}
+        </if>
+        <if test='workFilter.demanderCorp != null and workFilter.demanderCorp > 0 '>
+            and request.demander_corp=#{workFilter.demanderCorp}
+        </if>
+        <if test='workFilter.customCorp != null and workFilter.customCorp > 0 '>
+            and request.custom_corp=#{workFilter.customCorp}
+        </if>
+        <if test='workFilter.customId != null and workFilter.customId > 0 '>
+            and request.custom_id=#{workFilter.customId}
+        </if>
+        <if test='workFilter.serial != null and workFilter.serial != ""'>
+            and request.serial=#{workFilter.serial}
+        </if>
+        <if test='workFilter.deviceBrand != null and workFilter.deviceBrand > 0'>
+            and request.brand=#{workFilter.deviceBrand}
+        </if>
+        <if test='workFilter.deviceModel != null and workFilter.deviceModel > 0'>
+            and request.model=#{workFilter.deviceModel}
+        </if>
+        <if test='workFilter.workTypes != null and workFilter.workTypes != ""'>
+            and request.work_type in
+            <foreach item="workType" collection="workFilter.workTypes.split(',')" open="(" separator="," close=")">
+                #{workType}
+            </foreach>
+        </if>
+        <if test='workFilter.serviceMode != null and workFilter.serviceMode > 0'>
+            and request.work_id in (select work_id from work_deal where service_mode = #{workFilter.serviceMode})
+        </if>
+        <if test='workFilter.serviceModes != null and workFilter.serviceModes != ""'>
+            and request.work_id in (select work_id from work_deal where service_mode in (#{workFilter.serviceModes}))
+        </if>
+        <if test='workFilter.hasWorkChat != null and workFilter.hasWorkChat == "2"'>
+            and EXISTS (
+            select work_id from work_chat chat WHERE request.work_id = chat.work_id
+            )
+        </if>
+        <if test='workFilter.hasWorkChat != null and workFilter.hasWorkChat == "1"'>
+            and NOT EXISTS (
+            select work_id from work_chat chat WHERE request.work_id = chat.work_id
+            )
+        </if>
+        <if test='workFilter.serviceBranches != null and workFilter.serviceBranches != ""'>
+            and request.work_id in (select work_id from work_deal where service_branch in
+            (#{workFilter.serviceBranches}))
+        </if>
+        <if test='workFilter.sources != null and workFilter.sources != ""'>
+            and request.source in
+            <foreach item="source" collection="workFilter.sources.split(',')" open="(" separator="," close=")">
+                #{source}
+            </foreach>
+        </if>
+        <if test='workFilter.startDate != null'>
+            and Date(request.create_time) <![CDATA[ >= ]]> Date(#{workFilter.startDate})
+        </if>
+        <if test='workFilter.endDate != null'>
+            and Date(request.create_time) <![CDATA[ <= ]]> Date(#{workFilter.endDate})
+        </if>
+        <if test="workFilter.warrantyMode != null and workFilter.warrantyMode > 0">
+            and request.warranty_mode = #{workFilter.warrantyMode}
+        </if>
+        <if test="workFilter.contactName != null and workFilter.contactName != ''">
+            and request.contact_name like concat('%',#{workFilter.contactName},'%')
+        </if>
+        <if test="workFilter.contactPhone != null and workFilter.contactPhone != ''">
+            and request.contact_phone like concat('%',#{workFilter.contactPhone},'%')
+        </if>
+        <if test="workFilter.mobileFilter != null and workFilter.mobileFilter != ''">
+            and (request.work_code like concat('%',#{workFilter.mobileFilter},'%')
+            or request.check_work_code like concat('%',#{workFilter.mobileFilter},'%')
+            or request.contact_name like concat('%',#{workFilter.mobileFilter},'%')
+            or request.contact_phone like concat('%',#{workFilter.mobileFilter},'%'))
+        </if>
+        <if test='workFilter.isAttention != null and workFilter.isAttention == "Y"'>
+            and request.work_id in (select work_id from work_attention where corp_id = #{workFilter.corpId})
+        </if>
+        <if test='workFilter.isSupport != null and workFilter.isSupport == "Y"'>
+            and request.work_id in (select work_id from work_support where corp_id = #{workFilter.corpId})
+        </if>
+        ) a join (
+        select * from work_deal where 1=1
+        <if test='workFilter.dispatchTimeStart != null'>
+            and Date(dispatch_time) <![CDATA[ >= ]]> DATE(#{workFilter.dispatchTimeStart})
+        </if>
+        <if test='workFilter.dispatchTimeEnd != null'>
+            and Date(dispatch_time) <![CDATA[ <= ]]> Date(#{workFilter.dispatchTimeEnd})
+        </if>
+        <if test='workFilter.finishTimeDay != null'>
+            and Date(finish_time) = Date(#{workFilter.finishTimeDay})
+        </if>
+        <if test="workFilter.finishTimeMonth != null">
+            and DATE_FORMAT(finish_time, '%Y%m') =DATE_FORMAT(#{workFilter.finishTimeMonth},'%Y%m')
+        </if>
+        <if test='workFilter.finishStartDate != null'>
+            and Date(finish_time) <![CDATA[ >= ]]> DATE(#{workFilter.finishStartDate})
+        </if>
+        <if test='workFilter.finishEndDate != null'>
+            and Date(finish_time) <![CDATA[ <= ]]> Date(#{workFilter.finishEndDate})
+        </if>
+        <if test='workFilter.workCode != null and workFilter.workCode != ""'>
+            and work_code = #{workFilter.workCode}
+        </if>
+        <if test='workFilter.engineer != null and workFilter.engineer > 0'>
+            and engineer = #{workFilter.engineer}
+        </if>
+        <if test='workFilter.workStatus != null and workFilter.workStatus != ""'>
+            and work_status = #{workFilter.workStatus}
+        </if>
+        <if test='workFilter.workStatuses != null and workFilter.workStatuses != ""'>
+            and work_status in
+            <foreach item="workStatus" collection="workFilter.workStatuses.split(',')" open="(" separator="," close=")">
+                #{workStatus}
+            </foreach>
+        </if>
+        <if test='workFilter.staffs != null and workFilter.staffs != ""'>
+            and engineer in
+            <foreach item="staff" collection="workFilter.staffs.split(',')" open="(" separator="," close=")">
+                #{staff}
+            </foreach>
+        </if>
+        <if test="workFilter.deviceId != null and workFilter.deviceId > 0">
+            and device_id = #{workFilter.deviceId}
+        </if>
+        <if test="workFilter.isReview != null and workFilter.isReview == 1">
+            and is_review = #{workFilter.isReview}
+        </if>
+        <if test="workFilter.isReview != null and workFilter.isReview == 2">
+            and is_review != 1
+        </if>
+
+        <if test='workFilter.isCheckPass != null and workFilter.isCheckPass == "Y"'>
+            and (finish_check_status = 2 and fee_check_status = 2)
+        </if>
+        <if test='workFilter.isCheckPass != null and workFilter.isCheckPass == "N"'>
+            and (finish_check_status = 3 or fee_check_status = 3) and engineer=#{workFilter.userId}
+        </if>
+        <if test="workFilter.workFeeStatus != null and workFilter.workFeeStatus > 0">
+            and work_fee_status = #{workFilter.workFeeStatus}
+        </if>
+        <if test='workFilter.isWorkFee != null and workFilter.isWorkFee == "Y"'>
+            and (work_fee_status = 1 or fee_check_status = 3) and engineer=#{workFilter.userId}
+        </if>
+        ) b on a.work_id=b.work_id
+        <if test='workFilter.filesStatus != null and workFilter.filesStatus != ""'>
+            join work_finish d
+            on d.work_id = b.work_id
+            and ( d.files_status =#{workFilter.filesStatus} or d.signature_status =#{workFilter.signatureStatus} )
+            and d.operator = #{workFilter.userId} and b.service_corp = #{workFilter.corpId}
+        </if>
+    </sql>
+
+    <!-- 工单审核、确认查询条件 -->
+    <sql id="workCheckStatusSql">
+        <trim prefix="and (" suffix=")" prefixOverrides="AND |OR">
+            <if test='workFilter.finishCheckStatuses != null and workFilter.finishCheckStatuses != ""'>
+                or (finish_check_status in
+                <foreach item="checkStatus" collection="workFilter.finishCheckStatuses.split(',')" open="("
+                         separator="," close=")">
+                    #{checkStatus}
+                </foreach>
+                <if test='workFilter.notInFinishConfirmStatusList != null and workFilter.notInFinishConfirmStatusList.size() > 0'>
+                    and finish_confirm_status not in
+                    <foreach item="confirmStatus" collection="workFilter.notInFinishConfirmStatusList" open="("
+                             separator="," close=")">
+                        #{confirmStatus}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test='workFilter.feeCheckStatuses != null and workFilter.feeCheckStatuses != ""'>
+                or (fee_check_status in
+                <foreach item="checkStatus" collection="workFilter.feeCheckStatuses.split(',')" open="(" separator=","
+                         close=")">
+                    #{checkStatus}
+                </foreach>
+                <if test='workFilter.notInFeeConfirmStatusList != null and workFilter.notInFeeConfirmStatusList.size() > 0'>
+                    and fee_confirm_status not in
+                    <foreach item="confirmStatus" collection="workFilter.notInFeeConfirmStatusList" open="("
+                             separator="," close=")">
+                        #{confirmStatus}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test='workFilter.finishConfirmStatuses != null and workFilter.finishConfirmStatuses != ""'>
+                or finish_confirm_status in
+                <foreach item="confirmStatus" collection="workFilter.finishConfirmStatuses.split(',')" open="("
+                         separator="," close=")">
+                    #{confirmStatus}
+                </foreach>
+            </if>
+            <if test='workFilter.feeConfirmStatuses != null and workFilter.feeConfirmStatuses != ""'>
+                or fee_confirm_status in
+                <foreach item="confirmStatus" collection="workFilter.feeConfirmStatuses.split(',')" open="("
+                         separator="," close=")">
+                    #{confirmStatus}
+                </foreach>
+            </if>
+        </trim>
+    </sql>
+
+    <!-- 工单查询里 审核确认状态查询条件 -->
+    <sql id="checkConfirmStatusSql">
+        <if test='workFilter.finishCheckStatuses != null and workFilter.finishCheckStatuses != ""'>
+            and finish_check_status in
+            <foreach item="checkStatus" collection="workFilter.finishCheckStatuses.split(',')" open="("
+                     separator="," close=")">
+                <!-- 未审核时也查出未提交的内容 -->
+                <if test="checkStatus == 1">
+                    0,
+                </if>
+                #{checkStatus}
+            </foreach>
+        </if>
+        <if test='workFilter.feeCheckStatuses != null and workFilter.feeCheckStatuses != ""'>
+            and fee_check_status in
+            <foreach item="checkStatus" collection="workFilter.feeCheckStatuses.split(',')" open="(" separator=","
+                     close=")">
+                <!-- 未审核时也查出未提交的内容 -->
+                <if test="checkStatus == 1">
+                    0,
+                </if>
+                #{checkStatus}
+            </foreach>
+        </if>
+        <if test='workFilter.finishConfirmStatuses != null and workFilter.finishConfirmStatuses != ""'>
+            and finish_confirm_status in
+            <foreach item="confirmStatus" collection="workFilter.finishConfirmStatuses.split(',')" open="("
+                     separator="," close=")">
+                <!-- 未确认时也查出未提交的内容 -->
+                <if test="confirmStatus == 1">
+                    0,
+                </if>
+                #{confirmStatus}
+            </foreach>
+        </if>
+        <if test='workFilter.feeConfirmStatuses != null and workFilter.feeConfirmStatuses != ""'>
+            and fee_confirm_status in
+            <foreach item="confirmStatus" collection="workFilter.feeConfirmStatuses.split(',')" open="("
+                     separator="," close=")">
+                <!-- 未确认时也查出未提交的内容 -->
+                <if test="confirmStatus == 1">
+                    0,
+                </if>
+                #{confirmStatus}
+            </foreach>
+        </if>
+    </sql>
+
+    <!-- 范围权限条件 -->
+    <sql id="rightCondition">
+        <!-- 是创建人 -->
+        and ((creator=#{workFilter.userId} and (
+        service_corp=#{workFilter.corpId} or demander_corp=#{workFilter.corpId})
+        )
+        <!-- 是分配工单人员+当前企业是委托商 -->
+        or ((dispatch_staff=#{workFilter.userId} and demander_corp=#{workFilter.corpId})
+        <!-- 是受理工单人员+分派工单人员+回访人员+服务工程师+协同工程师+当前企业是服务商 -->
+        or ((handle_staff=#{workFilter.userId} or assign_staff=#{workFilter.userId} or
+        review_staff=#{workFilter.userId} or engineer=#{workFilter.userId} or
+        (FIND_IN_SET(#{workFilter.userId}, together_engineers) > 0) or
+        work_id in (select work_id from work_assign where enabled='Y' and assign_id in
+        (select assign_id from work_assign_engineer where
+        engineer_id=#{workFilter.userId}))
+        ) and service_corp=#{workFilter.corpId})
+        )
+        <if test="workFilter.rightScopeList != null and workFilter.rightScopeList.size() > 0">
+            <foreach item="rightScope" collection="workFilter.rightScopeList">
+                <choose>
+                    <!-- 服务网点范围 -->
+                    <when test='rightScope.scopeType == 10'>
+                        <choose>
+                            <!-- 所有权限 -->
+                            <when test='rightScope.hasAllScope == "Y"'>
+                                or (
+                                service_corp=#{workFilter.corpId} or demander_corp=#{workFilter.corpId}
+                                )
+                            </when>
+                            <!-- 服务网点范围权限 -->
+                            <when test='rightScope.hasAllScope != "Y" and rightScope.orgIdList != null
+                                           and rightScope.orgIdList.size() > 0'>
+                                or (service_branch in
+                                <foreach item="branchId" collection="rightScope.orgIdList" open="("
+                                         separator=","
+                                         close=")">
+                                    #{branchId}
+                                </foreach>
+                                )
+                            </when>
+                        </choose>
+                    </when>
+                    <!-- 省份范围 -->
+                    <when test='rightScope.scopeType == 20'>
+                        <choose>
+                            <!-- 所有权限 -->
+                            <when test='rightScope.hasAllScope == "Y"'>
+                                or (
+                                service_corp=#{workFilter.corpId} or demander_corp=#{workFilter.corpId}
+                                )
+                            </when>
+                            <!-- 省份范围权限 -->
+                            <when test='rightScope.hasAllScope != "Y" and rightScope.orgIdList != null
+                                           and rightScope.orgIdList.size() > 0'>
+                                or (left(district,2) in
+                                <foreach item="province" collection="rightScope.orgIdList" open="("
+                                         separator=","
+                                         close=")">
+                                    #{province}
+                                </foreach>
+                                 and (
+                                    service_corp=#{workFilter.corpId} or demander_corp=#{workFilter.corpId}
+                                ))
+                            </when>
+                        </choose>
+                    </when>
+                    <!-- 委托商范围 -->
+                    <when test='rightScope.scopeType == 30'>
+                        <choose>
+                            <!-- 所有权限 -->
+                            <when test='rightScope.hasAllScope == "Y"'>
+                                or (
+                                service_corp=#{workFilter.corpId} or demander_corp=#{workFilter.corpId}
+                                )
+                            </when>
+                            <!-- 委托商范围权限 -->
+                            <when test='rightScope.hasAllScope != "Y" and rightScope.orgIdList != null
+                                           and rightScope.orgIdList.size() > 0'>
+                                or (demander_corp in
+                                <foreach item="corpId" collection="rightScope.orgIdList" open="(" separator=","
+                                         close=")">
+                                    #{corpId}
+                                </foreach>
+                                and (
+                                    service_corp=#{workFilter.corpId} or demander_corp=#{workFilter.corpId}
+                                ))
+                            </when>
+                        </choose>
+                    </when>
+                </choose>
+            </foreach>
+        </if>
+        )
+    </sql>
+
+    <!-- 查询工单 -->
+    <select id="queryWork" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select * from (
+        <include refid="workCondition"></include>
+        ) t1 where 1=1
+        <include refid="rightCondition"></include>
+        <include refid="checkConfirmStatusSql"></include>
+        <if test='workFilter.corpIdList != null and workFilter.corpIdList.size() > 0'>
+            and ((
+            demander_corp in
+            <foreach item="corpId" collection="workFilter.corpIdList" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>
+            and service_corp in
+            <foreach item="corpId" collection="workFilter.corpIdList" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>) or (
+            demander_corp in
+            <foreach item="corpId" collection="workFilter.corpIdList" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>
+            and custom_corp in
+            <foreach item="corpId" collection="workFilter.corpIdList" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>) or (
+            service_corp in
+            <foreach item="corpId" collection="workFilter.corpIdList" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>
+            and custom_corp in
+            <foreach item="corpId" collection="workFilter.corpIdList" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>)
+            )
+        </if>
+        <if test='workFilter.serviceBranchIdList != null and workFilter.serviceBranchIdList.size() > 0'>
+            and service_branch in
+            <foreach item="branchId" collection="workFilter.serviceBranchIdList" open="(" separator="," close=")">
+                #{branchId}
+            </foreach>
+        </if>
+        <if test='workFilter.queryScope != null'>
+            <!-- 今日工单(今日建单+今日提单) -->
+            <if test='workFilter.queryScope == 1'>
+                and (left(create_time, 10)=current_date()
+                or left (dispatch_time, 10)=current_date()
+                )
+            </if>
+            <!-- 今日完工工单 -->
+            <if test='workFilter.queryScope == 2'>
+                and left(finish_time, 10)=current_date()
+            </if>
+            <!-- 本月完工工单 -->
+            <if test='workFilter.queryScope == 3'>
+                and left(finish_time, 7)=left(current_date(), 7)
+            </if>
+        </if>
+        order by work_id desc
+    </select>
+
+    <!-- 委托商分页查询服务确认工单 -->
+    <select id="queryServiceConfirm" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select tt1.* from (
+        select t1.*,t2.finish_check_user,t2.finish_check_note,t2.finish_confirm_user,t2.finish_confirm_note from (
+        <include refid="workCondition"></include>
+        ) t1 left join work_check t2 on t1.work_id=t2.work_id) tt1
+        where 1=1
+        <if test='workFilter.finishConfirmUser != null and workFilter.finishConfirmUser > 0'>
+            and finish_confirm_user=#{workFilter.finishConfirmUser}
+        </if>
+        <if test='workFilter.finishConfirmStartDate != null'>
+            and Date(finish_confirm_time) <![CDATA[ >= ]]> Date(#{workFilter.finishConfirmStartDate})
+        </if>
+        <if test='workFilter.finishConfirmEndDate != null'>
+            and Date(finish_confirm_time) <![CDATA[ <= ]]> Date(#{workFilter.finishConfirmEndDate})
+        </if>
+        <!-- 限制（工单状态为已完成且服务商已审核通过）或者（工单状态为已退单） -->
+        and ((work_status in (80, 90) and finish_check_status = 2) or work_status = 100)
+        <include refid="workCheckStatusSql"></include>
+        order by finish_time asc, work_id asc
+    </select>
+
+    <!-- 查询服务自动确认工单 -->
+    <select id="listAutoServiceConfirm" resultType="com.zjft.usp.anyfix.work.deal.model.WorkDeal">
+        select d.*
+        from work_deal d
+        left join demander_service ds on d.service_corp = ds.service_corp and d.demander_corp = ds.demander_corp
+        left join demander_auto_config ac on ds.id = ac.id
+        where ac.auto_confirm_service = 'Y'
+        and TIMESTAMPDIFF(MINUTE, finish_check_time, current_timestamp()) >= ac.auto_confirm_service_hours * 60
+        <if test="serviceCorp != null and serviceCorp > 0">
+            and d.service_corp = #{serviceCorp}
+        </if>
+        <!-- 限制（工单状态为已完成且服务商已审核通过）或者（工单状态为已退单） -->
+        and ((work_status in (80, 90) and finish_check_status = 2) or work_status = 100) and finish_confirm_status = 1
+    </select>
+
+    <!-- 委托商分页查询费用确认工单 -->
+    <select id="queryFeeConfirm" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select tt1.* from (
+        select t1.*,t2.total_fee,t3.fee_check_user,t3.fee_check_note,
+        t3.fee_confirm_user,t3.fee_confirm_note from (
+        <include refid="workCondition"></include>
+        ) t1 left join (
+        select work_id,total_fee from work_fee
+        ) t2 on t1.work_id = t2.work_id
+        left join work_check t3 on t1.work_id=t3.work_id) tt1
+        where 1=1
+        <if test='workFilter.feeConfirmUser != null and workFilter.feeConfirmUser > 0'>
+            and fee_confirm_user=#{workFilter.feeConfirmUser}
+        </if>
+        <if test='workFilter.feeConfirmStartDate != null'>
+            and Date(fee_confirm_time) <![CDATA[ >= ]]> Date(#{workFilter.feeConfirmStartDate})
+        </if>
+        <if test='workFilter.feeConfirmEndDate != null'>
+            and Date(fee_confirm_time) <![CDATA[ <= ]]> Date(#{workFilter.feeConfirmEndDate})
+        </if>
+        <!-- 限制（工单状态为已完成且服务商已审核通过）或者（工单状态为已退单） -->
+        and ((work_status in (80, 90) and fee_check_status = 2) or work_status = 100)
+        <include refid="workCheckStatusSql"></include>
+        order by finish_time asc, work_id asc
+    </select>
+
+    <!-- 查询费用自动确认工单 -->
+    <select id="listAutoFeeConfirm" resultType="com.zjft.usp.anyfix.work.deal.model.WorkDeal">
+        select d.*
+        from work_deal d
+        left join demander_service ds on d.service_corp = ds.service_corp and d.demander_corp = ds.demander_corp
+        left join demander_auto_config ac on ds.id = ac.id
+        where ac.auto_confirm_fee = 'Y'
+        and TIMESTAMPDIFF(MINUTE, fee_check_time, current_timestamp()) >= ac.auto_confirm_fee_hours * 60
+        <if test="serviceCorp != null and serviceCorp > 0">
+            and d.service_corp = #{serviceCorp}
+        </if>
+        <!-- 限制（工单状态为已完成且服务商已审核通过） -->
+        and (work_status in (80, 90) and fee_check_status = 2) and fee_confirm_status = 1
+    </select>
+
+    <!-- 统计工单数量 -->
+    <select id="countWorkStatus" resultType="java.util.HashMap">
+        select work_status as work_status, count(work_id) as work_number from (
+        <include refid="workCondition"></include>
+        ) t1 where 1=1
+        <if test='workFilter.mobileFilter != null and workFilter.mobileFilter != ""'>
+            and (service_branch like concat('%',#{workFilter.mobileFilter},'%')
+            or work_code like concat('%',#{workFilter.mobileFilter},'%')
+            or contact_name like concat('%',#{workFilter.mobileFilter},'%')
+            or contact_phone like concat('%',#{workFilter.mobileFilter},'%'))
+        </if>
+        <include refid="rightCondition"></include>
+        group by work_status
+    </select>
+
+    <!-- 统计区域工单数 -->
+    <select id="countWorkArea" resultType="com.zjft.usp.anyfix.work.request.dto.WorkStatAreaDto">
+        select t1.provinceCode as provinceCode, t1.count as totalCount,
+        case when (t1.count - t2.count) is NULL then t1.count else (t1.count - t2.count) end as changeCount
+        from
+        (
+        SELECT left(district, 2) as provinceCode, count(work_id) as count
+        FROM
+        (
+        <include refid="workCondition"></include>
+        ) a
+        where 1=1
+        <if test="workFilter.countTime != null and workFilter.countTime == 10">
+            and YEARWEEK(date_format(create_time,'%Y-%m-%d')) = YEARWEEK(now())
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "20"'>
+            and date_format(create_time, '%Y-%m' ) = date_format( now( ), '%Y-%m' )
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "30"'>
+            and period_diff(date_format(now() , '%Y%m') , date_format(create_time, '%Y%m')) =1
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "40"'>
+            and QUARTER(create_time)=QUARTER(now())
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "50"'>
+            and create_time>=DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "60"'>
+            and YEAR(create_time)=YEAR(NOW())
+        </if>
+        <include refid="rightCondition"></include>
+        group by left(district,2)
+        order by count(work_id) desc
+        ) as t1
+        left join
+        (
+        SELECT left(district, 2) as provinceCode, count(work_id) as count
+        FROM
+        (
+        <include refid="workCondition"></include>
+        ) b
+        where 1=1
+        <if test="workFilter.countTime != null and workFilter.countTime == 10">
+            and YEARWEEK(date_format(create_time,'%Y-%m-%d')) = YEARWEEK(now())-1
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "20"'>
+            and period_diff(date_format(now() , '%Y%m') , date_format(create_time, '%Y%m')) =1
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "30"'>
+            and period_diff(date_format(now() , '%Y%m') , date_format(create_time, '%Y%m')) =2
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "40"'>
+            and QUARTER(create_time)=QUARTER(DATE_SUB(now(),interval 1 QUARTER))
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "50"'>
+            and create_time  <![CDATA[ >= ]]>  DATE_SUB(CURDATE(), INTERVAL 6 MONTH) and create_time
+            <![CDATA[ < ]]>
+            DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "60"'>
+            and year(create_time)=year(date_sub(now(),interval 1 year))
+        </if>
+        <include refid="rightCondition"></include>
+        group by left(district,2)
+        order by count(work_id) desc
+        ) as t2
+        on t1.provinceCode = t2.provinceCode
+        limit 0,4
+    </select>
+
+    <!-- 统计待处理工单数 -->
+    <select id="countWorkDeal" resultType="com.zjft.usp.anyfix.work.request.dto.WorkStatusCountDto">
+        select work_status as status, count(work_id) as count
+        from
+        (
+        <include refid="workCondition"></include>
+        ) t1
+        where 1=1
+        <if test="workFilter.countTime != null and workFilter.countTime == 10">
+            and YEARWEEK(date_format(create_time,'%Y-%m-%d')) = YEARWEEK(now())
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "20"'>
+            and date_format(create_time, '%Y-%m' ) = date_format( now( ), '%Y-%m' )
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "30"'>
+            and period_diff(date_format(now() , '%Y%m') , date_format(create_time, '%Y%m')) =1
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "40"'>
+            and QUARTER(create_time)=QUARTER(now())
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "50"'>
+            and create_time>=DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+        </if>
+        <if test='workFilter.countTime != null and workFilter.countTime == "60"'>
+            and YEAR(create_time)=YEAR(NOW())
+        </if>
+        <include refid="rightCondition"></include>
+        group by work_status
+    </select>
+
+    <select id="querySettleCustomDetailDto" resultType="com.zjft.usp.anyfix.settle.dto.SettleCustomDetailDto">
+        select * from (
+        select a.*,b.work_code,b.work_status from (
+        select work_id,work_type,custom_corp,warranty,create_time from work_request where 1=1
+        <if test="settleCustomDetailFilter.settleId != null and settleCustomDetailFilter.settleId > 0">
+            and work_id in (select work_id from settle_custom_detail where
+            settle_id=#{settleCustomDetailFilter.settleId})
+        </if>
+        ) a left join work_deal b on a.work_id=b.work_id) t order by work_id desc
+    </select>
+    <select id="querySettleBranchDetailDto" resultType="com.zjft.usp.anyfix.settle.dto.SettleBranchDetailDto">
+        select * from (
+        select a.*,b.work_code,b.work_status from (
+        select work_id,work_type,custom_corp,warranty,create_time from work_request where 1=1
+        <if test="settleBranchDetailFilter.settleId != null and settleBranchDetailFilter.settleId > 0">
+            and work_id in (select work_id from settle_branch_detail where
+            settle_id=#{settleBranchDetailFilter.settleId})
+        </if>
+        ) a left join work_deal b on a.work_id=b.work_id) t order by work_id desc
+    </select>
+    <select id="querySettleStaffDetailDto" resultType="com.zjft.usp.anyfix.settle.dto.SettleStaffDetailDto">
+        select * from (
+        select a.*,b.work_code,b.work_status from (
+        select work_id,work_type,custom_corp,warranty,create_time from work_request where 1=1
+        <if test="settleStaffDetailFilter.settleId != null and settleStaffDetailFilter.settleId > 0">
+            and work_id in (select work_id from settle_staff_detail where settle_id=#{settleStaffDetailFilter.settleId})
+        </if>
+        ) a left join work_deal b on a.work_id=b.work_id) t order by work_id desc
+    </select>
+
+    <!--  分页查询当前用户的工单列表 -->
+    <select id="queryUserWork" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select * from (
+        <include refid="workCondition"></include>
+        ) t1 where 1=1
+        <include refid="userWorkSql"></include>
+        order by create_time desc
+    </select>
+
+    <!--  分页查询当前用户待办工单列表 -->
+    <select id="queryUserTodoWork" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select * from (
+        <include refid="workCondition"></include>
+        ) t1 where 1=1
+        <include refid="todoWorkSql"></include>
+        order by create_time desc
+    </select>
+
+    <!--  按状态统计当前用户的工单数 -->
+    <select id="countUserWorkStatus" resultType="java.util.HashMap">
+        select work_status as work_status, count(work_id) as work_number from (
+        select t1.* from (
+        select request.*,deal.work_status,
+        deal.service_corp,deal.service_branch,deal.service_mode,
+        deal.device_id,deal.dispatch_staff,deal.handle_staff,deal.assign_staff,deal.together_engineers,
+        deal.engineer,deal.review_staff,deal.finish_time,
+        deal.work_fee_status,deal.finish_check_status,deal.fee_check_status
+        from work_deal deal join work_request request on deal.work_id=request.work_id
+        where (deal.service_corp=#{workFilter.corpId} or request.demander_corp=#{workFilter.corpId}
+        or request.custom_corp=#{workFilter.corpId})
+        and work_status in
+        <foreach item="workStatus" collection="workFilter.workStatuses.split(',')" open="(" separator="," close=")">
+            #{workStatus}
+        </foreach>
+        ) t1 where 1=1
+        <include refid="userWorkSql"></include>
+        ) tt group by work_status
+    </select>
+
+    <sql id="userWorkSql">
+        <trim prefix="and (" suffix=")" prefixOverrides="AND |OR">
+            <!-- 有提单权限 -->
+            <if test='workFilter.rightTypeList.contains(1)'>
+                or (work_status=10 and demander_corp=#{workFilter.corpId}
+                <include refid="rightCondition"></include>)
+            </if>
+            <!-- 有分配权限 -->
+            <if test='workFilter.rightTypeList.contains(2)'>
+                or (work_status=20 and service_corp=#{workFilter.corpId}
+                <include refid="rightCondition"></include>)
+            </if>
+            <!-- 有派单权限 -->
+            <if test='workFilter.rightTypeList.contains(3)'>
+                or (work_status=30 and service_corp=#{workFilter.corpId}
+                <include refid="rightCondition"></include>)
+            </if>
+            <!-- 有接单权限 -->
+            <if test='workFilter.rightTypeList.contains(4)'>
+                or (work_status=40 and service_corp=#{workFilter.corpId}
+                and work_id in (
+                select work_id from work_assign where enabled='Y' and assign_id in (
+                select assign_id from work_assign_engineer where engineer_id=#{workFilter.userId})
+                ))
+            </if>
+            <!-- 有签到权限且是工程师或协同工程师 -->
+            <if test='workFilter.rightTypeList.contains(5)'>
+                or (work_status=50 and service_corp=#{workFilter.corpId}
+                and engineer=#{workFilter.userId})
+                or (work_status in (50, 70) and service_corp=#{workFilter.corpId}
+                and (FIND_IN_SET(#{workFilter.userId}, together_engineers) > 0))
+            </if>
+            <!-- 有服务权限 -->
+            <if test='workFilter.rightTypeList.contains(6) || workFilter.rightTypeList.contains(7)'>
+                or ((work_status=60 or work_status=70) and service_corp=#{workFilter.corpId}
+                and engineer=#{workFilter.userId})
+            </if>
+            or (work_status=80 and creator=#{workFilter.userId})
+            or ((work_status=90 or work_status=100 or work_status=110)
+            <include refid="rightCondition"></include>
+            )
+        </trim>
+    </sql>
+
+    <sql id="todoWorkSql">
+        <trim prefix="and (" suffix=")" prefixOverrides="AND |OR">
+            <!-- 有提单权限 -->
+            <if test='workFilter.rightTypeList.contains(1)'>
+                or (work_status=10 and demander_corp=#{workFilter.corpId}
+                <include refid="rightCondition"></include>)
+            </if>
+            <!-- 有分配权限 -->
+            <if test='workFilter.rightTypeList.contains(2)'>
+                or (work_status=20 and service_corp=#{workFilter.corpId}
+                <include refid="rightCondition"></include>)
+            </if>
+            <!-- 有派单权限 -->
+            <if test='workFilter.rightTypeList.contains(3)'>
+                or (work_status=30 and service_corp=#{workFilter.corpId}
+                <include refid="rightCondition"></include>)
+            </if>
+            <!-- 有接单权限 -->
+            <if test='workFilter.rightTypeList.contains(4)'>
+                or (work_status=40 and service_corp=#{workFilter.corpId}
+                and work_id in (
+                select work_id from work_assign where enabled='Y' and assign_id in (
+                select assign_id from work_assign_engineer where engineer_id=#{workFilter.userId})
+                ))
+            </if>
+            <!-- 有签到权限且是工程师或协同工程师 -->
+            <if test='workFilter.rightTypeList.contains(5)'>
+                or (work_status=50 and service_corp=#{workFilter.corpId}
+                and engineer=#{workFilter.userId})
+                or (work_status in (50, 70) and service_corp=#{workFilter.corpId}
+                and (FIND_IN_SET(#{workFilter.userId}, together_engineers) > 0))
+            </if>
+            <!-- 有服务权限 -->
+            <if test='workFilter.rightTypeList.contains(6) || workFilter.rightTypeList.contains(7)'>
+                or ((work_status=60 or work_status=70
+                or ((work_status=80 or work_status=90) and
+                (work_fee_status=1 or finish_check_status=3 or fee_check_status=3))
+                ) and service_corp=#{workFilter.corpId}
+                and engineer=#{workFilter.userId})
+            </if>
+        </trim>
+    </sql>
+
+    <!--  统计当前用户的待录入费用工单数 -->
+    <select id="countUserWorkFee" resultType="java.lang.Integer">
+        select count(work_id) as work_number from (
+        select t1.* from (
+        select request.work_id from work_deal deal join work_request request on deal.work_id=request.work_id
+        where work_status in (80, 90) and service_corp=#{workFilter.corpId}
+        and engineer=#{workFilter.userId} and (work_fee_status=1 or fee_check_status=3)
+        ) t1) tt
+    </select>
+
+    <!--  统计当前用户审核不通过的工单数 -->
+    <select id="countUserReject" resultType="java.lang.Integer">
+        select count(work_id) as work_number from (
+        select t1.* from (
+        select request.work_id from work_deal deal join work_request request on deal.work_id=request.work_id
+        where work_status in (80, 90) and service_corp=#{workFilter.corpId}
+        and engineer=#{workFilter.userId} and (finish_check_status=3 or fee_check_status=3)
+        ) t1) tt
+    </select>
+
+    <select id="queryWorkDetailDto" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+      select t.* ,work_type.name as work_type_name
+      from (
+		select request.work_id, request.work_type, deal.work_status,
+					request.create_time, request.warranty, request.fault_type,
+					deal.service_mode, deal.work_code
+        from
+			( select * from work_request where  custom_corp = #{customCorp} )  request
+						 left join
+			( select * from work_deal where  demander_corp = #{demanderCorp} )     deal
+                         on request.work_id = deal.work_id
+                         where deal.demander_corp = #{demanderCorp}
+      ) t
+      left join  work_type
+      on t.work_type = work_type.id
+
+    </select>
+
+    <select id="queryForAssignEngineersDto" resultType="com.zjft.usp.anyfix.work.request.dto.WorkForAssignDto">
+
+        select a.work_id, GROUP_CONCAT(b.engineer_id SEPARATOR ',') engineers
+        from work_assign a,work_assign_engineer b WHERE a.assign_id = b.assign_id and a.enabled='Y'
+        <if test='workFilter.listWorkIds != null and workFilter.listWorkIds .size() > 0'>
+            and a.work_id in
+            <foreach item="workId" collection="workFilter.listWorkIds" open="(" separator="," close=")">
+                #{workId}
+            </foreach>
+        </if>
+        group by a.work_id
+    </select>
+
+    <select id="queryEngineerWorkCost" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+
+        select a.work_id,a.work_code,a.work_type,a.demander_corp,a.address,a.custom_corp,
+        a.custom_id,a.device_branch,
+        b.service_corp,b.service_branch,b.work_status,b.engineer,b.together_engineers,
+        b.sign_time,b.start_time,b.finish_time,b.traffic,b.traffic_note from work_request a left join work_deal b ON
+        a.work_id = b.work_id where 1 = 1
+
+        <if test='workFilter.listWorkIds != null and workFilter.listWorkIds .size() > 0'>
+            and a.work_id in
+            <foreach item="workId" collection="workFilter.listWorkIds" open="(" separator="," close=")">
+                #{workId}
+            </foreach>
+        </if>
+        order by a.work_code asc
+    </select>
+
+    <select id="queryEngineerWorkAppraise" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+
+        select a.work_id,a.work_code,a.work_type,a.demander_corp,a.address,a.custom_corp,
+        a.custom_id,a.device_branch,a.small_class,
+        b.service_corp,b.service_branch,b.work_status,b.service_mode,b.engineer,b.together_engineers,
+        b.sign_time,b.start_time,b.finish_time,b.traffic,b.traffic_note from work_request a left join work_deal b ON
+        a.work_id = b.work_id where 1 = 1
+
+        <if test='workFilter.serviceCorp != null'>
+            and b.service_corp = #{workFilter.serviceCorp}
+        </if>
+
+        <if test='workFilter.finishDayString != null'>
+            and date_format(b.finish_time,'%Y-%m-%d') = #{workFilter.finishDayString}
+        </if>
+
+        <if test='workFilter.serviceMode != null'>
+            and b.service_mode = #{workFilter.serviceMode}
+        </if>
+
+        <if test='workFilter.workTypeNoInList!= null'>
+            and a.work_type NOT IN
+            <foreach item="workType" collection="workFilter.workTypeNoInList" open="(" separator="," close=")">
+                #{workType}
+            </foreach>
+        </if>
+
+        <if test='workFilter.workStatusList!= null'>
+            and b.work_status IN
+            <foreach item="workStatus" collection="workFilter.workStatusList" open="(" separator="," close=")">
+                #{workStatus}
+            </foreach>
+        </if>
+
+        order by a.work_code asc
+    </select>
+
+    <!--  服务审核查询  -->
+    <select id="queryServiceCheck" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select tt1.* from (
+        select t1.*,t2.finish_check_user,t2.finish_check_note,
+        t2.finish_confirm_user,t2.finish_confirm_note from (
+        <include refid="workCondition"></include>
+        ) t1 left join work_check t2 on t1.work_id = t2.work_id) tt1
+        <where>
+            <if test='workFilter.ifServiceCheck != "Y"'>
+                <choose>
+                    <when test='workFilter.ifManagerCheck == "Y"
+                    and workFilter.demanderCorpList != null and workFilter.demanderCorpList.size() > 0'>
+                        and demander_corp in
+                        <foreach item="corpId" collection="workFilter.demanderCorpList" open="(" separator=","
+                                 close=")">
+                            #{corpId}
+                        </foreach>
+                    </when>
+                    <otherwise>and 1=2</otherwise>
+                </choose>
+            </if>
+            and service_corp=#{workFilter.corpId}
+            <if test='workFilter.finishCheckUser != null and workFilter.finishCheckUser > 0'>
+                and finish_check_user=#{workFilter.finishCheckUser}
+            </if>
+            <if test='workFilter.finishCheckStartDate != null'>
+                and Date(finish_check_time) <![CDATA[ >= ]]> Date(#{workFilter.finishCheckStartDate})
+            </if>
+            <if test='workFilter.finishCheckEndDate != null'>
+                and Date(finish_check_time) <![CDATA[ <= ]]> Date(#{workFilter.finishCheckEndDate})
+            </if>
+            <if test='workFilter.hasAssortFee != null and workFilter.hasAssortFee != ""'>
+                <choose>
+                    <when test='workFilter.hasAssortFee == "Y"'>
+                        and assort_fee > 0
+                    </when>
+                    <when test='workFilter.hasAssortFee == "N"'>
+                        and assort_fee <![CDATA[ <= ]]> 0
+                    </when>
+                </choose>
+            </if>
+            <include refid="workCheckStatusSql"></include>
+        </where>
+        order by finish_time asc
+    </select>
+
+    <!--  费用审核查询  -->
+    <select id="queryFeeCheck" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select tt1.* from (
+        select t1.*,t2.total_fee,t2.assort_fee,t3.finish_check_user,t3.finish_check_note,
+        t3.fee_check_user,t3.fee_check_note,t3.finish_confirm_user,
+        t3.finish_confirm_note,t3.fee_confirm_user,t3.fee_confirm_note,t4.description from (
+        <include refid="workCondition"></include>
+        ) t1 left join (
+        select work_id, assort_fee, total_fee from work_fee
+        ) t2 on t1.work_id = t2.work_id
+        left join work_check t3 on t1.work_id = t3.work_id left join work_finish t4 on t1.work_id=t4.work_id) tt1
+        <where>
+            <if test='workFilter.ifServiceCheck != "Y"'>
+                <choose>
+                    <when test='workFilter.ifManagerCheck == "Y"
+                    and workFilter.demanderCorpList != null and workFilter.demanderCorpList.size() > 0'>
+                        and demander_corp in
+                        <foreach item="corpId" collection="workFilter.demanderCorpList" open="(" separator=","
+                                 close=")">
+                            #{corpId}
+                        </foreach>
+                    </when>
+                    <otherwise>and 1=2</otherwise>
+                </choose>
+            </if>
+            and service_corp=#{workFilter.corpId}
+            <if test='workFilter.finishCheckUser != null and workFilter.finishCheckUser > 0'>
+                and finish_check_user=#{workFilter.finishCheckUser}
+            </if>
+            <if test='workFilter.feeCheckUser != null and workFilter.feeCheckUser > 0'>
+                and fee_check_user=#{workFilter.feeCheckUser}
+            </if>
+            <if test='workFilter.finishCheckStartDate != null'>
+                and Date(finish_check_time) <![CDATA[ >= ]]> Date(#{workFilter.finishCheckStartDate})
+            </if>
+            <if test='workFilter.finishCheckEndDate != null'>
+                and Date(finish_check_time) <![CDATA[ <= ]]> Date(#{workFilter.finishCheckEndDate})
+            </if>
+            <if test='workFilter.feeCheckStartDate != null'>
+                and Date(fee_check_time) <![CDATA[ >= ]]> Date(#{workFilter.feeCheckStartDate})
+            </if>
+            <if test='workFilter.feeCheckEndDate != null'>
+                and Date(fee_check_time) <![CDATA[ <= ]]> Date(#{workFilter.feeCheckEndDate})
+            </if>
+            <if test='workFilter.hasAssortFee != null and workFilter.hasAssortFee != ""'>
+                <choose>
+                    <when test='workFilter.hasAssortFee == "Y"'>
+                        and assort_fee > 0
+                    </when>
+                    <when test='workFilter.hasAssortFee == "N"'>
+                        and assort_fee <![CDATA[ <= ]]> 0
+                    </when>
+                </choose>
+            </if>
+            <include refid="workCheckStatusSql"></include>
+        </where>
+        order by finish_time asc
+    </select>
+
+    <select id="listWorkCodeByDay" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select a.work_id,a.work_code,a.work_type,a.demander_corp,a.address,a.custom_corp,
+        a.custom_id,a.device_branch,a.small_class from work_request a
+        where a.work_code like concat(#{serviceTime}, '%') order by a.work_code desc
+    </select>
+
+    <select id="getReplenishCount" resultType="int">
+        select count(1)
+        from work_deal deal , work_finish finish
+        where deal.work_id = finish.work_id
+        and (finish.files_status =#{filesStatus} or finish.signature_status =#{signatureStatus})
+        and finish.operator = #{userId} and deal.service_corp = #{serviceCorp}
+    </select>
+
+    <!-- 查询工单预警 -->
+    <select id="queryRemindWork" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select distinct * from (
+        <include refid="remindWorkCondition"></include>
+        ) t1 where 1=1
+        <include refid="rightCondition"></include>
+        <if test='workFilter.queryScope != null'>
+            <!-- 今日工单(今日建单+今日提单) -->
+            <if test='workFilter.queryScope == 1'>
+                and (left(create_time, 10)=current_date()
+                or left (dispatch_time, 10)=current_date()
+                )
+            </if>
+            <!-- 今日完工工单 -->
+            <if test='workFilter.queryScope == 2'>
+                and left(finish_time, 10)=current_date()
+            </if>
+            <!-- 本月完工工单 -->
+            <if test='workFilter.queryScope == 3'>
+                and left(finish_time, 7)=left(current_date(), 7)
+            </if>
+        </if>
+        order by work_id desc
+    </select>
+
+    <!-- 查询条件 -->
+    <sql id="remindWorkCondition">
+        select * from
+        (select g.*,case when remindtime is not null then remindtime
+        else DATE_ADD(dealtime,INTERVAL expire_time_min MINUTE) end as remind_time,
+        case when remindtime is not null then TIMESTAMPDIFF(MINUTE,remindtime,CURRENT_TIMESTAMP)
+        else (interval_time-expire_time_min) END as over_time
+        from (select f.*,TIMESTAMPDIFF(MINUTE,dealtime,CURRENT_TIMESTAMP) as interval_time
+        from (select e.*,
+        case when work_status=20 then dispatch_time
+        when work_status=30 then handle_time
+        when work_status=40 then assign_time
+        when work_status=50 then accept_time
+        when work_status=70 then sign_time
+        else null end as dealtime
+        from (select d.*,row_number() over(partition by d.work_id order by d.flag desc) as seq from (
+        select a.*,b.work_status,b.service_corp,b.service_branch,
+        b.device_id,b.dispatch_staff,b.dispatch_time,b.handle_staff,b.handle_time,b.assign_time,b.assign_staff,
+        b.together_engineers,b.engineer,b.review_staff,b.finish_confirm_status,b.finish_check_status,
+        b.sign_time,b.finish_time,b.service_mode,b.go_time,b.start_time,b.end_time,b.accept_time,c.remind_type,
+        c.expire_time_min,case when a.demander_corp=c.demander_corp then 1 else 0 end as flag,w.remind_time as
+        remindtime
+        from (
+        select request.*, fault.name as fault_type_name from work_request request
+        left join fault_type fault
+        on request.fault_type = fault.id where 1=1
+        <if test='workFilter.workId != null and workFilter.workId > 0'>
+            and request.work_id=#{workFilter.workId}
+        </if>
+        <if test='workFilter.checkWorkCode != null and workFilter.checkWorkCode != ""'>
+            and request.check_work_code=#{workFilter.checkWorkCode}
+        </if>
+        <if test='workFilter.smallClassId != null and workFilter.smallClassId > 0'>
+            and request.small_class=#{workFilter.smallClassId}
+        </if>
+        <if test='workFilter.district != null and workFilter.district != ""'>
+            and request.district like concat(#{workFilter.district}, '%')
+        </if>
+        <if test='workFilter.provinceCode != null and workFilter.provinceCode != ""'>
+            and left(request.district,2) = #{workFilter.provinceCode}
+        </if>
+        <if test='workFilter.demanderCorp != null and workFilter.demanderCorp > 0 '>
+            and request.demander_corp=#{workFilter.demanderCorp}
+        </if>
+        <if test='workFilter.customCorp != null and workFilter.customCorp > 0 '>
+            and request.custom_corp=#{workFilter.customCorp}
+        </if>
+        <if test='workFilter.customId != null and workFilter.customId > 0 '>
+            and request.custom_id=#{workFilter.customId}
+        </if>
+        <if test='workFilter.serial != null and workFilter.serial != ""'>
+            and request.serial=#{workFilter.serial}
+        </if>
+        <if test='workFilter.deviceBrand != null and workFilter.deviceBrand > 0'>
+            and request.brand=#{workFilter.deviceBrand}
+        </if>
+        <if test='workFilter.deviceModel != null and workFilter.deviceModel > 0'>
+            and request.model=#{workFilter.deviceModel}
+        </if>
+        <if test='workFilter.workTypes != null and workFilter.workTypes != ""'>
+            and request.work_type in
+            <foreach item="workType" collection="workFilter.workTypes.split(',')" open="(" separator="," close=")">
+                #{workType}
+            </foreach>
+        </if>
+        <if test='workFilter.serviceModes != null and workFilter.serviceModes != ""'>
+            and request.work_id in (select work_id from work_deal where service_mode in (#{workFilter.serviceModes}))
+        </if>
+        <if test='workFilter.serviceBranches != null and workFilter.serviceBranches != ""'>
+            and request.work_id in (select work_id from work_deal where service_branch in
+            (#{workFilter.serviceBranches}))
+        </if>
+        <if test='workFilter.sources != null and workFilter.sources != ""'>
+            and request.source in
+            <foreach item="source" collection="workFilter.sources.split(',')" open="(" separator="," close=")">
+                #{source}
+            </foreach>
+        </if>
+        <if test='workFilter.startDate != null'>
+            and Date(request.create_time) <![CDATA[ >= ]]> Date(#{workFilter.startDate})
+        </if>
+        <if test='workFilter.endDate != null'>
+            and Date(request.create_time) <![CDATA[ <= ]]> Date(#{workFilter.endDate})
+        </if>
+        <if test="workFilter.warrantyMode != null and workFilter.warrantyMode > 0">
+            and request.warranty_mode = #{workFilter.warrantyMode}
+        </if>
+        <if test="workFilter.contactName != null and workFilter.contactName != ''">
+            and request.contact_name like concat('%',#{workFilter.contactName},'%')
+        </if>
+        <if test="workFilter.contactPhone != null and workFilter.contactPhone != ''">
+            and request.contact_phone like concat('%',#{workFilter.contactPhone},'%')
+        </if>
+        <if test="workFilter.mobileFilter != null and workFilter.mobileFilter != ''">
+            and (request.work_code like concat('%',#{workFilter.mobileFilter},'%')
+            or request.check_work_code like concat('%',#{workFilter.mobileFilter},'%')
+            or request.contact_name like concat('%',#{workFilter.mobileFilter},'%')
+            or request.contact_phone like concat('%',#{workFilter.mobileFilter},'%'))
+        </if>
+        ) a join (
+        select work_deal.*,case when work_status=20 then 10
+        when work_status=30 then 20 when work_status=40 then 30
+        when work_status=50 then 40
+        when work_status=70 then 50
+        else 0 end as remindtype from work_deal where 1=1
+        <if test='workFilter.dispatchTimeStart != null'>
+            and Date(dispatch_time) <![CDATA[ >= ]]> DATE(#{workFilter.dispatchTimeStart})
+        </if>
+        <if test='workFilter.dispatchTimeEnd != null'>
+            and Date(dispatch_time) <![CDATA[ <= ]]> Date(#{workFilter.dispatchTimeEnd})
+        </if>
+        <if test='workFilter.finishTimeDay != null'>
+            and Date(finish_time) = Date(#{workFilter.finishTimeDay})
+        </if>
+        <if test="workFilter.finishTimeMonth != null">
+            and DATE_FORMAT(finish_time, '%Y%m') =DATE_FORMAT(#{workFilter.finishTimeMonth},'%Y%m')
+        </if>
+        <if test='workFilter.finishStartDate != null'>
+            and Date(finish_time) <![CDATA[ >= ]]> DATE(#{workFilter.finishStartDate})
+        </if>
+        <if test='workFilter.finishEndDate != null'>
+            and Date(finish_time) <![CDATA[ <= ]]> Date(#{workFilter.finishEndDate})
+        </if>
+        <if test='workFilter.workCode != null and workFilter.workCode != ""'>
+            and work_code = #{workFilter.workCode}
+        </if>
+        <if test='workFilter.engineer != null and workFilter.engineer > 0'>
+            and engineer = #{workFilter.engineer}
+        </if>
+        <if test='workFilter.workStatus != null and workFilter.workStatus != ""'>
+            and work_status = #{workFilter.workStatus}
+        </if>
+        <if test='workFilter.workStatuses != null and workFilter.workStatuses != ""'>
+            and work_status in
+            <foreach item="workStatus" collection="workFilter.workStatuses.split(',')" open="(" separator="," close=")">
+                #{workStatus}
+            </foreach>
+        </if>
+        <if test='workFilter.staffs != null and workFilter.staffs != ""'>
+            and engineer in
+            <foreach item="staff" collection="workFilter.staffs.split(',')" open="(" separator="," close=")">
+                #{staff}
+            </foreach>
+        </if>
+        <if test="workFilter.deviceId != null and workFilter.deviceId > 0">
+            and device_id = #{workFilter.deviceId}
+        </if>
+        ) b on a.work_id=b.work_id
+        left join (select * from work_remind_deal)w on b.work_id=w.work_id and b.remindtype=w.remind_type
+        join (select m.*,d.remind_type,d.expire_time_min from work_remind_m m
+        left join work_remind_d d on m.remind_id=d.remind_id where m.enabled='Y') c
+        on b.remindtype=c.remind_type
+        and (a.creator_corp_id=c.corp_id or c.corp_id=0) and (a.custom_id=c.custom_id or c.custom_id=0)
+        and (a.custom_corp=c.custom_corp or c.custom_corp=0) and (a.demander_corp=c.demander_corp or c.demander_corp=0)
+        and (b.service_corp=c.service_corp or c.service_corp=0) and (b.service_branch=c.service_branch or
+        c.service_branch=0)
+        and (a.work_type=c.work_type or c.work_type=0)
+        and (a.small_class=c.small_class_id or c.small_class_id=0)
+        and (a.brand=c.brand_id or c.brand_id=0)
+        and (a.model=c.model_id or c.model_id=0)
+        and (a.district=c.district or c.district='')
+        and (a.device_branch=c.device_branch or c.device_branch=0))d)e where 1=1 and e.seq=1)f)g)h
+        where 1=1 and over_time>0
+        <if test='workFilter.remindTypes != null and workFilter.remindTypes != ""'>
+            and remind_type in
+            <foreach item="remindTypes" collection="workFilter.remindTypes" open="(" separator="," close=")">
+                #{remindTypes}
+            </foreach>
+        </if>
+    </sql>
+
+    <!-- 查询微信用户建立的工单 -->
+    <select id="queryWXWork" resultType="com.zjft.usp.anyfix.work.request.dto.WorkDto">
+        select * from (
+        <include refid="wxWorkCondition"></include>
+        ) t1 where 1=1
+        order by work_id desc
+    </select>
+    <sql id="wxWorkCondition">
+        select a.*,b.work_status,b.service_corp,b.service_branch,
+        b.device_id,b.dispatch_staff,b.dispatch_time,b.handle_staff,b.assign_staff,b.together_engineers,
+        b.engineer,b.review_staff,b.finish_check_status,b.finish_check_time,b.fee_check_status,b.fee_check_time,
+        b.finish_confirm_status,b.finish_confirm_time,b.fee_confirm_status,b.fee_confirm_time,b.work_fee_status,
+        b.sign_time,b.finish_time,b.service_mode,b.go_time,b.start_time,b.end_time,b.accept_time
+        from (
+        select request.*, fault.name as fault_type_name from work_request request
+        left join fault_type fault
+        on request.fault_type = fault.id where 1=1
+        ) a join (
+        select * from work_deal where 1=1
+        <if test="workFilter.userId != null and workFilter.userId > 0">
+            and creator=#{workFilter.userId}
+        </if>
+        <if test="workFilter.deviceId != null and workFilter.deviceId > 0">
+            and device_id = #{workFilter.deviceId}
+        </if>
+        <if test='workFilter.workStatuses != null and workFilter.workStatuses != ""'>
+            and work_status in
+            <foreach item="workStatus" collection="workFilter.workStatuses.split(',')" open="(" separator="," close=")">
+                #{workStatus}
+            </foreach>
+        </if>
+        ) b on a.work_id=b.work_id
+    </sql>
+
+</mapper>

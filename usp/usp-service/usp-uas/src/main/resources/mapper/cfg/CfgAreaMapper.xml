@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.baseinfo.mapper.CfgAreaMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="CfgAreaResultMap" type="com.zjft.usp.uas.baseinfo.model.CfgArea">
+        <id column="code" property="code"/>
+        <result column="name" property="name"/>
+    </resultMap>
+
+    <resultMap id="queryForListMap" type="com.zjft.usp.uas.baseinfo.model.AreaInfo">
+        <id column="provinceCode" property="provinceCode" jdbcType="VARCHAR"/>
+        <result column="provinceName" property="provinceName" jdbcType="VARCHAR"/>
+        <result column="cityCode" property="cityCode" jdbcType="VARCHAR"/>
+        <result column="cityName" property="cityName" jdbcType="VARCHAR"/>
+        <result column="districtCode" property="districtCode" jdbcType="VARCHAR"/>
+        <result column="districtName" property="districtName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listCfgArea" resultMap="CfgAreaResultMap">
+        select * from
+        uas_cfg_area
+    </select>
+
+    <select id="getProvinceCityCountMap" resultType="java.util.HashMap">
+        select t.provincecode,COUNT(t.provincecode) AS citycount from (
+        select * from (
+        select code as provincecode from uas_cfg_area where LENGTH(code)=2) a JOIN
+        (select SUBSTRING(code, 1, 2) as pprovincecode,code as citycode from uas_cfg_area
+        where LENGTH(code)=4
+        <!-- 加上省直辖市 -->
+        or code like '__9___'
+        ) b ON b.pprovincecode=a.provincecode) t
+        GROUP BY t.provincecode
+    </select>
+
+    <select id="getCityDistrictCountMap" resultType="java.util.HashMap">
+        select t.citycode,COUNT(t.citycode) as districtcount from (
+        select * from (
+        select code as citycode from uas_cfg_area
+        where LENGTH(code)=4 AND SUBSTRING(code,1,2)=#{province}) a JOIN
+        <!-- 当前四位为'5002'时，上级市应为'5001'(重庆市重庆市) -->
+        (select (case SUBSTRING(code, 1, 4) when '5002' then '5001' else SUBSTRING(code, 1, 4) end ) as pcitycode,code as districtcode from uas_cfg_area
+         where LENGTH(code)=6) b ON b.pcitycode=a.citycode) t
+         GROUP BY t.citycode
+    </select>
+
+    <select id="listAreaInfo" resultMap="queryForListMap">
+        select t.provincecode,t.provincename,t.citycode,t.cityname,t.districtcode,t.districtname from (
+        select * from
+            (select code as provincecode, name as provincename from uas_cfg_area where LENGTH(code)=2) a
+        LEFT JOIN
+            (select SUBSTRING(code, 1, 2) as pprovincecode,code as citycode,name as cityname from uas_cfg_area where LENGTH(code)=4
+            <!-- 加上省直辖市 -->
+            or code like '__9___'
+            ) b ON b.pprovincecode=a.provincecode
+        LEFT JOIN
+        <!-- 当前四位为'5002'时，上级市应为'5001' -->
+            (select (case SUBSTRING(code, 1, 4) when '5002' then '5001' else SUBSTRING(code, 1, 4) end ) as pcitycode,
+            code as districtcode,name as districtname from uas_cfg_area
+            where LENGTH(code)=6) c ON c.pcitycode=b.citycode
+        ) t
+        ORDER BY t.provincecode ASC,t.citycode ASC,t.districtcode ASC
+    </select>
+
+    <select id="selectAreaMap" resultType="java.util.HashMap">
+        select code,name from uas_cfg_area
+    </select>
+
+    <select id="listCityByProvince" resultType="com.zjft.usp.uas.baseinfo.model.CfgArea">
+        select code, name from uas_cfg_area where 1=1
+        <if test="province != null and province != ''">
+            and substring(code, 1, 2) = #{province}
+        </if>
+        <!-- 加上省直辖市 -->
+        and (length(code)=4 or code like '__9___')
+    </select>
+
+    <select id="listDistrictByCity" resultType="com.zjft.usp.uas.baseinfo.model.CfgArea">
+        select code, name from uas_cfg_area where 1=1
+        <if test="city != null and city != ''">
+            <choose>
+                <when test="city == '5001'">
+                    <!-- 如果是重庆市，则查出前四位为5001或者5002的县区 -->
+                    and (substring(code, 1, 4) = #{city} or substring(code, 1, 4) = '5002')
+                </when>
+                <otherwise>
+                    and substring(code, 1, 4) = #{city}
+                </otherwise>
+            </choose>
+        </if>
+        and length(code)=6
+    </select>
+</mapper>

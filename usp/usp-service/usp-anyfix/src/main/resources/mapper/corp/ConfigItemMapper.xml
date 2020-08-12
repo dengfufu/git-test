@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.config.mapper.ConfigItemMapper">
+
+    <select id="selectItemConfig" resultType="com.zjft.usp.anyfix.corp.config.dto.ServiceConfigDto">
+        select item_name as itemName, default_value as defaultValut,
+                config.item_value as itemValue FROM config_item item
+        LEFT JOIN service_config config
+        ON item.id = config.item_id
+        where config.id = #{demanderServiceId}
+        <if test="itemNameList != null and itemNameList.size > 0">
+            and item.item_name in
+             <foreach collection="itemNameList" item="itemName" open="(" separator="," close=")">
+                #{itemName}
+            </foreach>
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.msg.mapper.PushBulletinMapper">
+
+  
+    <insert id="insertPushBulletin" parameterType="com.zjft.usp.msg.model.PushBulletin">
+        INSERT INTO ${tableName} (msgid,appid,title, content ,senttime,sendstatus,receiptid)
+         values(#{msgId}, #{appId}, #{title}, #{content}, #{sentTime}, #{sendStatus}, #{receiptId})
+    </insert>
+
+    <select id="existTable" parameterType="String" resultType="Integer">
+        select count(*) from information_schema.TABLES
+        where table_name=#{tableName}
+    </select>
+
+    <update id="createTable" parameterType="String">
+        CREATE TABLE ${tableName} (
+          `msgid` bigint(20) NOT NULL COMMENT '消息ID',
+          `appid` int(11) NOT NULL DEFAULT 0 COMMENT '应用ID',
+          `title` varchar(50) NOT NULL DEFAULT '' COMMENT '标题',
+          `content` varchar(200) NOT NULL DEFAULT '' COMMENT '通知内容',
+          `fixedtime` datetime DEFAULT NULL COMMENT '指定推送时间',
+          `senttime` datetime DEFAULT NULL COMMENT '已发送时间',
+          `sendstatus` smallint(6) NOT NULL DEFAULT 0 COMMENT '发送状态',
+          `receiptid` varchar(20) NOT NULL DEFAULT '' COMMENT '回执ID',
+          PRIMARY KEY (`msgid`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='公告表';
+    </update>
+</mapper>

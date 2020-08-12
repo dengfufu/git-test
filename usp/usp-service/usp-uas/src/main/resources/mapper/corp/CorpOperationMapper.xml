@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.corp.mapper.CorpOperationMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.corp.model.CorpOperation">
+    <id column="txid" jdbcType="BIGINT" property="txId" />
+    <result column="corpid" jdbcType="BIGINT" property="corpId" />
+    <result column="appid" jdbcType="INTEGER" property="appId" />
+    <result column="clientid" jdbcType="VARCHAR" property="clientId" />
+    <result column="userid" jdbcType="BIGINT" property="userId" />
+    <result column="opertype" jdbcType="INTEGER" property="operType" />
+    <result column="details" jdbcType="VARCHAR" property="details" />
+    <result column="opertime" jdbcType="TIMESTAMP" property="operTime" />
+    <result column="lon" jdbcType="DECIMAL" property="lon" />
+    <result column="lat" jdbcType="DECIMAL" property="lat" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    txid, corpid, appid, userid, opertype, details, opertime, lon, lat
+  </sql>
+</mapper>

@@ -1,0 +1,2141 @@
+{
+  "modules": [
+    {
+      "name": "pay",
+      "chnname": "支付",
+      "entities": [
+        {
+          "title": "account_info",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "开通钱包，用户表和企业表增加关联(pay_account_id)",
+              "chnname": "账户id",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "account_type",
+              "type": "varchar10",
+              "remark": "c:个人 e:企业 p:平台",
+              "chnname": "账户类型",
+              "notNull": true
+            },
+            {
+              "name": "user_id",
+              "type": "BigInt",
+              "remark": "用户ID，个人时非空",
+              "chnname": "用户ID"
+            },
+            {
+              "name": "corp_id",
+              "type": "BigInt",
+              "remark": "企业ID，企业时非空",
+              "chnname": "企业ID"
+            },
+            {
+              "name": "status",
+              "type": "smallint",
+              "remark": "账户状态 10:激活 20:冻结",
+              "chnname": "账户状态",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "钱包开通时间",
+              "chnname": "开通时间"
+            },
+            {
+              "name": "balance",
+              "type": "DECIMAL",
+              "remark": "余额 = 可用余额+冻结金额",
+              "chnname": "余额",
+              "notNull": true,
+              "defaultValue": "0.00"
+            },
+            {
+              "name": "available_amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "可用余额",
+              "notNull": true,
+              "defaultValue": "0.00"
+            },
+            {
+              "name": "frozen_amount",
+              "type": "DECIMAL",
+              "remark": "使用场景有： 1.提现与资金到账期间冻结金额",
+              "chnname": "冻结金额",
+              "notNull": true,
+              "defaultValue": "0.00"
+            },
+            {
+              "name": "total_income",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "总收入",
+              "notNull": true,
+              "defaultValue": "0.00"
+            },
+            {
+              "name": "total_expend",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "总支出",
+              "notNull": true,
+              "defaultValue": "0.00"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "账户表",
+          "remark": ""
+        },
+        {
+          "title": "account_trace",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "流水ID",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": false,
+              "relationNoShow": false
+            },
+            {
+              "name": "account_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "账户ID",
+              "notNull": true
+            },
+            {
+              "name": "amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "余额",
+              "notNull": true
+            },
+            {
+              "name": "balance",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "账户余额",
+              "notNull": true
+            },
+            {
+              "name": "direction",
+              "type": "smallint",
+              "remark": "10:收入  20:支出",
+              "chnname": "资金方向",
+              "notNull": true
+            },
+            {
+              "name": "time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "时间"
+            },
+            {
+              "name": "trace_type",
+              "type": "Integer",
+              "remark": "100000:支付(平台)消费;100001:余额消费;200000:提现;300000:退款;900000:退支付手续费(平台收入);900001:支付手续费(平台支出);900010:平台费用(平台收入);900011:退平台费用(平台支出);900020:入驻费用(平台收入);900021:退入驻费用(平台支出);900030:营销活动(平台支出)",
+              "chnname": "流水类型",
+              "notNull": true
+            },
+            {
+              "name": "apply_id",
+              "type": "BigInt",
+              "remark": "支付申请ID/退款申请ID/提现申请ID",
+              "chnname": "申请ID",
+              "notNull": true
+            },
+            {
+              "name": "apply_source",
+              "type": "smallint",
+              "remark": "100：支付；200：提现 ；300：退款",
+              "chnname": "申请来源",
+              "notNull": true
+            },
+            {
+              "name": "apply_name",
+              "type": "varchar",
+              "remark": "支付类申请描述如：委托商结算单- SD20200516000005；充值-100；提现-100；退款-10",
+              "chnname": "申请名称",
+              "notNull": true
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "账户流水表"
+        },
+        {
+          "title": "payment_apply",
+          "fields": [
+            {
+              "name": "id",
+              "type": "bigint",
+              "remark": "",
+              "chnname": "支付申请ID",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "payee_account_id",
+              "type": "bigint",
+              "remark": "",
+              "chnname": "入账账户ID",
+              "notNull": true
+            },
+            {
+              "name": "payer_account_id",
+              "type": "bigint",
+              "remark": "使用账户余额交易，则非空",
+              "chnname": "出账账户ID",
+              "notNull": true
+            },
+            {
+              "name": "order_id",
+              "type": "bigint",
+              "remark": "",
+              "chnname": "商品订单ID",
+              "notNull": true
+            },
+            {
+              "name": "order_type",
+              "type": "Integer",
+              "remark": "100000:支付(平台)消费;100001:余额消费",
+              "chnname": "订单类型",
+              "notNull": true
+            },
+            {
+              "name": "order_source",
+              "type": "smallint",
+              "remark": "100: 委托商结算单;101: 客户结算单;102: 工程师结算单;200: 充值订单",
+              "chnname": "支付订单来源",
+              "notNull": true
+            },
+            {
+              "name": "order_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "商品名称",
+              "notNull": true
+            },
+            {
+              "name": "order_detail",
+              "type": "varchar-5000",
+              "remark": "用于保存支付订单商品信息快照",
+              "chnname": "商品明细"
+            },
+            {
+              "name": "order_amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "商品订单金额",
+              "notNull": true
+            },
+            {
+              "name": "apply_user",
+              "type": "bigint",
+              "remark": "",
+              "chnname": "申请人",
+              "notNull": true
+            },
+            {
+              "name": "apply_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "申请时间",
+              "notNull": true
+            },
+            {
+              "name": "order_period",
+              "type": "smallint",
+              "remark": "单位：分钟。平台默认为5分钟",
+              "chnname": "支付订单有效期"
+            },
+            {
+              "name": "expire_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "支付订单过期时间"
+            },
+            {
+              "name": "finish_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "支付订单完成时间"
+            },
+            {
+              "name": "end_time",
+              "type": "DateTime",
+              "remark": "支付完成后更新，到期后不得发起退款申请。结束时间 = 支付完成时间+平台退款期限",
+              "chnname": "支付订单结束时间"
+            },
+            {
+              "name": "status",
+              "type": "smallint",
+              "remark": "100:订单创建 101:订单取消 200:支付中(一般对应支付平台订单已创建，未支付) 300:支付成功 301:支付失败",
+              "chnname": "订单状态",
+              "notNull": true
+            },
+            {
+              "name": "cancel_reason",
+              "type": "varchar500",
+              "remark": "订单取消原因 主动取消：用户输入；超时取消：订单超时取消",
+              "chnname": "取消原因"
+            },
+            {
+              "name": "pay_way",
+              "type": "smallint",
+              "remark": "10:支付宝 20:微信 30:余额",
+              "chnname": "支付方式",
+              "notNull": true
+            },
+            {
+              "name": "plat_fee_rate",
+              "type": "float",
+              "remark": "",
+              "chnname": "平台服务费率",
+              "defaultValue": "0"
+            },
+            {
+              "name": "plat_fee_amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "平台服务费用",
+              "defaultValue": "0"
+            },
+            {
+              "name": "pay_fee_rate",
+              "type": "float",
+              "remark": "支付平台的费率，一般，支付宝：0.6% 微信：0.6%",
+              "chnname": "支付平台费率",
+              "defaultValue": "0.006"
+            },
+            {
+              "name": "pay_fee_amount",
+              "type": "DECIMAL",
+              "remark": "支付成功，通过支付平台获取数据",
+              "chnname": "支付平台手续费"
+            },
+            {
+              "name": "channel_type",
+              "type": "smallint",
+              "remark": "暂只支持：10:支付宝网页扫码支付11:支付宝 App支付20:微信网页扫码支付21:微信App支付30:钱包余额支付",
+              "chnname": "支付渠道"
+            },
+            {
+              "name": "trade_no",
+              "type": "varchar64",
+              "remark": "支付平台返回的交易号，用于通知，对账等",
+              "chnname": "交易号"
+            },
+            {
+              "name": "is_refund",
+              "type": "smallint",
+              "remark": "1: 是 0: 否",
+              "chnname": "是否退款",
+              "defaultValue": "0"
+            },
+            {
+              "name": "refund_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "退款申请号"
+            },
+            {
+              "name": "refund_amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "退款金额",
+              "defaultValue": "0"
+            },
+            {
+              "name": "check_status",
+              "type": "smallint",
+              "remark": "第三方平台资金类交易，需对账。10: 未对账20: 对账成功21: 对账失败",
+              "chnname": "对账状态",
+              "defaultValue": "10"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "支付申请表"
+        },
+        {
+          "title": "payment_notify",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "通知ID"
+            },
+            {
+              "name": "pay_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "支付申请ID"
+            },
+            {
+              "name": "app_id",
+              "type": "BigInt",
+              "remark": "业务/应用ID，用于查找应用公钥信息，对通知信息进行加密",
+              "chnname": "应用ID"
+            },
+            {
+              "name": "notify_type",
+              "type": "smallint",
+              "remark": "100:订单创建；101:订单取消；200:支付中；300:支付成功；301:支付失败",
+              "chnname": "通知类型"
+            },
+            {
+              "name": "notify_url",
+              "type": "varchar500",
+              "remark": "对应状态下的通知URL，用于通知应用/业务方进行后续处理",
+              "chnname": "通知URL"
+            },
+            {
+              "name": "last_notify_time",
+              "type": "DateTime",
+              "remark": "最后一次通知时间：1.成功通知时间2.达上限次数的时间",
+              "chnname": "最后通知时间"
+            },
+            {
+              "name": "try_times",
+              "type": "smallint",
+              "remark": "",
+              "chnname": "第几次尝试",
+              "defaultValue": "0"
+            },
+            {
+              "name": "limit_times",
+              "type": "smallint",
+              "remark": "",
+              "chnname": "最多尝试次数",
+              "defaultValue": "5"
+            },
+            {
+              "name": "order_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "商品名称"
+            },
+            {
+              "name": "notified_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "通知送达时间"
+            },
+            {
+              "name": "status",
+              "type": "DefaultString",
+              "remark": "100: 成功；200: 失败",
+              "chnname": "通知状态"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "支付通知表"
+        },
+        {
+          "title": "refund_apply",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "退款申请ID",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "pay_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "原支付订单ID",
+              "notNull": true
+            },
+            {
+              "name": "refund_amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "退款金额",
+              "notNull": true
+            },
+            {
+              "name": "apply_user",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "申请人",
+              "notNull": true
+            },
+            {
+              "name": "apply_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "申请时间",
+              "notNull": true
+            },
+            {
+              "name": "apply_reason",
+              "type": "varchar500",
+              "remark": "",
+              "chnname": "退款原因",
+              "notNull": true
+            },
+            {
+              "name": "approve_user",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "审核人"
+            },
+            {
+              "name": "approve_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "审核时间"
+            },
+            {
+              "name": "approve_result",
+              "type": "smallint",
+              "remark": "1:通过；0:不通过",
+              "chnname": "审核结果"
+            },
+            {
+              "name": "approve_note",
+              "type": "varchar500",
+              "remark": "",
+              "chnname": "审核意见"
+            },
+            {
+              "name": "request_period",
+              "type": "smallint",
+              "remark": "",
+              "chnname": "有效期",
+              "defaultValue": "3"
+            },
+            {
+              "name": "expire_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "过期时间"
+            },
+            {
+              "name": "status",
+              "type": "smallint",
+              "remark": "100:申请创建101:申请取消；200:审核通过；201:审核不通过；300:退款中；400:退款成功；401:退款失败",
+              "chnname": "状态",
+              "notNull": true
+            },
+            {
+              "name": "refund_way",
+              "type": "smallint",
+              "remark": "10:支付宝 20:微信 30:余额",
+              "chnname": "原交易支付方式",
+              "notNull": true
+            },
+            {
+              "name": "refund_trade_no",
+              "type": "varchar64",
+              "remark": "第三方支付：支付平台返回；钱包余额为空",
+              "chnname": "退款交易号"
+            },
+            {
+              "name": "refund_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "完成时间"
+            },
+            {
+              "name": "check_status",
+              "type": "smallint",
+              "remark": "第三方平台资金类交易，需对账；10: 未对账；20: 对账成功；21: 对账失败",
+              "chnname": "对账状态"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "退款申请表"
+        },
+        {
+          "title": "account_withdraw_info",
+          "fields": [
+            {
+              "name": "account_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "提现账户",
+              "notNull": true
+            },
+            {
+              "name": "withdraw_type",
+              "type": "smallint",
+              "remark": "1:支付宝2: 微信3: 银行卡",
+              "chnname": "提现账号类型",
+              "notNull": true
+            },
+            {
+              "name": "alipay_account_id",
+              "type": "varchar20",
+              "remark": "",
+              "chnname": "收款方支付宝账号ID"
+            },
+            {
+              "name": "alipay_account_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "收款方支付宝账号姓名"
+            },
+            {
+              "name": "weixin_account_id",
+              "type": "varchar20",
+              "remark": "",
+              "chnname": "收款方微信账号ID"
+            },
+            {
+              "name": "weixin_account_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "收款方微信账号姓名"
+            },
+            {
+              "name": "bank_account_card",
+              "type": "varchar20",
+              "remark": "",
+              "chnname": "银行账户卡号"
+            },
+            {
+              "name": "bank_account_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "银行账户名称"
+            },
+            {
+              "name": "bank_account_type",
+              "type": "varchar10",
+              "remark": "c:个人; e:企业",
+              "chnname": "银行账户类型"
+            },
+            {
+              "name": "bank_name",
+              "type": "varchar100",
+              "remark": "如果为企业，必填",
+              "chnname": "银行名称"
+            },
+            {
+              "name": "bank_province",
+              "type": "varchar20",
+              "remark": "如果为企业，必填",
+              "chnname": "开户行省份"
+            },
+            {
+              "name": "bank_city",
+              "type": "varchar20",
+              "remark": "如果为企业，必填",
+              "chnname": "开户行城市"
+            },
+            {
+              "name": "bank_branch",
+              "type": "varchar50",
+              "remark": "如果为企业，必填",
+              "chnname": "开户行支行"
+            },
+            {
+              "name": "is_default",
+              "type": "smallint",
+              "remark": "1:是 0:否",
+              "chnname": "是否默认提现账户"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "账号提现信息表"
+        },
+        {
+          "title": "withdraw_apply",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "提现申请ID",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "提现金额",
+              "notNull": true
+            },
+            {
+              "name": "account_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "提现账户",
+              "notNull": true
+            },
+            {
+              "name": "account_type",
+              "type": "varchar10",
+              "remark": "c:个人；e:企业；不同类型，限额不同",
+              "chnname": "账户类型",
+              "notNull": true
+            },
+            {
+              "name": "apply_user",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "申请人",
+              "notNull": true
+            },
+            {
+              "name": "apply_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "申请时间",
+              "notNull": true
+            },
+            {
+              "name": "approve_user",
+              "type": "BigInt",
+              "remark": "平台原因或者是账户原因，需要审核，则不为空",
+              "chnname": "审核人"
+            },
+            {
+              "name": "approve_time",
+              "type": "DateTime",
+              "remark": "平台原因或者是账户原因，需要审核，则不为空",
+              "chnname": "审核时间"
+            },
+            {
+              "name": "approve_result",
+              "type": "smallint",
+              "remark": "1:通过；0:不通过",
+              "chnname": "审核结果"
+            },
+            {
+              "name": "approve_note",
+              "type": "varchar500",
+              "remark": "",
+              "chnname": "审核意见"
+            },
+            {
+              "name": "status",
+              "type": "smallint",
+              "remark": "100:创建申请；101:取消申请；200:提现处理中；300:提现成功；301:提现失败",
+              "chnname": "状态",
+              "notNull": true
+            },
+            {
+              "name": "withdraw_type",
+              "type": "smallint",
+              "remark": "1:支付宝2: 微信3: 银行卡",
+              "chnname": "收款方账号类型"
+            },
+            {
+              "name": "alipay_account_id",
+              "type": "varchar50",
+              "remark": "",
+              "chnname": "收款方支付宝账号ID"
+            },
+            {
+              "name": "alipay_account_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "收款方支付宝账号姓名"
+            },
+            {
+              "name": "weixin_account_id",
+              "type": "varchar20",
+              "remark": "",
+              "chnname": "收款方微信账号ID"
+            },
+            {
+              "name": "weixin_account_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "收款方微信账号姓名"
+            },
+            {
+              "name": "bank_account_card",
+              "type": "varchar20",
+              "remark": "",
+              "chnname": "银行账户卡号"
+            },
+            {
+              "name": "bank_account_name",
+              "type": "varchar",
+              "remark": "",
+              "chnname": "银行账户名称"
+            },
+            {
+              "name": "bank_account_type",
+              "type": "varchar10",
+              "remark": "c:个人; e:企业",
+              "chnname": "银行账户类型"
+            },
+            {
+              "name": "bank_name",
+              "type": "varchar100",
+              "remark": "如果为企业，必填",
+              "chnname": "银行名称"
+            },
+            {
+              "name": "bank_province",
+              "type": "varchar20",
+              "remark": "如果为企业，必填",
+              "chnname": "开户行省份"
+            },
+            {
+              "name": "bank_city",
+              "type": "varchar20",
+              "remark": "如果为企业，必填",
+              "chnname": "开户行城市"
+            },
+            {
+              "name": "bank_branch",
+              "type": "varchar50",
+              "remark": "如果为企业，必填",
+              "chnname": "开户行支行"
+            },
+            {
+              "name": "transfer_trade_no",
+              "type": "varchar64",
+              "remark": "第三方支付：支付平台返回",
+              "chnname": "转账交易号"
+            },
+            {
+              "name": "check_status",
+              "type": "smallint",
+              "remark": "第三方平台资金类交易，需对账；10: 未对账；20: 对账成功；21: 对账失败",
+              "chnname": "对账状态"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "提现申请表"
+        },
+        {
+          "title": "recharge_order",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "充值订单ID",
+              "notNull": true,
+              "pk": true
+            },
+            {
+              "name": "amount",
+              "type": "DECIMAL",
+              "remark": "",
+              "chnname": "充值金额",
+              "notNull": true
+            },
+            {
+              "name": "account_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "充值账户",
+              "notNull": true
+            },
+            {
+              "name": "account_type",
+              "type": "varchar10",
+              "remark": "c:个人; e:企业",
+              "chnname": "账户类型",
+              "notNull": true
+            },
+            {
+              "name": "status",
+              "type": "smallint",
+              "remark": "100:订单创建; 101:订单取消; 200:支付中; 300:支付成功; 301:支付失败",
+              "chnname": "订单状态",
+              "notNull": true
+            },
+            {
+              "name": "pay_id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "支付订单号",
+              "notNull": true
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "充值订单表"
+        },
+        {
+          "title": "trade_confirm",
+          "fields": [
+            {
+              "name": "id",
+              "type": "BigInt",
+              "remark": "",
+              "chnname": "id",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "trade_type",
+              "type": "smallint",
+              "remark": "10: 支付 20：退款 30：提现(转账)",
+              "chnname": "交易类型",
+              "notNull": true
+            },
+            {
+              "name": "trade_apply_id",
+              "type": "bigint",
+              "remark": "支付申请，退款申请，提现申请 ID",
+              "chnname": "申请ID",
+              "notNull": true
+            },
+            {
+              "name": "trade_status",
+              "type": "smallint",
+              "remark": "支付交易：200-支付中(一般对应支付平台订单已创建，未支付)  300-支付成功 301-支付失败  退款交易：300-退款中 400-退款成功 401-退款失败  提现交易： 200-提现处理中 300-提现成功 301-提现失败",
+              "chnname": "交易状态",
+              "notNull": true
+            },
+            {
+              "name": "freq",
+              "type": "varchar10",
+              "remark": "m:分钟，比如每分钟确认支付状态 h:小时，每小时确认退款信息 d:天，每天转账状态",
+              "chnname": "频率",
+              "notNull": true
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "uiHint",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "交易状态确认表"
+        }
+      ],
+      "graphCanvas": {
+        "nodes": [
+          {
+            "shape": "table",
+            "title": "withdraw_apply",
+            "moduleName": false,
+            "x": 840,
+            "y": 700,
+            "id": "e27c4fee"
+          },
+          {
+            "shape": "table",
+            "title": "account_withdraw_info",
+            "moduleName": false,
+            "x": 1380,
+            "y": 600,
+            "id": "dfc2c3b1"
+          },
+          {
+            "shape": "table",
+            "title": "account_info",
+            "moduleName": false,
+            "x": 1290,
+            "y": -60,
+            "id": "4471818a"
+          },
+          {
+            "shape": "table",
+            "title": "account_trace",
+            "moduleName": false,
+            "x": 920,
+            "y": 80,
+            "id": "894e81a8"
+          },
+          {
+            "shape": "table",
+            "title": "payment_apply",
+            "moduleName": false,
+            "x": -100,
+            "y": 120,
+            "id": "d2d96a6b"
+          },
+          {
+            "shape": "table",
+            "title": "refund_apply",
+            "moduleName": false,
+            "x": 330,
+            "y": 350,
+            "id": "0aaeb250"
+          },
+          {
+            "shape": "table",
+            "title": "recharge_order",
+            "moduleName": false,
+            "x": -510,
+            "y": 140,
+            "id": "637e61d0"
+          }
+        ],
+        "edges": [
+          {
+            "shape": "erdRelation",
+            "relation": "0,n:1",
+            "source": "894e81a8",
+            "target": "4471818a",
+            "id": "ecbc33fb",
+            "controlPoints": [
+              {
+                "x": 1056.466796875,
+                "y": 32.27380952380953
+              },
+              {
+                "x": 1483.57421875,
+                "y": -137.83695652173913
+              }
+            ],
+            "sourceAnchor": 3,
+            "targetAnchor": 1
+          },
+          {
+            "shape": "erdRelation",
+            "relation": "0,n:1",
+            "source": "894e81a8",
+            "target": "d2d96a6b",
+            "id": "91a22301",
+            "controlPoints": [
+              {
+                "x": 783.533203125,
+                "y": 132.75
+              },
+              {
+                "x": 76.8203125,
+                "y": -137.93644067796612
+              }
+            ],
+            "sourceAnchor": 14,
+            "targetAnchor": 1
+          },
+          {
+            "shape": "erdRelation",
+            "relation": "0,n:1",
+            "source": "894e81a8",
+            "target": "0aaeb250",
+            "id": "3ea4ac82",
+            "controlPoints": [
+              {
+                "x": 783.533203125,
+                "y": 132.75
+              },
+              {
+                "x": 492.8134765625,
+                "y": 202.10135135135135
+              }
+            ],
+            "sourceAnchor": 14,
+            "targetAnchor": 1
+          },
+          {
+            "shape": "erdRelation",
+            "relation": "0,n:1",
+            "source": "894e81a8",
+            "target": "e27c4fee",
+            "id": "d7b52f4a",
+            "controlPoints": [
+              {
+                "x": 783.533203125,
+                "y": 132.75
+              },
+              {
+                "x": 643.8525390625,
+                "y": 472.0707547169811
+              }
+            ],
+            "sourceAnchor": 14,
+            "targetAnchor": 0
+          },
+          {
+            "shape": "erdRelation",
+            "relation": "0,n:1",
+            "source": "637e61d0",
+            "target": "d2d96a6b",
+            "id": "efbb1be9",
+            "controlPoints": [
+              {
+                "x": -370.6171875,
+                "y": 202.91666666666666
+              },
+              {
+                "x": -276.8203125,
+                "y": -137.93644067796612
+              }
+            ],
+            "sourceAnchor": 11,
+            "targetAnchor": 0
+          }
+        ]
+      },
+      "associations": [
+        {
+          "relation": "0,n:1",
+          "from": {
+            "entity": "account_trace",
+            "field": "account_id"
+          },
+          "to": {
+            "entity": "account_info",
+            "field": "id"
+          }
+        },
+        {
+          "relation": "0,n:1",
+          "from": {
+            "entity": "account_trace",
+            "field": "trace_type"
+          },
+          "to": {
+            "entity": "payment_apply",
+            "field": "id"
+          }
+        },
+        {
+          "relation": "0,n:1",
+          "from": {
+            "entity": "account_trace",
+            "field": "trace_type"
+          },
+          "to": {
+            "entity": "refund_apply",
+            "field": "id"
+          }
+        },
+        {
+          "relation": "0,n:1",
+          "from": {
+            "entity": "account_trace",
+            "field": "trace_type"
+          },
+          "to": {
+            "entity": "withdraw_apply",
+            "field": "id"
+          }
+        },
+        {
+          "relation": "0,n:1",
+          "from": {
+            "entity": "recharge_order",
+            "field": "pay_id"
+          },
+          "to": {
+            "entity": "payment_apply",
+            "field": "id"
+          }
+        }
+      ]
+    }
+  ],
+  "dataTypeDomains": {
+    "datatype": [
+      {
+        "name": "默认字串",
+        "code": "DefaultString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(32)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(32)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(32)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(32)"
+          }
+        }
+      },
+      {
+        "name": "标识号",
+        "code": "IdOrKey",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "ORACLE": {
+            "type": "VARCHAR2(32)"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(32)"
+          },
+          "SQLServer": {
+            "type": "VARCHAR(32)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(32)"
+          }
+        }
+      },
+      {
+        "name": "标识号-长",
+        "code": "LongKey",
+        "apply": {
+          "MYSQL": {
+            "type": "VARCHAR(64)"
+          },
+          "ORACLE": {
+            "type": "VARCHAR2(64)"
+          },
+          "JAVA": {
+            "type": "String"
+          },
+          "SQLServer": {
+            "type": "VARCHAR(64)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(64)"
+          }
+        }
+      },
+      {
+        "name": "名称",
+        "code": "Name",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(128)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(128)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(128)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(128)"
+          }
+        }
+      },
+      {
+        "name": "备注说明",
+        "code": "Intro",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(512)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(512)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(512)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(512)"
+          }
+        }
+      },
+      {
+        "name": "字串-短",
+        "code": "ShortString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(128)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(128)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(128)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(128)"
+          }
+        }
+      },
+      {
+        "name": "字串-中",
+        "code": "MiddleString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(1024)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(1024)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(1024)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(1024)"
+          }
+        }
+      },
+      {
+        "name": "字串-长",
+        "code": "LongString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(3072)"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(3072)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(3072)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(3072)"
+          }
+        }
+      },
+      {
+        "name": "大文本",
+        "code": "LongText",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "TEXT"
+          },
+          "ORACLE": {
+            "type": "CLOB"
+          },
+          "SQLServer": {
+            "type": "NTEXT"
+          },
+          "PostgreSQL": {
+            "type": "TEXT"
+          }
+        }
+      },
+      {
+        "name": "小数",
+        "code": "Double",
+        "apply": {
+          "JAVA": {
+            "type": "Double"
+          },
+          "MYSQL": {
+            "type": "DECIMAL(32,10)"
+          },
+          "ORACLE": {
+            "type": "NUMBER(32,10)"
+          },
+          "SQLServer": {
+            "type": "DECIMAL(32,10)"
+          },
+          "PostgreSQL": {
+            "type": "DECIMAL(32,10)"
+          }
+        }
+      },
+      {
+        "name": "比例",
+        "code": "Ratio",
+        "apply": {
+          "MYSQL": {
+            "type": "DECIMAL(4,2)"
+          },
+          "JAVA": {
+            "type": "Double"
+          },
+          "ORACLE": {
+            "type": "NUMBER(4,2)"
+          },
+          "SQLServer": {
+            "type": "DECIMAL(4,2)"
+          },
+          "PostgreSQL": {
+            "type": "DECIMAL(4,2)"
+          }
+        }
+      },
+      {
+        "name": "整数",
+        "code": "Integer",
+        "apply": {
+          "JAVA": {
+            "type": "Integer"
+          },
+          "MYSQL": {
+            "type": "INT"
+          },
+          "ORACLE": {
+            "type": "INT"
+          },
+          "SQLServer": {
+            "type": "INT"
+          },
+          "PostgreSQL": {
+            "type": "INT"
+          }
+        }
+      },
+      {
+        "name": "大整数",
+        "code": "BigInt",
+        "apply": {
+          "MYSQL": {
+            "type": "BIGINT"
+          },
+          "JAVA": {
+            "type": "Long"
+          },
+          "ORACLE": {
+            "type": "NUMBER"
+          },
+          "SQLServer": {
+            "type": "BIGINT"
+          },
+          "PostgreSQL": {
+            "type": "BIGINT"
+          }
+        }
+      },
+      {
+        "name": "金额",
+        "code": "Money",
+        "apply": {
+          "JAVA": {
+            "type": "Double"
+          },
+          "MYSQL": {
+            "type": "DECIMAL(32,8)"
+          },
+          "ORACLE": {
+            "type": "NUMBER(32,8)"
+          },
+          "SQLServer": {
+            "type": "DECIMAL(32,8)"
+          },
+          "PostgreSQL": {
+            "type": "DECIMAL(32,8)"
+          }
+        }
+      },
+      {
+        "name": "是否",
+        "code": "YesNo",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(1)"
+          },
+          "ORACLE": {
+            "type": "VARCHAR2(1)"
+          },
+          "SQLServer": {
+            "type": "VARCHAR(1)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(1)"
+          }
+        }
+      },
+      {
+        "name": "数据字典",
+        "code": "Dict",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(32)"
+          },
+          "ORACLE": {
+            "type": "VARCHAR2(32)"
+          },
+          "SQLServer": {
+            "type": "VARCHAR(32)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(32)"
+          }
+        }
+      },
+      {
+        "name": "日期",
+        "code": "Date",
+        "apply": {
+          "JAVA": {
+            "type": "Date"
+          },
+          "MYSQL": {
+            "type": "DATE"
+          },
+          "ORACLE": {
+            "type": "DATE"
+          },
+          "SQLServer": {
+            "type": "DATE"
+          },
+          "PostgreSQL": {
+            "type": "DATE"
+          }
+        }
+      },
+      {
+        "name": "日期时间",
+        "code": "DateTime",
+        "apply": {
+          "JAVA": {
+            "type": "Date"
+          },
+          "MYSQL": {
+            "type": "DATETIME"
+          },
+          "ORACLE": {
+            "type": "DATE"
+          },
+          "SQLServer": {
+            "type": "DATE"
+          },
+          "PostgreSQL": {
+            "type": "DATE"
+          }
+        }
+      },
+      {
+        "name": "单字符",
+        "code": "Char",
+        "apply": {
+          "MYSQL": {
+            "type": "CHAR(1)"
+          },
+          "ORACLE": {
+            "type": "CHAR(1)"
+          },
+          "JAVA": {
+            "type": "String"
+          },
+          "SQLServer": {
+            "type": "CHAR(1)"
+          },
+          "PostgreSQL": {
+            "type": "CHAR(1)"
+          }
+        }
+      },
+      {
+        "code": "DECIMAL",
+        "name": "金额14-2",
+        "apply": {
+          "MYSQL": {
+            "type": "DECIMAL(14,2)"
+          }
+        }
+      },
+      {
+        "code": "bigint",
+        "name": "长整8",
+        "apply": {
+          "MYSQL": {
+            "type": "bigint(8)"
+          }
+        }
+      },
+      {
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(10)"
+          }
+        },
+        "name": "varchar-10",
+        "code": "varchar10"
+      },
+      {
+        "code": "smallint",
+        "apply": {
+          "MYSQL": {
+            "type": "smallint"
+          }
+        },
+        "name": "smallint"
+      },
+      {
+        "name": "varchar-200",
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(200)"
+          }
+        },
+        "code": "varchar"
+      },
+      {
+        "name": "varchar-500",
+        "code": "varchar500",
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(500)"
+          }
+        }
+      },
+      {
+        "name": "varchar-20",
+        "code": "varchar20",
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(20)"
+          }
+        }
+      },
+      {
+        "name": "varchar-100",
+        "code": "varchar100",
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(100)"
+          }
+        }
+      },
+      {
+        "name": "varchar-50",
+        "code": "varchar50",
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(50)"
+          }
+        }
+      },
+      {
+        "name": "varchar-64",
+        "code": "varchar64",
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(64)"
+          }
+        }
+      },
+      {
+        "name": "smallint-10",
+        "code": "smallint10",
+        "apply": {
+          "MYSQL": {
+            "type": "smallint(10)"
+          }
+        }
+      },
+      {
+        "name": "varchar-5000",
+        "code": "varchar-5000",
+        "apply": {
+          "MYSQL": {
+            "type": "varchar(5000)"
+          }
+        }
+      },
+      {
+        "name": "float",
+        "code": "float",
+        "apply": {
+          "MYSQL": {
+            "type": "float"
+          }
+        }
+      }
+    ],
+    "database": [
+      {
+        "code": "MYSQL",
+        "template": "DROP TABLE {{=it.entity.title}};\n$blankline\nCREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.pk ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.entity.chnname,it.entity.remark,';') }}'",
+        "fileShow": true,
+        "defaultDatabase": true,
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} {{= field.autoIncrement ? 'AUTO_INCREMENT' : '' }} {{= field.defaultValue ? it.func.join('DEFAULT',field.defaultValue,' ') : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,' ')}}' {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.entity.chnname,it.entity.remark,' ') }}';{{=it.separator}}\n$blankline\n",
+        "deleteTableTemplate": "DROP TABLE {{=it.entity.title}};{{=it.separator}}/*SkipError*/",
+        "rebuildTableTemplate": "create table PDMAN_UP_{{=it.oldEntity.title}}\nas select * from {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\nCREATE TABLE {{=it.newEntity.title}}(\n{{ pkList = [] ; }}\n{{~it.newEntity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.newEntity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.newEntity.chnname,it.newEntity.remark,';') }}';{{=it.separator}}\n$blankline\n\n{{ sameCols = it.func.intersect(it.newEntity.fields,it.oldEntity.fields) ;}}\ninsert into {{=it.newEntity.title}}(\n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}\n) \nselect \n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}\nfrom PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n{{~it.newEntity.indexs:index}}\nALTER TABLE {{=it.newEntity.title}} ADD {{? index.isUnique}}UNIQUE{{??}}INDEX{{?}} {{=index.name}}({{=it.func.join(...index.fields,',')}});{{=it.separator}}\n{{~}}",
+        "createFieldTemplate": "ALTER TABLE {{=it.entity.title}} ADD COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.pk}}PRIMARY KEY{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}} {{? it.field.addAfter}}AFTER {{=it.field.addAfter}}{{?}};{{=it.separator}}",
+        "updateFieldTemplate": "ALTER TABLE {{=it.entity.title}} MODIFY COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}};{{=it.separator}}",
+        "deleteFieldTemplate": "ALTER TABLE {{=it.entity.title}} DROP {{=it.field.name}};{{=it.separator}}",
+        "deleteIndexTemplate": "ALTER TABLE {{=it.entity.title}} DROP INDEX {{=it.index.name}};{{=it.separator}}",
+        "createIndexTemplate": "ALTER TABLE {{=it.entity.title}} ADD {{? it.index.isUnique}}UNIQUE{{??}}INDEX{{?}} {{=it.index.name}}({{=it.func.join(...it.index.fields,',')}});{{=it.separator}}",
+        "updateTableComment": "ALTER TABLE {{=it.entity.title}} COMMENT '{{=it.entity.chnname}}';{{=it.separator}}"
+      },
+      {
+        "code": "ORACLE",
+        "template": "DROP TABLE {{=it.entity.title}};{{=it.separator}}\n$blankline\nCREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}}  {{= field.pk ? 'NOT NULL' : '' }} {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n);{{=it.separator}}\n$blankline\nCOMMENT ON TABLE {{=it.entity.title}} IS '{{=it.func.join(it.entity.chnname,it.entity.remark,';') }}';{{=it.separator}}\n{{~it.entity.fields:field:index}}\nCOMMENT ON COLUMN {{=it.entity.title}}.{{=field.name}} IS '{{=it.func.join(field.chnname,field.remark,';')}}';{{=it.separator}}\n{{~}}",
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}}{{? field.defaultValue}} DEFAULT {{=field.defaultValue}}{{?}}{{= field.notNull ? ' NOT NULL' : '' }}{{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n);{{=it.separator}}\n$blankline\n{{? it.entity.chnname || it.entity.remark}}COMMENT ON TABLE {{=it.entity.title}} IS {{? it.entity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.entity.chnname}}'{{?}};{{=it.separator}}{{?}}\n{{~it.entity.fields:field:index}}\n{{? field.chnname || field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=field.name}} IS {{? field.remark}}'{{=field.remark}}'{{??}}'{{=field.chnname}}'{{?}};{{=it.separator}}{{?}}\n{{~}}",
+        "deleteTableTemplate": "DROP TABLE {{=it.entity.title}};{{=it.separator}}/*SkipError*/\r\n$blankline",
+        "rebuildTableTemplate": "CREATE TABLE PDMAN_UP_{{=it.oldEntity.title}}\nAS SELECT * FROM {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\nDROP TABLE {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\nCREATE TABLE {{=it.newEntity.title}}(\n{{ pkList = [] ; }}{{~it.newEntity.fields:field:index}}{{? field.pk }}{{ pkList.push(field.name) }}{{?}}    {{=field.name}} {{=field.type}}{{? field.defaultValue}} DEFAULT {{=field.defaultValue}}{{?}}{{= field.notNull ? ' NOT NULL' : '' }}{{= index < it.newEntity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}{{? pkList.length >0 }}    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}}){{?}}\n);{{=it.separator}}\n$blankline\n{{? it.newEntity.chnname || it.newEntity.remark}}COMMENT ON TABLE {{=it.newEntity.title}} IS {{? it.newEntity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.newEntity.chnname}}'{{?}};{{?}}{{=it.separator}}\n{{~it.newEntity.fields:field:index}}\n{{? field.chnname || field.remark}}COMMENT ON COLUMN {{=it.newEntity.title}}.{{=field.name}} IS {{? field.remark}}'{{=field.remark}}'{{??}}'{{=field.chnname}}'{{?}};{{?}}{{=it.separator}}\n{{~}}\n{{ sameCols = it.func.intersect(it.newEntity.fields,it.oldEntity.fields) ;}}\n$blankline\nINSERT INTO {{=it.newEntity.title}}(\n{{~sameCols:field:index}}   {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}) \nSELECT\n{{~sameCols:field:index}}   {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}FROM PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n\nDROP TABLE PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n{{~it.newEntity.indexs:index}}\nCREATE{{? index.isUnique}} UNIQUE{{?}} INDEX {{=index.name}} ON {{=it.newEntity.title}}({{=it.func.join(index.fields,',')}});{{=it.separator}}\n{{~}}",
+        "createFieldTemplate": "ALTER TABLE {{=it.entity.title}} ADD({{=it.field.name}} {{=it.field.type}}{{? it.field.defaultValue}} DEFAULT {{=it.field.defaultValue}}{{?}}{{? it.field.notNull}} NOT NULL{{?}});{{=it.separator}}\r\n{{? it.field.chnname || it.field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=it.field.name}} IS {{? it.field.remark}}'{{=it.field.remark}}'{{??}}'{{=it.field.chnname}}'{{?}};{{=it.separator}}{{?}}\r\n$blankline",
+        "updateFieldTemplate": "ALTER TABLE {{=it.entity.title}} MODIFY({{=it.field.name}} {{=it.field.type}}{{? it.field.defaultValue}} DEFAULT {{=it.field.defaultValue}}{{?}}{{? it.field.notNull}} NOT NULL{{?}});{{=it.separator}}\r\n{{? it.field.chnname || it.field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=it.field.name}} IS {{? it.field.remark}}'{{=it.field.remark}}'{{??}}'{{=it.field.chnname}}'{{?}};{{=it.separator}}{{=it.separator}}{{?}}\r\n$blankline",
+        "deleteFieldTemplate": "ALTER TABLE {{=it.entity.title}} DROP({{=it.field.name}});{{=it.separator}}\r\n$blankline",
+        "deleteIndexTemplate": "DROP INDEX {{=it.entity.title}}.{{=it.index.name}};{{=it.separator}}\r\n$blankline",
+        "createIndexTemplate": "CREATE{{? it.index.isUnique}} UNIQUE{{?}} INDEX {{=it.index.name}} ON {{=it.entity.title}}({{=it.func.join(it.index.fields,',')}});{{=it.separator}}\r\n$blankline",
+        "updateTableComment": "{{? it.entity.chnname || it.entity.remark}}COMMENT ON TABLE {{=it.entity.title}} IS {{? it.entity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.entity.chnname}}'{{?}};{{=it.separator}}{{?}}\r\n$blankline"
+      },
+      {
+        "code": "SQLServer",
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} {{= field.autoIncrement ? 'IDENTITY(1,1)' : '' }} {{= field.defaultValue ? it.func.join('DEFAULT',field.defaultValue,' ') : '' }}  {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    CONSTRAINT PK_{{=it.entity.title}} PRIMARY KEY CLUSTERED ({{~pkList:pkName:i}}{{= pkName }} ASC {{= i<pkList.length-1 ? ',' : '' }}{{~}}) ON [PRIMARY] \n{{?}}\n) ;{{=it.separator}}\n\n$blankline\nEXECUTE sp_addextendedproperty N'MS_Description', '{{= it.entity.chnname || it.entity.remark}}', N'user', N'dbo', N'table', N'{{=it.entity.title}}', NULL, NULL;{{=it.separator}}\n{{~it.entity.fields:field:index}}\n{{? field.chnname || field.remark}}EXECUTE sp_addextendedproperty N'MS_Description', {{? field.remark}}'{{=field.remark}}'{{??}}'{{=field.chnname}}'{{?}}, N'user', N'dbo', N'table', N'{{=it.entity.title}}', N'column', N'{{=field.name}}';{{=it.separator}}{{?}}\n{{~}}\n",
+        "deleteTableTemplate": "",
+        "rebuildTableTemplate": "",
+        "createFieldTemplate": "",
+        "updateFieldTemplate": "",
+        "deleteFieldTemplate": "",
+        "deleteIndexTemplate": "",
+        "createIndexTemplate": "",
+        "updateTableComment": ""
+      },
+      {
+        "code": "PostgreSQL",
+        "template": "DROP TABLE {{=it.entity.title}};\n$blankline\nCREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.pk ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.entity.chnname,it.entity.remark,';') }}'",
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}}{{? field.defaultValue}} DEFAULT {{=field.defaultValue}}{{?}}{{= field.notNull ? ' NOT NULL' : '' }}{{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n);{{=it.separator}}\n$blankline\n{{? it.entity.chnname || it.entity.remark}}COMMENT ON TABLE {{=it.entity.title}} IS {{? it.entity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.entity.chnname}}'{{?}};{{=it.separator}}{{?}}\n{{~it.entity.fields:field:index}}\n{{? field.chnname || field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=field.name}} IS {{? field.remark}}'{{=field.remark}}'{{??}}'{{=field.chnname}}'{{?}};{{=it.separator}}{{?}}\n{{~}}",
+        "deleteTableTemplate": "DROP TABLE {{=it.entity.title}};{{=it.separator}}/*SkipError*/",
+        "rebuildTableTemplate": "create table PDMAN_UP_{{=it.oldEntity.title}}\nas select * from {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\nCREATE TABLE {{=it.newEntity.title}}(\n{{ pkList = [] ; }}\n{{~it.newEntity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.newEntity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.newEntity.chnname,it.newEntity.remark,';') }}';{{=it.separator}}\n$blankline\n\n{{ sameCols = it.func.intersect(it.newEntity.fields,it.oldEntity.fields) ;}}\ninsert into {{=it.newEntity.title}}(\n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}\n) \nselect \n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}\nfrom PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}",
+        "createFieldTemplate": "ALTER TABLE {{=it.entity.title}} ADD COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.pk}}PRIMARY KEY{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}} {{? it.field.addAfter}}AFTER {{=it.field.addAfter}}{{?}};{{=it.separator}}",
+        "updateFieldTemplate": "ALTER TABLE {{=it.entity.title}} MODIFY COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}};{{=it.separator}}",
+        "deleteFieldTemplate": "ALTER TABLE {{=it.entity.title}} DROP {{=it.field.name}};{{=it.separator}}",
+        "deleteIndexTemplate": "ALTER TABLE {{=it.entity.title}} DROP INDEX {{=it.index.name}};{{=it.separator}}",
+        "createIndexTemplate": "ALTER TABLE {{=it.entity.title}} ADD {{? it.index.isUnique}}UNIQUE{{??}}INDEX{{?}} {{=it.index.name}}({{=it.func.join(...it.index.fields,',')}});{{=it.separator}}",
+        "updateTableComment": "ALTER TABLE {{=it.entity.title}} COMMENT '{{=it.entity.chnname}}';{{=it.separator}}"
+      },
+      {
+        "code": "JAVA",
+        "template": "package group.rober.pdman.{{=it.module.name}}.entity;\n$blankline\nimport javax.persistence.*;\nimport java.io.Serializable;\nimport java.util.Date;\n$blankline\n$blankline\n\n/** {{=it.entity.chnname}} */\n@Table(name=\"{{=it.entity.title}}\")\npublic class {{=it.func.camel(it.entity.title,true) }} implements Serializable,Cloneable{\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    {{? field.pk }}\n    @Id\n    @GeneratedValue\n    {{?}}\n    private {{=field.type}} {{=it.func.camel(field.name,false)}} ;\n{{~}}\n$blankline\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public {{=field.type}} get{{=it.func.camel(field.name,true)}}(){\n        return this.{{=it.func.camel(field.name,false)}};\n    }\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public void set{{=it.func.camel(field.name,true)}}({{=field.type}} {{= it.func.camel(field.name,false) }}){\n        this.{{=it.func.camel(field.name,false)}} = {{= it.func.camel(field.name,false) }};\n    }\n{{~}}\n}",
+        "createTableTemplate": "package group.rober.pdman.{{=it.module.name}}.entity;\n$blankline\nimport javax.persistence.*;\nimport java.io.Serializable;\nimport java.util.Date;\n$blankline\n$blankline\n@Table(name=\"{{=it.entity.title}}\")\npublic class {{=it.func.camel(it.entity.title,true) }} implements Serializable,Cloneable{\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    {{? field.pk }}\n    @Id\n    @GeneratedValue\n    {{?}}\n    private {{=field.type}} {{=it.func.camel(field.name,false)}} ;\n{{~}}\n$blankline\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public {{=field.type}} get{{=it.func.camel(field.name,true)}}(){\n        return this.{{=it.func.camel(field.name,false)}};\n    }\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public void set{{=it.func.camel(field.name,true)}}({{=field.type}} {{= it.func.camel(field.name,false) }}){\n        this.{{=it.func.camel(field.name,false)}} = {{= it.func.camel(field.name,false) }};\n    }\n{{~}}\n}",
+        "deleteTableTemplate": "",
+        "rebuildTableTemplate": "",
+        "createFieldTemplate": "",
+        "updateFieldTemplate": "",
+        "deleteFieldTemplate": "",
+        "deleteIndexTemplate": "",
+        "createIndexTemplate": "",
+        "updateTableComment": ""
+      }
+    ]
+  },
+  "profile": {
+    "defaultFields": [],
+    "defaultFieldsType": "1",
+    "javaConfig": {},
+    "sqlConfig": ";",
+    "dbs": [],
+    "wordTemplateConfig": ""
+  }
+}

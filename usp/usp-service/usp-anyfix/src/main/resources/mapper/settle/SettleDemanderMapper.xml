@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.settle.mapper.SettleDemanderMapper">
+
+    <sql id="commonCondition">
+        <if test="settleDemanderFilter.settleCode != null and settleDemanderFilter.settleCode != ''">
+            and settle_code like concat('%', #{settleDemanderFilter.settleCode}, '%')
+        </if>
+        <if test="settleDemanderFilter.currentCorp != null and settleDemanderFilter.currentCorp > 0">
+            and (demander_corp = #{settleDemanderFilter.currentCorp} or service_corp = #{settleDemanderFilter.currentCorp})
+        </if>
+        <if test="settleDemanderFilter.serviceCorp != null and settleDemanderFilter.serviceCorp > 0">
+            and service_corp = #{settleDemanderFilter.currentCorp}
+        </if>
+        <if test="settleDemanderFilter.demanderCorp != null and settleDemanderFilter.demanderCorp > 0">
+            and demander_corp = #{settleDemanderFilter.demanderCorp}
+        </if>
+        <if test="settleDemanderFilter.invoiceStatusList != null and settleDemanderFilter.invoiceStatusList.size() > 0">
+            and invoice_status in
+            <foreach item="invoiceStatus" collection="settleDemanderFilter.invoiceStatusList" open="(" separator="," close=")">
+                #{invoiceStatus}
+            </foreach>
+        </if>
+        <if test="settleDemanderFilter.payStatusList != null and settleDemanderFilter.payStatusList.size() > 0">
+            and pay_status in
+            <foreach item="payStatus" collection="settleDemanderFilter.payStatusList" open="(" separator="," close=")">
+                #{payStatus}
+            </foreach>
+        </if>
+        <if test="settleDemanderFilter.demanderCorpList != null and settleDemanderFilter.demanderCorpList.size() > 0">
+            and demander_corp in
+            <foreach collection="settleDemanderFilter.demanderCorpList" item="demanderCorpId" open="(" close=")" separator=",">
+                #{demanderCorpId}
+            </foreach>
+        </if>
+        <if test="settleDemanderFilter.settleWay != null and settleDemanderFilter.settleWay > 0">
+            and settle_way = #{settleDemanderFilter.settleWay}
+        </if>
+    </sql>
+
+    <select id="pageByFilter" resultType="com.zjft.usp.anyfix.settle.dto.SettleDemanderDto">
+        select a.*,b.invoice_time,b.receipt_time from settle_demander a
+        left join settle_demander_payment b on a.settle_id=b.settle_id
+        where 1 = 1
+        <include refid="commonCondition"></include>
+        order by operate_time desc
+    </select>
+
+    <select id="listByFilter" resultType="com.zjft.usp.anyfix.settle.dto.SettleDemanderDto">
+        select * from settle_demander
+        where 1 = 1
+        <include refid="commonCondition"></include>
+    </select>
+
+<!--    <select id="listFeeBySettleIdList" resultType="com.zjft.usp.anyfix.settle.dto.SettleDemanderDto">-->
+<!--        select sdd.settle_id, sum(wf.total_fee) as settle_fee-->
+<!--        from (-->
+<!--            select detail_id, work_id, settle_id from settle_demander_detail where 1=1-->
+<!--            <if test="settleIdList != null and settleIdList.size > 0">-->
+<!--                and settle_id in-->
+<!--                <foreach collection="settleIdList" open="(" close=")" separator="," item="settleId">-->
+<!--                    #{settleId}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--        ) sdd-->
+<!--        left join (-->
+<!--            select work_id, total_fee from work_fee-->
+<!--        ) wf on sdd.work_id = wf.work_id-->
+<!--        group by sdd.settle_id-->
+<!--    </select>-->
+
+<!--    <select id="getFeeBySettleId" resultType="com.zjft.usp.anyfix.settle.dto.SettleDemanderDto">-->
+<!--        select sdd.settle_id, sum(wf.total_fee) as settle_fee-->
+<!--        from (-->
+<!--        select detail_id, work_id, settle_id from settle_demander_detail where 1=1-->
+<!--        <if test="settleId != null and settleId > 0">-->
+<!--            and settle_id = #{settleId}-->
+<!--        </if>-->
+<!--        ) sdd-->
+<!--        left join (-->
+<!--        select work_id, total_fee from work_fee-->
+<!--        ) wf on sdd.work_id = wf.work_id-->
+<!--        group by sdd.settle_id-->
+<!--    </select>-->
+
+    <select id="pageBankAccount" resultType="com.zjft.usp.anyfix.settle.dto.BankAccountDto">
+        select account_number, account_name, account_bank, service_corp
+        from settle_demander where 1=1
+        and account_number != '' and account_name != '' and account_bank != ''
+        <if test="settleDemanderFilter.serviceCorp != null and settleDemanderFilter.serviceCorp > 0">
+            and service_corp = #{settleDemanderFilter.serviceCorp}
+        </if>
+        <if test="settleDemanderFilter.accountFilter != null and settleDemanderFilter.accountFilter != ''">
+            and (
+                account_number like concat('%', #{settleDemanderFilter.accountFilter}, '%')
+                or account_name like concat('%', #{settleDemanderFilter.accountFilter}, '%')
+                or account_bank like concat('%', #{settleDemanderFilter.accountFilter}, '%')
+            )
+        </if>
+        group by account_number,account_name,account_bank
+    </select>
+
+    <!-- 根据委托协议号获取最大结算单号 -->
+    <select id="findMaxSettleCode" resultType="java.lang.String">
+        select max(settle_code) as settleCode from settle_demander where
+        <choose>
+            <when test='prefix != null and prefix != ""'>
+                settle_code like concat(#{prefix}, '%')
+            </when>
+            <otherwise>
+                1=2
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 根据前缀列表获取最大结算单号列表 -->
+    <select id="listMaxSettleCode" resultType="com.zjft.usp.anyfix.settle.dto.SettleDemanderDto">
+        select max(d.settle_code) as settleCode, d.prefix from (
+        select settle_code, substring(settle_code, 1, CHAR_LENGTH(settle_code) - 2) as prefix
+        from settle_demander where
+        <choose>
+            <when test="prefixList != null and prefixList.size() > 0">
+                <foreach collection="prefixList" item="prefix" separator=" or " open="(" close=")">
+                    settle_code like concat(#{prefix}, '%')
+                </foreach>
+            </when>
+            <otherwise>
+                1=2
+            </otherwise>
+        </choose>
+        ) d group by d.prefix
+    </select>
+
+</mapper>

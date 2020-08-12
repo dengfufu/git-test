@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.fileconfig.mapper.FileConfigMapper">
+
+    <select id="selectFileConfig" resultType="com.zjft.usp.anyfix.corp.fileconfig.dto.FileConfigDto">
+        select *
+        from file_config config
+        where  ref_id = #{refId}
+    </select>
+
+    <select id="selectFileConfigByDemander"  resultType="com.zjft.usp.anyfix.corp.fileconfig.dto.FileConfigDto">
+        select *
+        from file_config
+        where ref_id = (
+            select id
+            from demander_service
+            where  demander_corp = #{filter.demanderCorp} and service_corp = #{filter.serviceCorp}
+        ) and work_type = #{filter.workType} and form_type = #{filter.formType}
+    </select>
+
+    <select id="selectFilesByDemander" resultType="com.zjft.usp.anyfix.corp.fileconfig.dto.FileConfigDto">
+        select config.group_name, config.max_num, config.min_num, config.description, files.file_ids
+        from file_config config    left join  work_files files
+        on config.id = files.config_id
+        where config.ref_id = (
+            select id
+            from demander_service
+            where  demander_corp = #{filter.demanderCorp} and service_corp = #{filter.serviceCorp}
+        ) and work_type = #{filter.workType} and form_type = #{filter.formType}
+    </select>
+</mapper>

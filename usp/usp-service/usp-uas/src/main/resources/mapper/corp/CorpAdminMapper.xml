@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.corp.mapper.CorpAdminMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.corp.model.CorpAdmin">
+    <id column="userid" jdbcType="BIGINT" property="userId" />
+    <id column="corpid" jdbcType="BIGINT" property="corpId" />
+    <result column="granttime" jdbcType="TIMESTAMP" property="grantTime" />
+  </resultMap>
+</mapper>

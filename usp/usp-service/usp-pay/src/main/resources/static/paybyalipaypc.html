@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</head>
+<body style="background-color: #efecec; padding: 20px">
+<div class="card">
+    <div class="card-header">开通钱包: 1. 服务商和委托商的企业钱包</div>
+    <div class="card-body">
+        <input id="payerCorpId" type="number" class="form-control" placeholder="付款方企业ID"/>
+        <button class="btn btn-primary" onclick="accountInfoCreate('payerCorpId')">创建</button>
+        <input id="payerAccountInfoId" type="text" class="form-control" placeholder="付款方钱包ID"/>
+        <button class="btn btn-primary" onclick="accountInfoView('payerCorpId')">查询</button>
+        <div id="payerAccountInfo"></div>
+        <br/>
+        <input id="payeeCorpId" type="number" class="form-control" placeholder="付款方企业ID"/>
+        <button class="btn btn-primary" onclick="accountInfoCreate('payeeCorpId')">创建</button>
+        <input id="payeeAccountInfoId" type="text" class="form-control" placeholder="收款方钱包ID"/>
+        <button class="btn btn-primary" onclick="accounInfotView('payeeCorpId')">查询</button>
+        <div id="payeeAccountInfo"></div>
+    </div>
+</div>
+<br>
+<div class="card">
+    <div class="card-header">结算单: 1. 创建支付申请</div>
+    <div class="card-body">
+        <form>
+            <div class="form-row">
+                <div class="col">
+                    <input id="payerAccountId" type="number" class="form-control" placeholder="付款方"
+                           value="1267652891510898689"/><br/>
+                </div>
+                <div class="col">
+                    <input id="payeeAccountId" type="number" class="form-control" placeholder="收款方"
+                           value="1267653359490367489"/><br/>
+                </div>
+                <div class="col">
+                    <input id="orderId" type="number" class="form-control" placeholder="结算单号"/><br/>
+                </div>
+                <div class="col">
+                    <input id="orderName" type="text" class="form-control" placeholder="结算名称"/><br/>
+                </div>
+                <div class="col">
+                    <input id="orderAmount" type="number" class="form-control" placeholder="总价格"/><br/>
+                </div>
+            </div>
+        </form>
+        <button class="btn btn-primary" onclick="payCreate()">在线支付</button>
+    </div>
+</div>
+<br>
+<div class="card">
+    <div class="card-header">
+        付款申请单: 1. 选择付款方式 2. 轮询付款结果 3. 取消付款申请订单
+    </div>
+    <div class="card-body">
+        <div>
+            <h3 style="color: red;display: inline-block">付款申请单基本信息:</h3>
+            <input id="paymentApplyId" placeholder="支付申请id">
+            <div id="payApplyDetail"></div>
+        </div>
+        <div>
+            <h3 style="color: red">支付结果:</h3>
+            <div id="payFinalResult"></div>
+        </div>
+        <button class="btn btn-primary" onclick="paySubmit()">选择支付宝付款</button>
+        <button class="btn btn-primary" onclick="payResult()">异步支付结果</button>
+
+        <button class="btn btn-primary" onclick="payCancel()">取消支付订单</button>
+    </div>
+</div>
+
+</body>
+
+<script type="text/javascript">
+    var interval; // 定时查询支支付结果
+
+    // ======== 账户钱包相关
+    function accountInfoCreate(type) {
+        var corpId;
+        if (type == "payerCorpId") corpId = $("#payerCorpId").val();
+        if (type == "payeeCorpId") corpId = $("#payeeCorpId").val();
+        $.ajax({
+            type: "post",
+            url: "/account-info/corp-init",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({'corpId': corpId}),
+            success: function (res) {
+                if (type == "payerCorpId") $("#payerAccountInfoId").val(res.data);
+                if (type == "payeeCorpId") $("#payeeAccountInfoId").val(res.data);
+            }
+        });
+    }
+
+    function accountInfoView(type) {
+        var accountInfoId;
+        if (type == "payerCorpId") accountInfoId = $("#payerAccountInfoId").val();
+        if (type == "payeeCorpId") accountInfoId = $("#payeeAccountInfoId").val();
+        $.ajax({
+            type: "post",
+            url: "/account-info/view",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({'accountInfoId': accountInfoId}),
+            success: function (res) {
+                if (type == "payerCorpId") {
+                    $('payerAccountInfo').html(res)
+                }
+                if (type == "payeeCorpId") {
+                    $('payeeAccountInfo').html(res)
+                }
+            }
+        });
+    }
+
+    // ====== 付款申请单相关
+    // 付款申请单初始化, 如果没有则创建()
+    function payCreate() {
+        $.ajax({
+            type: "post",
+            url: "/payment-apply/create",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({
+                'payerAccountId': $("#payerAccountId").val(),
+                'payeeAccountId': $("#payeeAccountId").val(),
+                'orderId': $("#orderId").val(),
+                'orderName': $("#orderName").val(),
+                'orderAmount': $("#orderAmount").val()
+            }),
+            success: function (res) {
+                console.log(res);
+                $("#payApplyDetail").html(JSON.stringify(res));
+                $("#paymentApplyId").val(res.data.id);
+            }
+        });
+    }
+
+    function paySubmit() {
+        // 选择支付方式付款
+        $.ajax({
+            type: "post",
+            url: "/alipay/pc-pay",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({
+                'paymentApplyId': $("#paymentApplyId").val() //付款申请id
+            }),
+            success: function (res) {
+                console.log(res);
+                var newwindow = window.open("#", "_blank");
+                newwindow.document.write(res.data);
+
+                // 轮询付款结果
+                $("#payFinalResult").html("订单支付支付中。。。");
+                interval = window.setInterval(function () {
+                    payResult();
+                }, 1000);
+            }
+        });
+    }
+
+    function payResult() {
+        $.ajax({
+            type: "post",
+            url: "/payment-apply/direct-check-result",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({
+                'paymentApplyId': $("#paymentApplyId").val() //付款申请id
+            }),
+            success: function (res) {
+                console.log(interval);
+
+                var payResult = res.data;
+                if (payResult) {
+                    $("#payFinalResult").html("支付成功");
+                    console.log(interval);
+                    window.clearInterval(interval);
+                }
+                console.log(res);
+            }
+        });
+    }
+
+    function payCancel() {
+        $.ajax({
+            type: "post",
+            url: "/payment-apply/cancel",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({
+                'paymentApplyId': $("#paymentApplyId").val() //付款申请id
+            }),
+            success: function (res) {
+                console.log(res);
+            }
+        });
+    }
+</script>
+</html>

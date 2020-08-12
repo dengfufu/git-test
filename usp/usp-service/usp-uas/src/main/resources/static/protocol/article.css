@@ -1,0 +1,50 @@
+.doc-container {
+  background-color: #fff;
+  padding: 20px;
+}
+.doc-container .doc-article h1, .doc-container .doc-article h2, .doc-container .doc-article h3, .doc-container .doc-article h4, .doc-container .doc-article h5 {
+  color: #333;
+  margin: 14px 0;
+  font-weight: 700;
+}
+.doc-container .doc-article h1 {
+  font-size: 24px;
+  text-align: center;
+}
+.doc-container .doc-article h2 {
+  font-size: 22px;
+}
+.doc-container .doc-article h3 {
+  font-size: 20px;
+}
+.doc-container .doc-article h4 {
+  font-size: 18px;
+}
+.doc-container .doc-article h5 {
+  font-size: 16px;
+}
+.doc-container .doc-article h6 {
+  font-size: 14px;
+}
+.doc-container .doc-article p {
+  margin: 15px 0;
+  text-indent: 2em;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.doc-container .doc-article u, .doc-container .doc-article strong {
+  font-weight: 700;
+}
+.doc-container .doc-article ol, .doc-container .doc-article ul {
+  padding-left: 30px;
+  list-style-type: disc;
+}
+.doc-container .doc-article ol li, .doc-container .doc-article ul li {
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+.doc-container .doc-article ol {
+  list-style-type: decimal;
+}
+
+/*# sourceMappingURL=article.css.map */

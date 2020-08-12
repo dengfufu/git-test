@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.push.mapper.PushTemplateMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.msg.model.PushTemplate">
+
+    <id column="tplid" jdbcType="INTEGER" property="tplId" />
+    <result column="appid" jdbcType="INTEGER" property="appId" />
+    <result column="tplname" jdbcType="VARCHAR" property="tplName" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="adduserid" jdbcType="BIGINT" property="addUserId" />
+    <result column="addtime" jdbcType="TIMESTAMP" property="addTime" />
+    <result column="enabled" jdbcType="VARCHAR" property="addTime" />
+  </resultMap>
+</mapper>

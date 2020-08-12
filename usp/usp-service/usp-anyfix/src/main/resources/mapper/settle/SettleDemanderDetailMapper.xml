@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.settle.mapper.SettleDemanderDetailMapper">
+
+    <sql id="commonCondition">
+        <if test="settleDemanderDetailFilter.settleId != null and settleDemanderDetailFilter.settleId > 0">
+            and settle_id=#{settleDemanderDetailFilter.settleId}
+        </if>
+    </sql>
+
+    <!--  查询结算对账单  -->
+    <select id="listWorkFeeVerify" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeVerifyDto">
+        select s.settle_id, s.detail_id as settleDetailId, s.verify_id, v.verify_name, v.start_date, v.end_date, v.district, v.work_quantity, v.verify_amount, v.status
+        from (
+            select * from settle_demander_detail where 1=1
+            <include refid="commonCondition"></include>
+        ) s
+        left join work_fee_verify v on s.verify_id=v.verify_id
+    </select>
+
+    <!--  分页查询结算对账单  -->
+    <select id="queryWorkFeeVerify" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeVerifyDto">
+        select s.settle_id, s.detail_id as settleDetailId, s.verify_id, v.verify_name, v.start_date, v.end_date, v.district, v.work_quantity, v.verify_amount, v.status
+        from (
+        select * from settle_demander_detail where 1=1
+        <include refid="commonCondition"></include>
+        ) s
+        left join work_fee_verify v on s.verify_id=v.verify_id
+    </select>
+
+    <!--  查询结算工单  -->
+    <select id="listWork" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDto">
+        select s.settle_id, s.detail_id as settleDetailId, r.work_id,r.check_work_code,r.work_type,r.service_request,r.custom_id,
+        r.custom_corp,r.device_branch,r.district,r.address,r.create_time,
+        r.small_class as smallClassId,r.device_code,r.serial,r.brand,r.model,r.specification,r.warranty,d.work_code,d.work_status,
+        d.service_corp,d.service_branch,d.engineer,d.finish_time,d.fee_confirm_status,f.total_fee,d.fee_check_status,d.end_time
+        from
+        (
+        select * from settle_demander_detail where 1=1
+        <include refid="commonCondition"></include>
+        ) s left join work_request r on s.work_id = r.work_id
+        left join work_deal d on s.work_id = d.work_id
+        left join work_fee f on s.work_id = f.work_id
+    </select>
+
+    <!--  分页查询结算工单  -->
+    <select id="queryWork" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkFeeDto">
+        select s.settle_id, s.detail_id as settleDetailId, r.work_id,r.check_work_code,r.work_type,r.service_request,r.custom_id,
+        r.custom_corp,r.device_branch,r.district,r.address,r.create_time,
+        r.small_class as smallClassId,r.device_code,r.serial,r.brand,r.model,r.specification,r.warranty,d.work_code,d.work_status,
+        d.service_corp,d.service_branch,d.engineer,d.finish_time,d.fee_confirm_status,f.total_fee,d.fee_check_status,d.end_time
+        from
+        (
+        select * from settle_demander_detail where 1=1
+        <include refid="commonCondition"></include>
+        ) s left join work_request r on s.work_id = r.work_id
+        left join work_deal d on s.work_id = d.work_id
+        left join work_fee f on s.work_id = f.work_id
+    </select>
+
+    <!--  根据结算单编号查询WorkDeal  -->
+<!--    <select id="listWorkDealBySettleId" resultType="com.zjft.usp.anyfix.work.deal.model.WorkDeal">-->
+<!--        select * from work_deal where 1=1-->
+<!--        <choose>-->
+<!--            <when test="settleId != null and settleId > 0">-->
+<!--                and work_id in (-->
+<!--                select work_id from settle_demander_detail where settle_id=#{settleId})-->
+<!--            </when>-->
+<!--            <otherwise>-->
+<!--                1=2-->
+<!--            </otherwise>-->
+<!--        </choose>-->
+<!--    </select>-->
+
+</mapper>

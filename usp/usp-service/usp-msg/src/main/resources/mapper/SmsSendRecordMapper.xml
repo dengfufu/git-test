@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.msg.mapper.SmsSendRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="SmsSendResultMap" type="com.zjft.usp.msg.model.SmsSendRecord">
+        <id column="smsid" property="smsId" jdbcType="BIGINT"/>
+        <id column="touser" property="touser" jdbcType="BIGINT"/>
+
+        <result column="appid" property="appId"/>
+        <result column="smstype" property="smsType"/>
+        <result column="content" property="content"/>
+        <result column="fixedtime" property="fixedTime"/>
+        <result column="senttime" property="sentTime"/>
+        <result column="status" property="status"/>
+        <result column="receiptid" property="receiptId"/>
+        <result column="returncode" property="returnCode"/>
+        <result column="returnmsg" property="returnMsg"/>
+    </resultMap>
+
+    <insert id="insertSmsSendRecord" parameterType="com.zjft.usp.msg.model.SmsSendRecord">
+        insert into ${tableName}(smsid,touser,appid,smstype,content,fixedtime,senttime,status,receiptid,returncode,returnmsg)
+        values(#{smsId}, #{touser}, #{appId}, #{smsType}, #{content}, #{fixedTime}, #{sentTime}, #{status}, #{receiptId}, #{returnCode}, #{returnMsg})
+    </insert>
+
+    <select id="existTable" parameterType="String" resultType="Integer">
+        select count(*) from information_schema.TABLES
+        where table_name=#{tableName}
+    </select>
+
+    <update id="createTableBySms" parameterType="String">
+        CREATE TABLE ${tableName} (
+          `smsid` bigint(20) NOT NULL COMMENT '短信ID',
+          `touser` bigint(20) NOT NULL COMMENT '目标用户',
+          `appid` int(11) NOT NULL DEFAULT 0 COMMENT '应用ID',
+          `smstype` smallint(6) NOT NULL DEFAULT 0 COMMENT '短信类型',
+          `content` varchar(200) NOT NULL DEFAULT '' COMMENT '通知内容',
+          `fixedtime` datetime DEFAULT NULL COMMENT '指定推送时间',
+          `senttime` datetime DEFAULT NULL COMMENT '已发送时间',
+          `status` smallint(6) NOT NULL DEFAULT 0 COMMENT '发送状态',
+          `receiptid` varchar(20) NOT NULL DEFAULT '' COMMENT '回执ID',
+          `returncode` varchar(50) NOT NULL DEFAULT '' COMMENT '返回码',
+          `returnmsg` varchar(50) NOT NULL DEFAULT '' COMMENT '返回消息',
+          PRIMARY KEY (`smsid`,`touser`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='短信发送记录表';
+    </update>
+
+    <update id="createTableByMai" parameterType="String">
+        CREATE TABLE ${tableName} (
+          `mailid` bigint(20) NOT NULL COMMENT '邮件ID',
+          `receivers` varchar(200) NOT NULL COMMENT '收件人列表',
+          `appid` int(11) NOT NULL DEFAULT 0 COMMENT '应用ID',
+          `title` varchar(100) NOT NULL DEFAULT '' COMMENT '标题',
+          `content` varchar(1000) NOT NULL DEFAULT '' COMMENT '邮件内容',
+          `contentfile` bigint(20) NOT NULL DEFAULT 0 COMMENT '邮件内容文件ID',
+          `attachfiles` varchar(200) NOT NULL DEFAULT '' COMMENT '附件文件ID列表',
+          `fixedtime` datetime DEFAULT NULL COMMENT '指定推送时间',
+          `senttime` datetime DEFAULT NULL COMMENT '已发送时间',
+          `status` smallint(6) NOT NULL DEFAULT 0 COMMENT '发送状态',
+          `receiptid` varchar(20) NOT NULL DEFAULT '' COMMENT '回执ID',
+          `returncode` varchar(50) NOT NULL DEFAULT '' COMMENT '返回码',
+          `returnmsg` varchar(50) NOT NULL DEFAULT '' COMMENT '返回消息',
+          PRIMARY KEY (`mailid`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='邮件发送记录表';
+    </update>
+</mapper>

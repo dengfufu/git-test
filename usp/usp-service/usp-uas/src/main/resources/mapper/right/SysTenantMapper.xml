@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.right.mapper.SysTenantMapper">
+
+
+    <select id="selectSysTenant" resultType="com.zjft.usp.uas.right.dto.SysTenantDto">
+      select  tenant.corp_id as corpId , reg.corpname as corpName
+      from sys_tenant tenant inner join  uas_corp_reg reg
+        <choose>
+            <when test="matchFilter != null and matchFilter != ''">
+                on (tenant.corp_id = reg.corpid and reg.corpname like concat('%',#{matchFilter},'%'))
+            </when>
+            <otherwise>
+                on tenant.corp_id = reg.corpid
+            </otherwise>
+        </choose>
+        <if test='excludeCorpIdList != null and excludeCorpIdList.size() > 0 '>
+            and tenant.corp_id not in
+            <foreach collection="excludeCorpIdList" item="corpId" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>
+        </if>
+        <if test='serviceProvider != null and serviceProvider !="" '>
+            and tenant.service_provider = #{serviceProvider}
+        </if>
+        order by reg.corpname asc
+    </select>
+
+</mapper>

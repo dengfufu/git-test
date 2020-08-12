@@ -1,0 +1,142 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 300MB #限制文件上传的大小
+      max-request-size: 500MB
+  redis:
+    cluster:
+      nodes: 10.34.12.145:6390,10.34.50.197:6391,10.34.12.185:6392,10.34.12.145:6393,10.34.50.197:6394,10.34.12.185:6395
+      max-redirects: 3
+    password: zj000001
+    port: 6390
+    database: 0
+    timeout: 10000
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: 10000
+        max-idle: 8
+        min-idle: 0
+      shutdown-timeout: 100
+  cloud:
+    gateway:
+      enabled: true
+      routes:
+        - id: config
+          uri: lb://usp-config
+          predicates:
+            - Path=/api/config/**
+          filters:
+            - StripPrefix=2
+        - id: auth
+          uri: lb://usp-auth
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=2
+        - id: auth-oauth
+          uri: lb://usp-auth
+          predicates:
+            - Path=/login.html,/login,/oauth/token,/oauth/authorize,/oauth/check_token
+          filters:
+            - PreserveHostHeader
+        - id: uas
+          uri: lb://usp-uas
+          predicates:
+            - Path=/api/uas/**
+          filters:
+            - StripPrefix=2
+        - id: pos
+          uri: lb://usp-pos
+          predicates:
+            - Path=/api/pos/**
+          filters:
+            - StripPrefix=2
+        - id: push
+          uri: lb://usp-msg
+          predicates:
+            - Path=/api/msg/**
+          filters:
+            - StripPrefix=2
+        - id: push2
+          uri: lb:ws://usp-msg
+          predicates:
+            - Path=/websocket/**
+        - id: file
+          uri: lb://usp-file
+          predicates:
+            - Path=/api/file/**
+          filters:
+            - StripPrefix=2
+        - id: anyfix
+          uri: lb://usp-anyfix
+          predicates:
+            - Path=/api/anyfix/**
+          filters:
+            - StripPrefix=2
+        - id: wms
+          uri: lb://usp-wms
+          predicates:
+            - Path=/api/wms/**
+          filters:
+            - StripPrefix=2
+        - id: device
+          uri: lb://usp-device
+          predicates:
+            - Path=/api/device/**
+          filters:
+            - StripPrefix=2
+        - id: wechat
+          uri: lb://usp-wechat
+          predicates:
+            - Path=/api/wechat/**
+          filters:
+            - StripPrefix=2
+usp:
+  security:
+    ignore:
+      # 忽略认证的地址
+      httpUrls: >
+        /api/auth/oauth/**,
+        /api/auth/validate/**,
+        /api/uas/register/**,
+        /api/file/**,
+        /websocket/**,
+        /api/wechat/**,
+        /api/anyfix/work-check/fee/auto-confirm,
+        /api/anyfix/work-check/service/auto-confirm,
+        /api/anyfix/work-fee-verify/createJob
+    auth:
+      urlPermission:
+        #是否开启url级别权限
+        enable: true
+        #配置只进行登录认证，不进行url权限认证的api
+        #/api/uas/corp-user/change，远程调用删除企业用户
+        #/api/anyfix/work-cost/queryByMobile，远程调用获得工程师需要报销的工单
+        #/api/anyfix/atm-appraise-engineer/queryByMonth，远程调用获得工程师需要考核的工单
+        ignoreUrls: >
+          /api/wms/**,
+          /api/anyfix/zj/**,
+          /api/uas/corp-user/change,
+          /api/anyfix/work-cost/queryByMobile,
+          /api/anyfix/atm-appraise-engineer/queryByMonth
+
+mobile:
+  version: '0.0.1'
+  apkUrl: 'http://www.zijin.com/app/download/zjft-office.apk'
+  appUrl: 'https://itunes.apple.com/cn/app/紫金移动办公/id1322939752?l=zh&ls=1&mt=8'
+  release-note: ''
+
+logging:
+  level:
+    com.zjft.usp.gateway: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

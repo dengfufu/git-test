@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.fee.mapper.WorkPostMapper">
+
+    <select id="matchPostCorp" resultType="com.zjft.usp.anyfix.work.fee.dto.WorkPostDto">
+        select distinct(post_corp_name) as post_corp_name from work_post
+        where 1=1
+        <if test="workPostDto.corpId != null and workPostDto.corpId > 0">
+            and work_id in (select work_id from work_deal where service_corp = #{workPostDto.corpId})
+        </if>
+        <if test="workPostDto.postCorpName != null and workPostDto.postCorpName != ''">
+            and post_corp_name like concat('%', #{workPostDto.postCorpName}, '%')
+        </if>
+        limit 100
+    </select>
+
+</mapper>

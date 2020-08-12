@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.corp.mapper.CorpUserMapper">
+    <resultMap id="BaseResultMap" type="com.zjft.usp.uas.corp.model.CorpUser">
+        <id column="userid" jdbcType="BIGINT" property="userId"/>
+        <id column="corpid" jdbcType="BIGINT" property="corpId"/>
+        <result column="addtime" jdbcType="TIMESTAMP" property="addTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    userid, corpid, addtime
+    </sql>
+
+    <select id="queryCorpUserInfoByUserIdList" resultType="com.zjft.usp.uas.corp.dto.CorpUserInfoDto">
+        select info.userid as userId, info.faceimg as faceImg, r.username
+        from uas_user_info info
+        left join uas_user_real r on r.userid = info.userid
+        where info.userid in
+        <foreach collection="userIdList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryCorpUser" resultType="com.zjft.usp.uas.corp.dto.CorpUserDto">
+        select a.userid,a.corpid,a.type,a.account,b.username from (
+            select
+                user_id as userid,
+                corp_id as corpid,
+                null as account,
+                2 as type
+                from uas_corp_user_trace u
+                where not EXISTS (
+                    select 1 from uas_corp_user_trace t
+                    where u.user_id = t.user_id and u.corp_id = t.corp_id and u.operate_time &lt; t.operate_time )
+                and operate = 2
+                and u.corp_id = #{corpUserFilter.corpId}
+            union
+            select userid, corpid,account,1 as type from uas_corp_user where corpid = #{corpUserFilter.corpId}
+            and hidden = 0
+        ) a
+        left join uas_user_real b on a.userid=b.userid where 1=1
+        <if test='corpUserFilter.type != null and corpUserFilter.type != ""'>
+            and a.type=#{corpUserFilter.type}
+        </if>
+        <if test='corpUserFilter.userId != null and corpUserFilter.userId > 0'>
+            and a.userid=#{corpUserFilter.userId}
+        </if>
+        <if test='corpUserFilter.userIdList != null and corpUserFilter.userIdList.size() > 0'>
+            and a.userid in
+            <foreach collection="corpUserFilter.userIdList" index="index" item="userId" open="(" separator=","
+                     close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test='corpUserFilter.userName != null and corpUserFilter.userName != ""'>
+            and b.username=#{corpUserFilter.userName}
+        </if>
+        <if test='corpUserFilter.roleId != null and corpUserFilter.roleId > 0'>
+            and a.userid in (
+            select user_id from sys_role_user where role_id=#{corpUserFilter.roleId}
+            )
+        </if>
+        <if test='corpUserFilter.mobileFilter != null and corpUserFilter.mobileFilter != ""'>
+            and b.username like concat('%',#{corpUserFilter.mobileFilter},'%')
+        </if>
+        <if test='corpUserFilter.excludeUserIdList != null and corpUserFilter.excludeUserIdList.size() > 0 '>
+            and a.userid not in
+            <foreach collection="corpUserFilter.excludeUserIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        order by b.username asc
+    </select>
+
+    <!-- 模糊查询企业人员列表 -->
+    <select id="matchCorpUser" resultType="com.zjft.usp.uas.corp.dto.CorpUserDto">
+        select a.*,b.username,c.mobile,r.roleNames from uas_corp_user a
+        join uas_user_info c on a.userid=c.userid
+        left join uas_user_real b on a.userid=b.userid
+        left join (
+        select sru.user_id,GROUP_CONCAT(sr.role_name) as roleNames from sys_role_user sru
+        left join sys_role sr on sru.role_id = sr.role_id
+        where sr.corp_id = #{corpUserFilter.corpId}
+        group by sru.user_id
+        ) r on a.userid = r.user_id
+        where b.username != ''
+        and a.hidden = 0
+        and a.corpid=#{corpUserFilter.corpId}
+        <if test='corpUserFilter.userIdList != null and corpUserFilter.userIdList.size() >0'>
+            and a.userid in
+            <foreach collection="corpUserFilter.userIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test='corpUserFilter.matchFilter != null and corpUserFilter.matchFilter != ""'>
+            and (b.username like concat('%',trim(#{corpUserFilter.matchFilter}),'%')
+            or c.mobile like concat('%',trim(#{corpUserFilter.matchFilter}),'%'))
+        </if>
+        <if test='corpUserFilter.excludeUserIdList != null and corpUserFilter.excludeUserIdList.size() > 0 '>
+            and a.userid not in
+            <foreach collection="corpUserFilter.excludeUserIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        order by b.username limit 0,50
+    </select>
+
+    <!-- 模糊查询企业人员姓名列表 -->
+    <select id="matchCorpUserNames" resultType="com.zjft.usp.uas.corp.dto.CorpUserDto">
+        select a.*,b.username,c.mobile from uas_corp_user a
+        join uas_user_info c on a.userid=c.userid
+        left join uas_user_real b on a.userid=b.userid
+        where b.username != ''
+        and a.hidden = 0
+        and a.corpid=#{corpUserFilter.corpId}
+        <if test='corpUserFilter.userIdList != null and corpUserFilter.userIdList.size() >0'>
+            and a.userid in
+            <foreach collection="corpUserFilter.userIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test='corpUserFilter.matchFilter != null and corpUserFilter.matchFilter != ""'>
+            and (b.username like concat('%',trim(#{corpUserFilter.matchFilter}),'%')
+            or c.mobile like concat('%',trim(#{corpUserFilter.matchFilter}),'%'))
+        </if>
+        <if test='corpUserFilter.excludeUserIdList != null and corpUserFilter.excludeUserIdList.size() > 0 '>
+            and a.userid not in
+            <foreach collection="corpUserFilter.excludeUserIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        order by b.username limit 0,50
+    </select>
+
+    <select id="selectCorpUser" resultType="com.zjft.usp.uas.corp.dto.CorpUserDto" >
+        select a.userid,a.corpid,a.type,a.account,a.hidden,b.username from (
+        select
+        user_id as userid,
+        corp_id as corpid,
+        null as account,
+        0 as hidden,
+        2 as type
+        from uas_corp_user_trace u
+        where not EXISTS (
+        select 1 from uas_corp_user_trace t
+        where u.user_id = t.user_id and u.corp_id = t.corp_id and u.operate_time &lt; t.operate_time )
+        and operate = 2
+        and u.corp_id = #{corpUserFilter.corpId}
+        union
+        select userid, corpid,account,hidden,1 as type from uas_corp_user where corpid = #{corpUserFilter.corpId}
+        ) a
+        left join uas_user_real b on a.userid=b.userid where 1=1
+        <if test='corpUserFilter.type != null and corpUserFilter.type != ""'>
+            and a.type=#{corpUserFilter.type}
+        </if>
+        <if test='corpUserFilter.hidden != null '>
+            and a.hidden=#{corpUserFilter.hidden}
+        </if>
+        <if test='corpUserFilter.userId != null and corpUserFilter.userId > 0'>
+            and a.userid=#{corpUserFilter.userId}
+        </if>
+        <if test='corpUserFilter.userIdList != null and corpUserFilter.userIdList.size() > 0'>
+            and a.userid in
+            <foreach collection="corpUserFilter.userIdList" index="index" item="userId" open="(" separator=","
+                     close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test='corpUserFilter.userName != null and corpUserFilter.userName != ""'>
+            and b.username=#{corpUserFilter.userName}
+        </if>
+        <if test='corpUserFilter.roleId != null and corpUserFilter.roleId > 0'>
+            and a.userid in (
+            select user_id from sys_role_user where role_id=#{corpUserFilter.roleId}
+            )
+        </if>
+        <if test='corpUserFilter.mobileFilter != null and corpUserFilter.mobileFilter != ""'>
+            and b.username like concat('%',#{corpUserFilter.mobileFilter},'%')
+        </if>
+        <if test='corpUserFilter.excludeUserIdList != null and corpUserFilter.excludeUserIdList.size() > 0 '>
+            and a.userid not in
+            <foreach collection="corpUserFilter.excludeUserIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        order by b.username asc
+    </select>
+
+    <!-- 模糊查询企业人员列表（用于筛选） -->
+    <select id="matchCorpUserByCorp" resultType="com.zjft.usp.uas.corp.dto.CorpUserDto">
+        select a.*,b.username,c.mobile from uas_corp_user a
+        join uas_user_info c on a.userid=c.userid
+        left join uas_user_real b on a.userid=b.userid
+        where b.username != ''
+        and a.corpid=#{corpUserFilter.corpId}
+        <if test='corpUserFilter.userIdList != null and corpUserFilter.userIdList.size() >0'>
+            and a.userid in
+            <foreach collection="corpUserFilter.userIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        <if test='corpUserFilter.matchFilter != null and corpUserFilter.matchFilter != ""'>
+            and (b.username like concat('%',trim(#{corpUserFilter.matchFilter}),'%')
+            or c.mobile like concat('%',trim(#{corpUserFilter.matchFilter}),'%'))
+        </if>
+        <if test='corpUserFilter.excludeUserIdList != null and corpUserFilter.excludeUserIdList.size() > 0 '>
+            and a.userid not in
+            <foreach collection="corpUserFilter.excludeUserIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </if>
+        order by b.username limit 0,50
+    </select>
+
+    <select id="selectUserNameMobileByMobile" resultType="com.zjft.usp.uas.corp.dto.CorpUserInfoDto">
+        select mobile.userid as userId, mobile , username as userName
+        from uas_user_real u_real , uas_user_mobile mobile
+        where mobile.mobile = #{mobile} and u_real.userid = mobile.userid
+        limit 1
+    </select>
+
+</mapper>

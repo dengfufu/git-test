@@ -1,0 +1,323 @@
+spring:
+  kafka:
+    bootstrap-servers: 10.34.12.145:9092,10.34.12.97:9092,10.34.50.197:9092
+    producer:
+      #重试次数
+      retries: 3
+      #缓冲区大小，默认16KB
+      batch-size: 16384
+      #缓冲的存储器的总量，默认32MB
+      buffer-memory: 33554432
+      #序列化器接口的键
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      #序列化器接口的值
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      #用于标识此使用者所属的使用者组的唯一字符串
+      group-id: anyfix
+      #默认采用手动提交的机制
+      enable-auto-commit: false
+      #偏移量 latest：当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
+      auto-offset-reset: latest
+      #序列化器接口的键
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      #序列化器接口的值
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      template:
+        default-topic: work-topic
+      processing:
+        guarantee: exact_once
+      listener:
+        ack-mode: false
+
+  #集群版
+  redis:
+    cluster:
+      nodes: 10.34.12.145:6390,10.34.50.197:6391,10.34.12.97:6392,10.34.12.145:6393,10.34.50.197:6394,10.34.12.97:6395
+      max-redirects: 3
+    password: zj000001
+    timeout: 5000
+    database: 0
+    lettuce:
+      pool:
+        max-active: 300
+        max-wait: 500
+        max-idle: 10
+        min-idle: 0
+
+  datasource:
+    druid:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://10.34.12.145:3306/usp_anyfix?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      username: root
+      password: cloud.Zijin
+      initialSize: 1
+      minIdle: 1
+      maxActive: 20
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      logAbandoned: true
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      validationQueryTimeout: 10000
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: false
+      maxPoolPreparedStatementPerConnectionSize: 20
+      filters: stat,wall
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      web-stat-filter:
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        enabled: true
+        url-pattern: "/druid/*"
+        allow: 127.0.0.1
+        reset-enable: false
+        login-username: admin
+        login-password: admin
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*.xml
+  typeAliasesPackage: com.zjft.usp.anyfix.**.model
+  global-config:
+    id-type: 2
+    field-strategy: 2
+    db-column-underline: false
+    refresh-mapper: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+ribbon:
+  OkToRetryOnAllOperations: false #对所有操作请求都进行重试,默认false
+  ReadTimeout: 3000   #负载均衡超时时间，默认值5000
+  ConnectTimeout: 2000 #ribbon请求连接的超时时间，默认值2000
+  MaxAutoRetries: 0     #对当前实例的重试次数，默认0
+  MaxAutoRetriesNextServer: 0 #对切换实例的重试次数，默认1
+
+logging:
+  level:
+    com.zjft.usp: debug
+    com.alibaba.nacos.client.naming: warn
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+sc:
+  queryAtmCaseUrl: http://10.1.1.8/sc/anyfix/work/atmcase/query.go
+  findAtmCaseDetailUrl: http://10.1.1.8/sc/anyfix/work/atmcase/findDetail.go
+  findAtmCaseOptionUrl: http://10.1.1.8/sc/anyfix/work/atmcase/findOption.go
+  offsetDays: -7
+  privateKey: MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAOCTUQn03LzKg/sU4mccDIECwKhn9a4H9Qj2huyMnepGt1HT2QUPCXUyD4RVNR3wjowB78jYkYN/jGSLcJcyfQrZZenQmWqLYgmMUaZ2XLmXsRukplGoyzghnwg3AkHCfheobzwoKZGWG52jTF3Fvi/R5mrmcYthzxo7xzyfoaBbAgMBAAECgYEAnZqlT9B5LUEOuKGidew4Vj3BSS6UO0s4Ss8AR3gzxttUAegjsKop4AZ+30cRHO7aiyU8y345OMjFlTZKkMGNAER0k9vxsnfVSbyTck9dLzltJlH0lfcsx+13S0HAXY+3u+2Fry9i+4TJ/A6/YsKonDyMZJEv9aX5RBVX6QCmX6ECQQD3grsW4GQ08I//U2EwYJik4k6Og4Cavh2L4ICz6lw9ibQ8gTxQrIr0CaTsbIpw3b6zsIImD2qM1Fdirt8tyBurAkEA6Ecz9GWo1gH3d46r8MQDkT/TuHtfhnO/QADcltDmUJk9j09LuqTj/b2QIpNAFi2zDX9s1LrbmJaVMRg9mo1eEQJBAMCvWY75qYk9Lh0LgEH1MWBLffSck2XkU4QthoSKEr0lktb3lUkIyjQpvecAqNYtCuVAqFGQ9tYkCNOeZ8hwXHkCQQCXjR2Q8GNgfpgAIc59oObS9lolnBmPmCXIlMdYf6RGIjXQM2Sturgm7nAEnx7JWbfhrqpLgj+VJ2rgRXisRmCBAkA/nO3nLJN+hoKlMhQ7kSha45ttjUG7r3RrUYibOgsFturBCUufcj1MZs0YvhqLsG0OnEEL0bIGPEdEdk+nolLb
+
+wo:
+  loginMaxNum: 3
+  baseUrl: https://m.zijin.com/wo
+  loginUrl: ${wo.baseUrl}/login!remoteLogin.do
+  token: uspzjft
+
+  #基础数据相关
+  baseinfo:
+    listManagerUrl: ${wo.baseUrl}/hr/archive/mapManagerIdAndName.do
+    listCaseAllUrl: ${wo.baseUrl}/atm/case/listCaseAll.do
+    listCaseBaseUrl: ${wo.baseUrl}/atm/case/listCaseBaseMap.do
+    listCaseSubTypeUrl: ${wo.baseUrl}/atm/case/mapSubTypeIdAndName.do
+    listServiceBranchLimitUrl: ${wo.baseUrl}/atm/basedata/listAllProvinceBureauLimitForMap.do
+    listDeviceBranchUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryBranch.do
+    listDeviceModelUrl: ${wo.baseUrl}/atm/basedata/deviceTypeMap.do
+    listSoftVersionUrl: ${wo.baseUrl}/atm/case/mapVersionSoft.do
+    listBvSoftVersionUrl: ${wo.baseUrl}/atm/case/mapVersionBV.do
+    listDeviceUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryBranchDetail.do
+    listEngineerUrl: ${wo.baseUrl}/hr/archive/mapEngineerIdAndName.do
+    listTraceRuleUrl: ${wo.baseUrl}/atm/case/findcaseTraceRuleList.do
+    findDeviceCodesBySerialsUrl: ${wo.baseUrl}/atm/case/getAtmcodeByDeviceCodes.do
+    findSerialsByDeviceCodesUrl: ${wo.baseUrl}/atm/case/getDeviceCodeByAtmcode.do
+    findDeviceDetailUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryDeviceDetail.do
+    checkDeviceStatusUrl: ${wo.baseUrl}/atm/case/checkDeviceStatus.do
+    listManMadeUrl: ${wo.baseUrl}/atm/case/mapManMaded.do
+    listDealWayUrl: ${wo.baseUrl}/atm/case/mapDealWay.do
+  #设备相关
+  device:
+    #ATM机
+    atm:
+      queryDeviceUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryDevice.do
+      findDeviceDetailUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryDeviceDetail.do
+      findDeviceArchiveUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryDeviceArchive.do
+      queryInstallRecordUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryInstallRecord.do
+      queryUpdateRecordUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryUpdateRecord.do
+      queryMaintainPmUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!listMaintainPm.do
+      viewMaintainDetailUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!viewMaintainDetail.do
+      viewPmDetailUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!viewPmDetail.do
+      queryPartReplaceUrl: ${wo.baseUrl}/atm/deviceinfo/deviceinforemote!queryParts.do
+      listRecentCaseUrl: ${wo.baseUrl}/atm/case/listRecentCase.do
+      listRecentPartReplaceUrl: ${wo.baseUrl}/atm/case/listRecentPartReplace.do
+  #ATM机CASE相关
+  atmcase:
+    checkYjcaseUrl: ${wo.baseUrl}/atm/case/checkYjcase.do
+    addYjcaseFromWorkOrderInitUrl: ${wo.baseUrl}/atm/case/addYjcaseFromWorkOrderInit.do
+    findCaseUrl: ${wo.baseUrl}/atm/case/viewCaseByUsp.do
+    addAtmCaseSubmitUrl: ${wo.baseUrl}/atm/case/addYjcase.do
+    modAtmCaseSubmitUrl: ${wo.baseUrl}/atm/case/modCaseSubmit.do
+    cancelAtmCaseUrl: ${wo.baseUrl}/atm/case/cancelCase.do
+    cancelAtmCaseSubmitUrl: ${wo.baseUrl}/atm/case/cancelCaseSubmit.do
+    updateAtmCaseArriveTimeUrl: ${wo.baseUrl}/atm/case/updateArriveTimeFromAnyfix.do
+    updateAtmCaseArriveTimeSubmitUrl: ${wo.baseUrl}/atm/case/updateCase.do
+    uploadFaceIdentImageSubmitUrl: ${wo.baseUrl}/atm/ome/sendphoto/uploadFaceIdentPhotoByUsp.do
+    caseImageDBDataUrl: ${wo.baseUrl}/atm/ome/sendphoto/listPicByCaseId.do
+    showOmeCaseImageUrl: ${wo.baseUrl}/atm/ome/sendphoto/viewPhoto.do
+    deleteOmeImageSubmitUrl: ${wo.baseUrl}/atm/ome/sendphoto/delPhoto.do
+    delayAtmCaseUrl: ${wo.baseUrl}/atm/case/addCaseTrace.do
+    delayAtmCaseSubmitUrl: ${wo.baseUrl}/atm/case/addCaseTraceSubmit.do
+    calcCompletionTimeUrl: ${wo.baseUrl}/atm/case/calcYwDateTime.do
+    concertAtmCaseSubmitUrl: ${wo.baseUrl}/atm/case/concernCaseSubmit.do
+    finishAtmCaseUrl:  ${wo.baseUrl}/atm/case/closeCase.do
+    finishAtmCaseSubmitUrl: ${wo.baseUrl}/atm/case/closeCaseSubmit.do
+    isExistSameMachineCaseUrl: ${wo.baseUrl}/atm/case/isExistSameMachineCase.do
+    dealMonitorCaseUrl: ${wo.baseUrl}/atm/case/dealMonitorCase.do
+    listPartReplaceUrl: ${wo.baseUrl}/atm/case/partReplaceList.do
+    addPartReplaceUrl: ${wo.baseUrl}/atm/case/addPartReplace.do
+    addPartReplaceSubmitUrl: ${wo.baseUrl}/atm/case/addPartReplaceSubmit.do
+    checkPartReplaceExistUrl: ${wo.baseUrl}/atm/case/checkPartReplaceExist.do
+    modPartReplaceUrl: ${wo.baseUrl}/atm/case/modPartReplace.do
+    modPartReplaceSubmitUrl: ${wo.baseUrl}/atm/case/modPartReplaceSubmit.do
+    delMoPartReplaceUrl: ${wo.baseUrl}/atm/case/delMoPartReplace.do
+    checkCaseStatusUrl: ${wo.baseUrl}/atm/case/checkCaseStatus.do
+    checkFaceSignForCloseCaseUrl: ${wo.baseUrl}/atm/case/checkFaceSignInForCloseCase.do
+    checkEscortSignInForCloseCaseUrl: ${wo.baseUrl}/atm/case/checkEscortSignInForCloseCase.do
+    listPicByCaseIdUrl: ${wo.baseUrl}/atm/case/ome/photo/listPicByCaseId.do
+    findAppTypeAndSerTypeUrl: ${wo.baseUrl}/atm/case/findAppTypeAndServiceType.do
+    countCaseStatusUrl: ${wo.baseUrl}/atm/case/countCaseStatusByUsp.do
+    listCaseByUspUrl: ${wo.baseUrl}/atm/case/listCaseByUsp.do
+    listUpGhPartUrl: ${wo.baseUrl}/atm/case/findUpGhPart.do
+    listDepotByEngineerUrl: ${wo.baseUrl}/atm/case/listDepotByEngineer.do
+    listPriStockPartUrl: ${wo.baseUrl}/atm/case/findPriStockPart.do
+    isVendorPartUrl: ${wo.baseUrl}/atm/case/isVendorPart.do
+    mapCarNoByBureauIdUrl: ${wo.baseUrl}/part/pristock/mapCarNoByBureauId.do
+    findPartStatusUrl: ${wo.baseUrl}/part/barcoderemote!findPartStatus.do
+    checkURUrl: ${wo.baseUrl}/atm/case/checkUR.do
+    checkPartIdUrl: ${wo.baseUrl}/atm/case/checkPartId.do
+    mandatoryUseVendorPartUrl: ${wo.baseUrl}/atm/case/mandatoryUseVerdorPart.do
+    closeCaseOrtherCheckUrl: ${wo.baseUrl}/atm/case/closeCaseOrtherCheck.do
+    checkPositionUrl: ${wo.baseUrl}/atm/case/checkPosition.do
+    uploadLocationUrl: ${wo.baseUrl}/atm/case/uploadLocation.do
+    checkNeedUploadPicUrl: ${wo.baseUrl}/atm/casepic/checkNeedUploadPic.do
+    uploadPhotoUrl: ${wo.baseUrl}/atm/case/ome/photo/uploadPhotoByUsp.do
+    delPhotoUrl: ${wo.baseUrl}/atm/case/ome/photo/delPhoto.do
+    viewPhotoUrl: ${wo.baseUrl}/atm/case/ome/photo/viewPhoto.do
+    uploadReceiptPhotoUrl: ${wo.baseUrl}/atm/onlinebx/repair/uploadReceiptPhotoByUsp.do
+    delReceiptPhotoUrl: ${wo.baseUrl}/atm/onlinebx/repair/delPhoto.do
+    listNotAuditCasePicUrl: ${wo.baseUrl}/atm/case/listCloseNoAuditPhotoCase.do
+    initCasePhotoUrl: ${wo.baseUrl}/atm/casepic/initCasePhoto.do
+    listDemoPhotoIdUrl: ${wo.baseUrl}/atm/casepic/listDemoPhotoId.do
+    listCasePhotoIdUrl: ${wo.baseUrl}/atm/casepic/listCasePhotoId.do
+    listCloseNoAuditAtmCaseUrl: ${wo.baseUrl}/atm/case/listCloseNoAuditAtmCase.do
+    listCasePhotoIdByMachineCodeUrl: ${wo.baseUrl}/atm/casepic/listCasePhotoIdByMachineCode.do
+    uploadCasePicUrl: ${wo.baseUrl}/atm/casepic/uploadCasePicByUsp.do
+    viewCasePhotoUrl: ${wo.baseUrl}/atm/casepic/viewCasePhoto.do
+    viewDemoPhotoUrl: ${wo.baseUrl}/atm/casepic/viewDemoPhoto.do
+    addNoPhotoReasonUrl: ${wo.baseUrl}/atm/casepic/addNoPhotoReason.do
+    uploadSubmitUrl: ${wo.baseUrl}/atm/casepic/uploadSubmit.do
+    #工行维修登记、介质交接相关
+    icbc:
+      listPartReplaceUrl: ${wo.baseUrl}/atm/case/ome/partreplace/listPartReplace.do
+      addPartReplaceUrl: ${wo.baseUrl}/atm/case/ome/partreplace/addPartReplace.do
+      addPartReplaceSubmitUrl: ${wo.baseUrl}/atm/case/ome/partreplace/addPartReplaceSubmit.do
+      modPartReplaceUrl: ${wo.baseUrl}/atm/case/ome/partreplace/modPartReplace.do
+      modPartReplaceSubmitUrl: ${wo.baseUrl}/atm/case/ome/partreplace/modPartReplaceSubmit.do
+      delPartReplaceSubmitUrl: ${wo.baseUrl}/atm/case/ome/partreplace/delPartReplace.do
+      listMediaReplaceUrl: ${wo.baseUrl}/atm/case/ome/mediareplace/listMediaReplace.do
+      addMediaReplaceUrl: ${wo.baseUrl}/atm/case/ome/mediareplace/addMediaReplace.do
+      addMediaReplaceSubmitUrl: ${wo.baseUrl}/atm/case/ome/mediareplace/addMediaReplaceSubmit.do
+      modMediaReplaceUrl: ${wo.baseUrl}/atm/case/ome/mediareplace/modMediaReplace.do
+      modMediaReplaceSubmitUrl: ${wo.baseUrl}/atm/case/ome/mediareplace/modMediaReplaceSubmit.do
+      delMediaReplaceSubmitUrl: ${wo.baseUrl}/atm/case/ome/mediareplace/delMediaReplace.do
+      checkMediaByCloseUrl: ${wo.baseUrl}/atm/case/ome/mediareplace/checkMediaByClose.do
+  #报修流程相关
+  repair:
+    listRepairUrl: ${wo.baseUrl}/atm/ome/faultrepair/listFaultRepair.do
+    listUnCloseRepairUrl: ${wo.baseUrl}/atm/ome/faultrepair/listUnCloseFaultRepair.do
+    queryRepairUrl: ${wo.baseUrl}/atm/ome/faultrepair/queryFaultRepair.do
+    queryUnCloseRepairUrl: ${wo.baseUrl}/atm/ome/faultrepair/queryUnCloseFaultRepair.do
+    pickRelevanceCaseIdUrl: ${wo.baseUrl}/atm/faultrepair/pickRelevanceCaseId.do
+    countRepairStatusUrl: ${wo.baseUrl}/atm/ome/faultrepair/countRepairStatusByUsp.do
+    listRepairByUspUrl: ${wo.baseUrl}/atm/ome/faultrepair/listRepairByUsp.do
+    #工行对接
+    icbc:
+      findRepairDetailUrl: ${wo.baseUrl}/atm/ome/faultrepair/viewFaultRepair.do
+      turnHandleUrl: ${wo.baseUrl}/atm/ome/faultrepair/turnHandle.do
+      turnHandleSubmitUrl: ${wo.baseUrl}/atm/ome/faultrepair/turnHandleSubmit.do
+      phoneHandleUrl: ${wo.baseUrl}/atm/ome/faultrepair/phoneHandle.do
+      phoneHandleSubmitUrl: ${wo.baseUrl}/atm/ome/faultrepair/phoneHandleSubmit.do
+      returnHandleUrl: ${wo.baseUrl}/atm/ome/faultrepair/returnHandle.do
+      returnHandleSubmitUrl: ${wo.baseUrl}/atm/ome/faultrepair/returnHandleSubmit.do
+      associateCaseUrl: ${wo.baseUrl}/atm/ome/faultrepair/associateCase.do
+      associateCaseSubmitUrl: ${wo.baseUrl}/atm/ome/faultrepair/associateCaseSubmit.do
+      listBxSendCreateFailUrl: ${wo.baseUrl}/atm/ome/faultrepair/listBxSendCreateFail.do
+      modBxSendCreateFailUrl: ${wo.baseUrl}/atm/ome/faultrepair/modBxSendCreateFail.do
+      modBxSendCreateFailSubmitUrl: ${wo.baseUrl}/atm/ome/faultrepair/modBxSendCreateFailSubmit.do
+      findBankMapUrl: ${wo.baseUrl}/atm/ome/faultrepair/findBankMap.do
+      findBureauAndBranchMapUrl: ${wo.baseUrl}/atm/ome/faultrepair/findBureauAndBranchMap.do
+      listFaultRepairPicUrl: ${wo.baseUrl}/atm/ome/faultrepair/listFaultRepairPic.do
+      viewFaultRepairPicUrl: ${wo.baseUrl}/atm/ome/faultrepair/viewFaultRepairPic.do
+    #石嘴山银行
+    szs:
+      findRepairDetailUrl: ${wo.baseUrl}/atm/onlinebx/repair/viewRepair.do
+      turnHandleUrl: ${wo.baseUrl}/atm/onlinebx/repair/turnHandle.do
+      turnHandleSubmitUrl: ${wo.baseUrl}/atm/onlinebx/repair/turnHandleSubmit.do
+      phoneHandleUrl: ${wo.baseUrl}/atm/onlinebx/repair/phoneHandle.do
+      phoneHandleSubmitUrl: ${wo.baseUrl}/atm/onlinebx/repair/phoneHandleSubmit.do
+      returnHandleUrl: ${wo.baseUrl}/atm/onlinebx/repair/returnHandle.do
+      returnHandleSubmitUrl: ${wo.baseUrl}/atm/onlinebx/repair/returnHandleSubmit.do
+      associateCaseUrl: ${wo.baseUrl}/atm/onlinebx/repair/associateCase.do
+      associateCaseSubmitUrl: ${wo.baseUrl}/atm/onlinebx/repair/associateCaseSubmit.do
+      findBankMapUrl: ${wo.baseUrl}/atm/onlinebx/repair/findBankMap.do
+      findBureauAndBranchMapUrl: ${wo.baseUrl}/atm/onlinebx/repair/findBureauAndBranchMap.do
+      listFaultRepairPicUrl: ${wo.baseUrl}/atm/onlinebx/repair/listFaultRepairPic.do
+      viewFaultRepairPicUrl: ${wo.baseUrl}/atm/onlinebx/repair/viewFaultRepairPic.do
+  #派工单流程相关
+  workorder:
+    listMyWorkUrl: ${wo.baseUrl}/atm/workorder/listMyWork.do
+    viewWorkOrderUrl: ${wo.baseUrl}/atm/workorder/ome/viewWorkOrder.do
+    #工行对接相关
+    icbc:
+      addWorkOrderUrl: ${wo.baseUrl}/atm/workorder/ome/addWorkOrder.do
+      addWorkOrderSubmitUrl: ${wo.baseUrl}/atm/workorder/ome/addWorkOrderSubmit.do
+      acceptWorkOrderUrl: ${wo.baseUrl}/atm/workorder/ome/acceptWorkOrder.do
+      acceptWorkOrderSubmitUrl: ${wo.baseUrl}/atm/workorder/ome/acceptWorkOrderSubmit.do
+      refuseWorkOrderUrl: ${wo.baseUrl}/atm/workorder/ome/refuseWorkOrder.do
+      refuseWorkOrderSubmitUrl: ${wo.baseUrl}/atm/workorder/ome/refuseWorkOrderSubmit.do
+      preBookUrl: ${wo.baseUrl}/atm/workorder/ome/preBook.do
+      preBookSubmitUrl: ${wo.baseUrl}/atm/workorder/ome/preBookSubmit.do
+      renewPreBookUrl: ${wo.baseUrl}/atm/workorder/ome/renewPreBook.do
+      renewPreBookSubmitUrl: ${wo.baseUrl}/atm/workorder/ome/renewPreBookSubmit.do
+      returnManagerUrl: ${wo.baseUrl}/atm/workorder/ome/returnManager.do
+      returnManagerSubmitUrl: ${wo.baseUrl}/atm/workorder/ome/returnManagerSubmit.do
+      activeEndWorkOrderUrl: ${wo.baseUrl}/atm/workorder/ome/activeEndWorkOrder.do
+      activeEndWorkOrderSubmitUrl: ${wo.baseUrl}/atm/workorder/ome/activeEndWorkOrderSubmit.do
+    #石嘴山相关
+    szs:
+      addWorkOrderUrl: ${wo.baseUrl}/atm/onlinebx/workorder/addWorkOrder.do
+      addWorkOrderSubmitUrl: ${wo.baseUrl}/atm/onlinebx/workorder/addWorkOrderSubmit.do
+      acceptWorkOrderUrl: ${wo.baseUrl}/atm/onlinebx/workorder/acceptWorkOrder.do
+      acceptWorkOrderSubmitUrl: ${wo.baseUrl}/atm/onlinebx/workorder/acceptWorkOrderSubmit.do
+      refuseWorkOrderUrl: ${wo.baseUrl}/atm/onlinebx/workorder/refuseWorkOrder.do
+      refuseWorkOrderSubmitUrl: ${wo.baseUrl}/atm/onlinebx/workorder/refuseWorkOrderSubmit.do
+      preBookUrl: ${wo.baseUrl}/atm/onlinebx/workorder/preBook.do
+      preBookSubmitUrl: ${wo.baseUrl}/atm/onlinebx/workorder/preBookSubmit.do
+      renewPreBookUrl: ${wo.baseUrl}/atm/onlinebx/workorder/renewPreBook.do
+      renewPreBookSubmitUrl: ${wo.baseUrl}/atm/onlinebx/workorder/renewPreBookSubmit.do
+      returnManagerUrl: ${wo.baseUrl}/atm/onlinebx/workorder/returnManager.do
+      returnManagerSubmitUrl: ${wo.baseUrl}/atm/onlinebx/workorder/returnManagerSubmit.do
+      activeEndWorkOrderUrl: ${wo.baseUrl}/atm/onlinebx/workorder/activeEndWorkOrder.do
+      activeEndWorkOrderSubmitUrl: ${wo.baseUrl}/atm/onlinebx/workorder/activeEndWorkOrderSubmit.do

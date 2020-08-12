@@ -1,0 +1,87 @@
+spring:
+  redis:
+    cluster:
+      nodes: 10.34.12.145:6390,10.34.50.197:6391,10.34.12.185:6392,10.34.12.145:6393,10.34.50.197:6394,10.34.12.185:6395
+      max-redirects: 3
+    password: zj000001
+    port: 6390
+    database: 0
+    timeout: 10000
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: 10000
+        max-idle: 8
+        min-idle: 0
+      shutdown-timeout: 100
+
+  datasource:
+    druid:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://10.34.12.185:3306/usp_auth?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      username: root
+      password: cloud.Zijin
+      initialSize: 1
+      minIdle: 1
+      maxActive: 20
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      logAbandoned: true
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      validationQueryTimeout: 10000
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: false
+      maxPoolPreparedStatementPerConnectionSize: 20
+      filters: stat,wall
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      web-stat-filter:
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet:
+        enabled: true
+        url-pattern: "/druid/*"
+        allow: 127.0.0.1
+        reset-enable: false
+        login-username: admin
+        login-password: admin
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*/*.xml
+  global-config:
+    id-type: 2
+    field-strategy: 2
+    db-column-underline: false
+    refresh-mapper: true
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+ribbon:
+  OkToRetryOnAllOperations: false #对所有操作请求都进行重试,默认false
+  ReadTimeout: 3000   #负载均衡超时时间，默认值5000
+  ConnectTimeout: 2000 #ribbon请求连接的超时时间，默认值2000
+  MaxAutoRetries: 0     #对当前实例的重试次数，默认0
+  MaxAutoRetriesNextServer: 0 #对切换实例的重试次数，默认1
+
+feign:
+  sentinel:
+    enabled: true
+
+logging:
+  level:
+    com.zjft.usp: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS

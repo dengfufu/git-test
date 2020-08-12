@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.device.baseinfo.mapper.DeviceSmallClassMapper">
+
+    <resultMap type="com.zjft.usp.device.baseinfo.dto.DeviceSmallClassDto" id="dtoMap">
+        <id property="id" column="small_class_id"/>
+        <result property="name" column="small_class_name"/>
+        <result property="largeClassId" column="large_class_id"/>
+        <result property="largeClassName" column="large_class_name"/>
+    </resultMap>
+
+    <!-- 分页查询设备小类 -->
+    <select id="queryDeviceSmallClass" resultType="com.zjft.usp.device.baseinfo.dto.DeviceSmallClassDto">
+        select * from (
+        select a.*,b.name as large_class_name from (
+        select * from device_small_class where corp in
+        <foreach item="corpId" collection="deviceSmallClassFilter.demanderCorpList" open="(" separator="," close=")">
+            #{corpId}
+        </foreach>) a left join device_large_class b on a.large_class_id=b.id) t1 where 1=1
+        <if test='deviceSmallClassFilter.largeClassId != null and deviceSmallClassFilter.largeClassId > 0'>
+            and large_class_id = #{deviceSmallClassFilter.largeClassId}
+        </if>
+        <if test='deviceSmallClassFilter.name != null and deviceSmallClassFilter.name != ""'>
+            and name like concat('%',#{deviceSmallClassFilter.name},'%')
+        </if>
+        <if test='deviceSmallClassFilter.enabled != null and deviceSmallClassFilter.enabled != ""'>
+            and enabled = #{deviceSmallClassFilter.enabled}
+        </if>
+        order by corp asc,sort_no asc
+    </select>
+
+    <select id="listDeviceClass" resultMap="dtoMap">
+        select
+            a.id as small_class_id,
+            a.name as small_class_name,
+            b.id as large_class_id,
+            b.name as large_class_name
+        from (select * from device_small_class where corp=#{corpId} and enabled = 'Y') a
+        JOIN (select * from device_large_class where corp=#{corpId} and enabled = 'Y') b
+        ON a.large_class_id=b.id
+        order by b.sort_no asc,a.sort_no asc
+    </select>
+
+    <!-- 查询最大的顺序号 -->
+    <select id="findMaxSortNo" resultType="Integer" parameterType="Long">
+        select max(sort_no) as sort_no from device_small_class where corp=#{corpId}
+    </select>
+
+    <!-- 模糊查询设备小类列表 -->
+    <select id="matchDeviceSmallClass" resultType="com.zjft.usp.device.baseinfo.model.DeviceSmallClass">
+        select * from device_small_class where 1=1
+        <if test='deviceSmallClassFilter.largeClassId != null and deviceSmallClassFilter.largeClassId > 0'>
+            and large_class_id = #{deviceSmallClassFilter.largeClassId}
+        </if>
+        <if test='deviceSmallClassFilter.matchFilter != null and deviceSmallClassFilter.matchFilter != ""'>
+            and name like concat('%',#{deviceSmallClassFilter.matchFilter},'%')
+        </if>
+        <if test='deviceSmallClassFilter.enabled != null and deviceSmallClassFilter.enabled != ""'>
+            and enabled = #{deviceSmallClassFilter.enabled}
+        </if>
+        order by sort_no asc limit 0,50
+    </select>
+
+    <select id="listDeviceClassCompoBy" resultType="com.zjft.usp.device.baseinfo.dto.DeviceClassCompoDto">
+         select
+        a.id as small_class_id,
+        a.name as small_class_name,
+        b.id as large_class_id,
+        b.name as large_class_name
+        from device_small_class a JOIN device_large_class b
+        ON a.large_class_id=b.id WHERE 1=1
+
+        <if test='deviceSmallClassFilter.corpList!= null'>
+            and a.corp IN
+            <foreach item="corpId" collection="deviceSmallClassFilter.corpList" open="(" separator="," close=")">
+                #{corpId}
+            </foreach>
+        </if>
+
+        order by b.sort_no asc,a.sort_no asc
+
+    </select>
+
+
+</mapper>

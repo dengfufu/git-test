@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.ware.mapper.WorkWareRecycleMapper">
+
+    <select id="listCatalog" resultType="com.zjft.usp.anyfix.work.ware.dto.WareDto">
+        select distinct(catalog_name) as catalog_name from
+        (
+        (
+        select catalog_name from work_ware_recycle
+        where catalog_name is not null and catalog_name != ''
+        <if test="wareFilter.catalogName != null and wareFilter.catalogName != ''">
+            and catalog_name like concat('%', #{wareFilter.catalogName}, '%')
+        </if>
+        <if test="wareFilter.corpId != null and wareFilter.corpId > 0">
+            and work_id in (select work_id from work_deal where service_corp = #{wareFilter.corpId})
+        </if>
+        )
+        union all
+        (
+        select catalog_name from work_ware_used
+        where catalog_name is not null and catalog_name != ''
+        <if test="wareFilter.catalogName != null and wareFilter.catalogName != ''">
+            and catalog_name like concat('%', #{wareFilter.catalogName}, '%')
+        </if>
+        <if test="wareFilter.corpId != null and wareFilter.corpId > 0">
+            and work_id in (select work_id from work_deal where service_corp = #{wareFilter.corpId})
+        </if>
+        )
+        ) w limit 100
+    </select>
+
+    <select id="listBrand" resultType="com.zjft.usp.anyfix.work.ware.dto.WareDto">
+        select distinct(brand_name) as brand_name from
+        (
+        (
+        select brand_name from work_ware_recycle
+        where brand_name is not null and brand_name != ''
+        <if test="wareFilter.brandName != null and wareFilter.brandName != ''">
+            and brand_name like concat('%', #{wareFilter.brandName}, '%')
+        </if>
+        <if test="wareFilter.corpId != null and wareFilter.corpId > 0">
+            and work_id in (select work_id from work_deal where service_corp = #{wareFilter.corpId})
+        </if>
+        )
+        union all
+        (
+        select brand_name from work_ware_used
+        where brand_name is not null and brand_name != ''
+        <if test="wareFilter.brandName != null and wareFilter.brandName != ''">
+            and brand_name like concat('%', #{wareFilter.brandName}, '%')
+        </if>
+        <if test="wareFilter.corpId != null and wareFilter.corpId > 0">
+            and work_id in (select work_id from work_deal where service_corp = #{wareFilter.corpId})
+        </if>
+        )
+        ) w limit 100
+    </select>
+
+    <select id="listModel" resultType="com.zjft.usp.anyfix.work.ware.dto.WareDto">
+        select distinct(model_name) as model_name from
+        (
+        (
+        select model_name from work_ware_recycle
+        where model_name is not null and model_name != ''
+        <if test="wareFilter.catalogName != null and wareFilter.catalogName != ''">
+            and catalog_name = #{wareFilter.catalogName}
+        </if>
+        <if test="wareFilter.brandName != null and wareFilter.brandName != ''">
+            and brand_name = #{wareFilter.brandName}
+        </if>
+        <if test="wareFilter.modelName != null and wareFilter.modelName != ''">
+            and model_name like concat('%', #{wareFilter.modelName}, '%')
+        </if>
+        <if test="wareFilter.corpId != null and wareFilter.corpId > 0">
+            and work_id in (select work_id from work_deal where service_corp = #{wareFilter.corpId})
+        </if>
+        )
+        union all
+        (
+        select model_name from work_ware_used wwu
+        where model_name is not null and model_name != ''
+        <if test="wareFilter.catalogName != null and wareFilter.catalogName != ''">
+            and catalog_name = #{wareFilter.catalogName}
+        </if>
+        <if test="wareFilter.brandName != null and wareFilter.brandName != ''">
+            and brand_name = #{wareFilter.brandName}
+        </if>
+        <if test="wareFilter.modelName != null and wareFilter.modelName != ''">
+            and model_name like concat('%', #{wareFilter.modelName}, '%')
+        </if>
+        <if test="wareFilter.corpId != null and wareFilter.corpId > 0">
+            and work_id in (select work_id from work_deal where service_corp = #{wareFilter.corpId})
+        </if>
+        )
+        ) w limit 100
+    </select>
+
+</mapper>

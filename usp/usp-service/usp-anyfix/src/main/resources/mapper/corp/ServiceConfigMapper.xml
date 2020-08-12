@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.config.mapper.ServiceConfigMapper">
+
+    <select id="updateItemValue">
+        update service_config
+        set item_value =
+        CASE item_id
+        <foreach collection="serviceConfigList" item="item" >
+            WHEN  #{item.itemId} THEN #{item.itemValue}
+        </foreach>
+        END
+        where item_id in
+         <foreach collection="itemIdList" item="itemId" open="(" close=")" separator="," >
+                 #{itemId}
+         </foreach>
+          and id = #{id}
+    </select>
+
+    <select id="selectByWorkIdWithDemander" resultType="com.zjft.usp.anyfix.corp.config.dto.ServiceConfigDto">
+         select item.id as item_id , item.item_name, item.default_value ,item.description, service.item_value
+         from config_item item
+         left join (
+            select *
+            from service_config
+            where id  = (
+                 SELECT id
+                FROM demander_service
+                WHERE (demander_corp, service_corp) = (
+                    SELECT demander_corp , service_corp
+                    FROM work_deal
+                    WHERE work_id = #{workId}
+                    )
+                )
+         ) service
+         on item.id = service.item_id
+        <if test='itemIdList != null and itemIdList.size() > 0 '>
+            where item.id in
+            <foreach item="item" collection="itemIdList" open="(" close=")" separator="," index="index">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectConfigList" resultType="com.zjft.usp.anyfix.corp.config.dto.ServiceConfigDto">
+        select item.id as item_id , item.item_name, item.default_value ,item.description, service.item_value
+        from config_item item
+        left join (
+        select *
+        from service_config
+        where id = #{id}
+        ) service
+        on item.id = service.item_id
+        <if test='itemIdList != null and itemIdList.size() > 0 '>
+             where item.id in
+             <foreach item="item" collection="itemIdList" open="(" close=")" separator="," index="index">
+                #{item}
+            </foreach>
+         </if>
+    </select>
+
+    <update id="updateSingItemValue" >
+        update service_config
+        set item_value = #{serviceConfig.itemValue}
+        where id = #{serviceConfig.id} and item_id = #{serviceConfig.itemId}
+    </update>
+
+    <select id="selectByDemanderService" resultType="com.zjft.usp.anyfix.corp.config.dto.ServiceConfigDto">
+        select item.id as item_id , item.item_name, item.default_value ,item.description, service.item_value
+        from config_item item
+        left join (
+        select *
+        from service_config
+            where id  = (
+                SELECT id
+                FROM demander_service
+                WHERE demander_corp =#{demanderCorp},service_corp = #{serviceCorp}
+                )
+            )
+        ) service
+        on item.id = service.item_id
+        <if test='itemIdList != null and itemIdList.size() > 0 '>
+            where item.id in
+            <foreach item="item" collection="itemIdList" open="(" close=")" separator="," index="index">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

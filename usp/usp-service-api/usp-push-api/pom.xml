@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>usp-service-api</artifactId>
+        <groupId>com.zjft</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>usp-push-api</artifactId>
+    <description>推送组件</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- 个推依赖包 -->
+        <dependency>
+            <groupId>com.gexin.platform</groupId>
+            <artifactId>gexin-rp-sdk-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.zjft</groupId>
+            <artifactId>usp-mq-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <!-- 引入数据库 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jpush-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jiguang-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.corp.mapper.CorpRegistryMapper">
+    <resultMap id="BaseResultMap" type="com.zjft.usp.uas.corp.model.CorpRegistry">
+        <id column="corpid" jdbcType="BIGINT" property="corpId"/>
+        <result column="txid" jdbcType="BIGINT" property="txId"/>
+        <result column="corpname" jdbcType="VARCHAR" property="corpName"/>
+        <result column="shortname" jdbcType="VARCHAR" property="shortName"/>
+        <result column="province" jdbcType="VARCHAR" property="province"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="district" jdbcType="VARCHAR" property="district"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="telephone" jdbcType="VARCHAR" property="telephone"/>
+        <result column="industry" jdbcType="VARCHAR" property="industry"/>
+        <result column="business" jdbcType="VARCHAR" property="business"/>
+        <result column="staffqty" jdbcType="INTEGER" property="staffQty"/>
+        <result column="website" jdbcType="VARCHAR" property="website"/>
+        <result column="passwd" jdbcType="VARCHAR" property="passwd"/>
+        <result column="logoimg" jdbcType="BIGINT" property="logoImg"/>
+        <result column="reguserid" jdbcType="BIGINT" property="regUserId"/>
+        <result column="regtime" jdbcType="TIMESTAMP" property="regTime"/>
+        <result column="owneruserid" jdbcType="BIGINT" property="ownerUserId"/>
+        <result column="alipaylogonid" jdbcType="VARCHAR" property="aliPayLogonId"/>
+        <result column="appid" jdbcType="INTEGER" property="appId"/>
+        <result column="clientid" jdbcType="VARCHAR" property="clientId"/>
+        <result column="corpcode" jdbcType="VARCHAR" property="corpCode"/>
+    </resultMap>
+    <resultMap id="corpNameDto" type="com.zjft.usp.uas.corp.dto.CorpNameDto">
+        <id column="corpid" jdbcType="BIGINT" property="corpId"/>
+        <result column="corpname" jdbcType="VARCHAR" property="corpName"/>
+    </resultMap>
+
+    <resultMap id="DtoResultMap" type="com.zjft.usp.uas.corp.dto.CorpDto" extends="BaseResultMap">
+        <result property="regUserName" column="username"/>
+    </resultMap>
+
+    <resultMap id="CorpRoleResultMap" type="com.zjft.usp.uas.corp.dto.CorpRoleDto">
+        <id column="corpId"  property="corpId"/>
+        <result column="corpName" property="corpName"/>
+        <result column="shortName" property="shortName"/>
+        <result column="province" property="province"/>
+        <result column="city" property="city"/>
+        <result column="district" property="district"/>
+        <result column="logoImg" property="logoImg"/>
+        <result column="address" property="address"/>
+        <result column="telephone" property="telephone"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    corpid, txid, corpname, shortname, province, city, district, address, telephone, industry, business,
+    staffqty, website, passwd, logoimg, reguserid, regtime, owneruserid, alipaylogonid, 
+    appid
+  </sql>
+
+    <select id="listCorpRoleByUserId" resultMap="CorpRoleResultMap">
+        SELECT c.corpid,c.corpname,c.shortname,c.province,c.city,c.district,c.logoimg,c.address,c.telephone from
+         uas_corp_reg c join uas_corp_user u on c.corpid=u.corpid
+        where userid=#{userId} order by u.addtime asc
+    </select>
+
+    <!--查询企业-->
+    <select id="query" resultMap="BaseResultMap">
+        select * from uas_corp_reg where 1=1
+        <if test='corpRegistryFilter.corpName != null and corpRegistryFilter.corpName != ""'>
+            and corpname = #{corpRegistryFilter.corpName}
+        </if>
+        <if test='corpRegistryFilter.province != null and corpRegistryFilter.province != ""'>
+            and province = #{corpRegistryFilter.province}
+        </if>
+        <if test='corpRegistryFilter.city != null and corpRegistryFilter.city != ""'>
+            and city = #{corpRegistryFilter.city}
+        </if>
+        <if test='corpRegistryFilter.district != null and corpRegistryFilter.district != ""'>
+            and district like concat(#{corpRegistryFilter.district}, '%')
+        </if>
+        <if test='corpRegistryFilter.userId != null and corpRegistryFilter.userId > 0'>
+            and corpid in (select corpid from uas_corp_user where userid=#{corpRegistryFilter.userId})
+        </if>
+        <if test='corpRegistryFilter.corpId != null and corpRegistryFilter.corpId > 0'>
+            and corpid = #{corpRegistryFilter.corpId}
+        </if>
+        <if test='corpRegistryFilter.verify != null and corpRegistryFilter.verify != 2'>
+            and verify = #{corpRegistryFilter.verify}
+        </if>
+        <if test='corpRegistryFilter.mobileFilter != null and corpRegistryFilter.mobileFilter != ""'>
+            and (address like concat('%',trim(#{corpRegistryFilter.mobileFilter}),'%')
+            or telephone like concat('%',trim(#{corpRegistryFilter.mobileFilter}),'%')
+            or corpname like concat('%',trim(#{corpRegistryFilter.mobileFilter}),'%'))
+        </if>
+        order by regtime desc
+    </select>
+
+    <select id="listCorpNameMapByUserId" resultMap="corpNameDto">
+    select corpid , corpname from uas_corp_reg where corpid in
+    (select corpid from uas_corp_user where userid=#{userId})
+  </select>
+
+    <!-- 模糊查询企业 -->
+    <select id="matchCorp" resultType="com.zjft.usp.uas.corp.model.CorpRegistry">
+        select * from uas_corp_reg
+        where 1=1
+        <if test='matchFilter != null and matchFilter != ""'>
+            and corpname like concat('%',trim(#{matchFilter}),'%')
+        </if>
+        <if test='corpIdList != null and corpIdList.size() > 0 '>
+            and corpid in
+             <foreach collection="corpIdList" item="corpId" open="(" close=")" separator=",">
+                #{corpId}
+             </foreach>
+        </if>
+        <if test='excludeCorpIdList != null and excludeCorpIdList.size() > 0'>
+            and corpid not in
+            <foreach collection="excludeCorpIdList" item="corpId" open="(" close=")" separator=",">
+                #{corpId}
+            </foreach>
+        </if>
+        order by corpname asc limit 0,50
+    </select>
+
+    <select id="selectCorpWithRegUserName" resultMap="DtoResultMap">
+        select reg.* , ureal.username
+        from uas_corp_reg reg left join  uas_user_real ureal
+        on reg.reguserid = ureal.userid
+        <if test="corpIdList != null and corpIdList.size > 0">
+            where reg.corpid in
+            <foreach collection="corpIdList" open="(" close=")" separator="," item="corpId">
+                #{corpId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectCorpWithRegUserNameById" resultMap="DtoResultMap">
+        select reg.* , ureal.username
+        from uas_corp_reg reg left join  uas_user_real ureal
+        on reg.reguserid = ureal.userid
+        where reg.corpid = #{corpId}
+    </select>
+
+    <select id="selectMaxCorpCode" resultType="java.lang.String">
+        select max(corpCode)
+        from uas_corp_reg
+    </select>
+</mapper>

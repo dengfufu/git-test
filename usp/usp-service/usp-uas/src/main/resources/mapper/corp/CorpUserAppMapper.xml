@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.corp.mapper.CorpUserAppMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.corp.model.CorpUserApp">
+    <id column="corpid" jdbcType="BIGINT" property="corpId" />
+    <id column="txid" jdbcType="BIGINT" property="txId" />
+    <result column="applyuserid" jdbcType="BIGINT" property="applyUserId" />
+    <result column="username" jdbcType="VARCHAR" property="userName" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="applynote" jdbcType="VARCHAR" property="applyNote" />
+    <result column="applytime" jdbcType="TIMESTAMP" property="applyTime" />
+    <result column="inviteuserid" jdbcType="BIGINT" property="inviteUserId" />
+    <result column="checkuserid" jdbcType="BIGINT" property="checkUserId" />
+    <result column="checktime" jdbcType="TIMESTAMP" property="checkTime" />
+    <result column="checknote" jdbcType="VARCHAR" property="checkNote" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    corpid, txid, applyuserid, ordernum, status, applynote, applytime, inviteuserid, checkuserid,
+    checktime, checknote
+  </sql>
+</mapper>

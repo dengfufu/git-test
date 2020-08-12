@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.pos.mapper.PosLastMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zjft.usp.pos.model.PosLast">
+        <id column="userid" property="userId"/>
+        <result column="postime" property="posTime"/>
+        <result column="lon" property="lon"/>
+        <result column="lat" property="lat"/>
+        <result column="addr" property="addr"/>
+        <result column="bdlon" property="bdLon"/>
+        <result column="bdlat" property="bdLat"/>
+        <result column="radius" property="radius"/>
+        <result column="client" property="client"/>
+    </resultMap>
+
+    <select id="findPosByUserId" resultMap="BaseResultMap" parameterType="String">
+        select userid,postime,lon,lat,addr,bdlon,bdlat,radius,client from pos_last where userid=#{userId}
+    </select>
+
+    <insert id="insertPosInfo" parameterType="com.zjft.usp.pos.dto.PositionDto">
+        insert into pos_last(userid,postime,lon,lat,addr,bdlon,bdlat,radius,client)
+            values (#{userId},#{posTime},#{lon},#{lat},#{addr},#{bdLon},#{bdLat},#{radius},#{client})
+    </insert>
+
+</mapper>

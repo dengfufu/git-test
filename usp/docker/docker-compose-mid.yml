@@ -1,0 +1,79 @@
+version: '3.3'
+services:
+  nacos:
+    image: nacos/nacos-server:latest
+    container_name: nacos-standalone
+    hostname: nacos
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+    volumes:
+      - ${PWD}/naocs/logs:/home/nacos/logs
+    ports:
+      - "8848:8848"
+      - "9555:9555"
+    restart: always
+  redis:
+    image: redis
+    container_name: redis
+    # 优先使用命令行参数，期次是redis.conf中的参数
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: always
+    volumes:
+      - ${PWD}/redis/data:/data
+      - ${PWD}/redis/data/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+  oap:
+    image: apache/skywalking-oap-server:6.6.0-es7
+    container_name: oap
+    restart: always
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    environment:
+      SW_STORAGE: h2
+  ui:
+    image: apache/skywalking-ui:6.6.0
+    container_name: ui
+    depends_on:
+      - oap
+    links:
+      - oap
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SW_OAP_ADDRESS: oap:12800
+  zookeeper:
+    image: wurstmeister/zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+  kafka1:
+    image: wurstmeister/kafka:2.12-2.2.2
+    depends_on:
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "topic001:2:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  kafka-manager:
+    image: sheepkiller/kafka-manager
+    depends_on:
+      - kafka1
+    links:
+      - kafka1
+    restart: always
+    environment:
+      ZK_HOSTS: zookeeper:2181
+    ports:
+      - "9000:9000"

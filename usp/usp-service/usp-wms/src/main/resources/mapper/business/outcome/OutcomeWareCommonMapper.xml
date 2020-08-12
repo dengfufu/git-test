@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.outcome.mapper.OutcomeWareCommonMapper">
+    <sql id="commonCondition">
+        select a.id,a.corp_id,a.depot_id,a.property_right,a.flow_instance_id,a.create_by,a.create_time,a.update_by,a.update_time,a.outcome_code,a.group_code,a.apply_date,a.outcome_status,
+        a.stock_id,a.large_class_id,a.small_class_id,a.model_id,a.norms_value,a.quantity,a.situation,a.barcode,a.sn,a.status,a.description,ftn.node_type as flowNodeType,ftn.name as cur_node_name
+        from outcome_ware_common a left join flow_instance f on a.flow_instance_id=f.id
+        left join flow_instance_node n on f.current_node_id=n.id
+        left join flow_template_node ftn on n.template_node_id=ftn.id where 1=1
+        <if test="outcomeFilter.corpId != null and outcomeFilter.corpId > 0L">
+            and a.corp_id = #{outcomeFilter.corpId}
+        </if>
+        <if test="outcomeFilter.largeClassId !=null and outcomeFilter.largeClassId >0L ">
+            and a.large_class_id = #{outcomeFilter.largeClassId}
+        </if>
+        <if test="outcomeFilter.smallClassId !=null and outcomeFilter.smallClassId >0L ">
+            and a.small_class_id = #{outcomeFilter.smallClassId}
+        </if>
+        <if test="outcomeFilter.depotId !=null and outcomeFilter.depotId >0L ">
+            and a.depot_id = #{outcomeFilter.depotId}
+        </if>
+        <if test="outcomeFilter.id !=null and outcomeFilter.id >0L ">
+            and a.id = #{outcomeFilter.id}
+        </if>
+        <if test="outcomeFilter.outcomeStatusList !=null and outcomeFilter.outcomeStatusList.size > 0 ">
+            and a.outcome_status in
+            <foreach item="outcomeStatus" collection="outcomeFilter.outcomeStatusList" open="(" close=")" separator=",">
+                #{outcomeStatus}
+            </foreach>
+        </if>
+        <if test="outcomeFilter.propertyRight !=null and outcomeFilter.propertyRight >0L ">
+            and a.property_right = #{outcomeFilter.propertyRight}
+        </if>
+        <if test="outcomeFilter.situation !=null and outcomeFilter.situation >0L ">
+            and a.situation = #{outcomeFilter.situation}
+        </if>
+        <if test="outcomeFilter.sn != null and outcomeFilter.sn != ''">
+            and a.sn like CONCAT('%', #{a.sn}, '%')
+        </if>
+        <if test="outcomeFilter.barcode != null and barcode.barcode != ''">
+            and a.barcode like CONCAT('%', #{a.barcode}, '%')
+        </if>
+        <if test="outcomeFilter.catalogId != null and outcomeFilter.catalogId > 0L">
+            and a.model_id in (select id from ware_model where catalog_id = #{outcomeFilter.catalogId})
+        </if>
+        <if test="outcomeFilter.brandId != null and outcomeFilter.brandId > 0L">
+            and a.model_id in (select id from ware_model where brand_id = #{outcomeFilter.brandId})
+        </if>
+        <if test="outcomeFilter.modelId != null and outcomeFilter.modelId > 0L">
+            and a.model_id = #{outcomeFilter.modelId}
+        </if>
+        <if test="outcomeFilter.createTimeList !=null and outcomeFilter.createTimeList.size > 0 ">
+            and a.create_time > #{outcomeFilter.createTimeList[0]}
+            and a.create_time &lt; #{outcomeFilter.createTimeList[1]}
+        </if>
+        <if test="outcomeFilter.flowNodeTypeList !=null and outcomeFilter.flowNodeTypeList.size > 0 ">
+            and ftn.node_type in
+            <foreach item="flowNodeType" collection="outcomeFilter.flowNodeTypeList" open="(" close=")" separator=",">
+                #{flowNodeType}
+            </foreach>
+        </if>
+
+    </sql>
+
+    <select id="listByPage" resultType="com.zjft.usp.wms.business.outcome.dto.OutcomeWareCommonDto">
+        select * from (
+        <include refid="commonCondition"></include>
+        ) t
+    </select>
+
+    <select id="getById" resultType="com.zjft.usp.wms.business.outcome.dto.OutcomeWareCommonDto">
+        select * from (
+        <include refid="commonCondition"></include>
+        ) t
+    </select>
+
+    <select id="countByStatus" resultType="com.zjft.usp.wms.business.outcome.dto.OutcomeStatDto">
+        select flowNodeType, count(id) as outcome_number from (
+        <include refid="commonCondition"></include>
+        ) cou group by flowNodeType
+    </select>
+</mapper>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.user.mapper.UserDeviceMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.user.model.UserDevice">
+    <id column="userid" jdbcType="BIGINT" property="userId" />
+    <id column="deviceid" jdbcType="VARCHAR" property="deviceId" />
+    <result column="devicetype" jdbcType="SMALLINT" property="deviceType" />
+    <result column="osversion" jdbcType="VARCHAR" property="osVersion" />
+    <result column="addtime" jdbcType="TIMESTAMP" property="addTime" />
+  </resultMap>
+
+</mapper>

@@ -1,0 +1,60 @@
+management:
+  context-path: /actuator
+  health:
+    mail:
+      enabled: false
+server:
+  context-path: /xxl-job-admin
+  port: 10110
+mybatis:
+  mapper-locations: classpath:/mybatis-mapper/*Mapper.xml
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: cloud.Zijin
+    tomcat:
+      max-active: 30
+      max-wait: 10000
+      test-on-borrow: true
+      validation-interval: 30000
+      validation-query: SELECT 1
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://10.34.12.145:3306/usp_job?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+  freemarker:
+    charset: UTF-8
+    request-context-attribute: request
+    settings:
+      number_format: 0.##########
+    suffix: .ftl
+    templateLoaderPath: classpath:/templates/
+  mail:
+    host: mail.zijin.com
+    port: 25
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+          starttls:
+            enable: false
+            required: false
+  mvc:
+    servlet:
+      load-on-startup: 0
+    static-path-pattern: /static/**
+  resources:
+    static-locations: classpath:/static/
+xxl:
+  job:
+    accessToken: ''
+    i18n: ''
+    logretentiondays: 30
+    triggerpool:
+      fast:
+        max: 200
+      slow:
+        max: 100

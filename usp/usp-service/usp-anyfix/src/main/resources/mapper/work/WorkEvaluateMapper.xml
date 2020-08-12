@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.evaluate.mapper.WorkEvaluateMapper">
+    <!-- 根据指标查询评价 -->
+    <select id="queryEvaluateByIndex" resultType="com.zjft.usp.anyfix.work.evaluate.dto.WorkEvaluateDto">
+        select c.* from
+        (select b.*,a.demander_corp from
+        <if test="workEvaluateDto.dateBegin != null and workEvaluateDto.dateEnd != null">
+            (select * from work_deal where finish_time <![CDATA[ >= ]]> #{workEvaluateDto.dateBegin} and finish_time <![CDATA[ <= ]]> #{workEvaluateDto.dateEnd}
+            <if test="userInfo.userId != null and reqParam.corpId != null">
+                and engineer = #{userInfo.userId} and service_corp = #{reqParam.corpId}) a
+            </if>
+            left join work_evaluate b on a.work_id = b.work_id
+            where operate_time <![CDATA[ >= ]]> #{workEvaluateDto.dateBegin} and operate_time <![CDATA[ <= ]]> #{workEvaluateDto.dateEnd}
+            ) c
+        </if>
+        <if test="workEvaluateDto.evaluateId != null and workEvaluateDto.score != null">
+            left join (select * from work_evaluate_index where evaluate_id = #{workEvaluateDto.evaluateId}) d on
+            c.work_id = d.work_id
+            where score = #{workEvaluateDto.score}
+        </if>
+        order by operate_time desc
+    </select>
+
+
+    <select id="queryWorkEvaluateCountDto" resultType="com.zjft.usp.anyfix.work.evaluate.dto.WorkEvaluateCountDto" >
+        select t1.date_day as date, count(*) as count, t2.score
+        from (
+        <if test="countTime == 20">
+		  select evaluate.work_id , DATE_FORMAT(evaluate.operate_time,"%d")  as date_day
+        </if>
+        <if test="countTime == 60">
+            select evaluate.work_id , DATE_FORMAT(evaluate.operate_time,"%m")  as date_day
+        </if>
+		from work_evaluate evaluate, work_deal deal
+		where
+        <if test="countTime == 20">
+		    date_format(operate_time, '%Y-%m' ) = date_format( now(), '%Y-%m' )
+        </if>
+        <if test="countTime == 60">
+            YEAR(operate_time)=YEAR(NOW())
+        </if>
+					and evaluate.work_id = deal.work_id and deal.service_corp = #{serviceCorp}
+        ) as t1 join
+        (
+			select *
+            from work_evaluate_index
+        ) as t2
+        on t1.work_id = t2.work_id
+        where t2.evaluate_id = #{evaluateId}
+        group by t2.score, t1.date_day
+    </select>
+
+    <!--<select id="queryWorkEvaluateTotalCountDtoByMonth" resultType="com.zjft.usp.anyfix.work.evaluate.dto.WorkEvaluateTotalCountDto"  >-->
+       	<!--select count(*) as count, t2.score-->
+        <!--from (-->
+		<!--select evaluate.work_id-->
+		<!--from work_evaluate evaluate, work_deal deal-->
+		<!--where date_format(operate_time, '%Y-%m' ) = date_format( now(), '%Y-%m' )-->
+					<!--and evaluate.work_id = deal.work_id and deal.service_corp = #{serviceCorp}-->
+        <!--) as t1 join-->
+        <!--(-->
+			<!--select *-->
+            <!--from work_evaluate_index-->
+        <!--) as t2-->
+        <!--on t1.work_id = t2.work_id-->
+        <!--where t2.evaluate_id = #{evaluateId}-->
+        <!--group by t2.score-->
+    <!--</select>-->
+
+    <!--<select id="queryWorkEvaluateCountDtoByYear" resultType="com.zjft.usp.anyfix.work.evaluate.dto.WorkEvaluateCountDto" >-->
+        <!--select t1.date_day as date, count(*) as count, t2.score-->
+        <!--from (-->
+		<!--select evaluate.work_id , DATE_FORMAT(evaluate.operate_time,"%m")  as date_day-->
+		<!--from work_evaluate evaluate, work_deal deal-->
+		<!--where  YEAR(operate_time)=YEAR(NOW())-->
+					<!--and evaluate.work_id = deal.work_id and deal.service_corp = #{serviceCorp}-->
+        <!--) as t1 join-->
+        <!--(-->
+			<!--select *-->
+            <!--from work_evaluate_index-->
+        <!--) as t2-->
+        <!--on t1.work_id = t2.work_id-->
+        <!--where t2.evaluate_id = #{evaluatedId}-->
+        <!--group by t2.score, t1.date_day;-->
+    <!--</select>-->
+
+    <select id="queryWorkEvaluateTotalCountDto" resultType="com.zjft.usp.anyfix.work.evaluate.dto.WorkEvaluateTotalCountDto" >
+        select count(*) as count, t2.score
+        from (
+		select evaluate.work_id
+		from work_evaluate evaluate, work_deal deal
+		where
+        <if test="countTime == 60">
+		      YEAR(operate_time)=YEAR(NOW())
+        </if>
+        <if test="countTime == 20">
+            date_format(operate_time, '%Y-%m' ) = date_format( now(), '%Y-%m' )
+        </if>
+			and evaluate.work_id = deal.work_id and deal.service_corp = #{serviceCorp}
+        ) as t1 join
+        (
+			select *
+            from work_evaluate_index
+        ) as t2
+        on t1.work_id = t2.work_id
+        where t2.evaluate_id = #{evaluateId}
+        group by t2.score
+    </select>
+</mapper>

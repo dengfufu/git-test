@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.remind.mapper.WorkRemindMainMapper">
+    <!-- 查询 -->
+    <select id="queryWorkRemind" resultType="com.zjft.usp.anyfix.work.remind.dto.WorkRemindMainDto">
+        select m.remind_id,m.remind_name,m.corp_id,m.custom_id,m.custom_corp,m.demander_corp,
+        m.service_corp,m.service_branch,m.work_type,m.large_class_id,m.small_class_id,m.brand_id,
+        m.model_id,m.district,m.device_branch,m.sort_no,m.description,m.enabled,m.creator,m.create_time,
+        d.remind_type,d.expire_time_min from work_remind_m m join work_remind_d d on m.remind_id=d.remind_id
+        where 1=1
+        <if test='workRemindFilter.demanderCorp != null and workRemindFilter.demanderCorp > 0'>
+            and m.demander_corp=#{workRemindFilter.demanderCorp}
+        </if>
+        <if test='workRemindFilter.workType != null and workRemindFilter.workType > 0'>
+            and m.work_type=#{workRemindFilter.workType}
+        </if>
+        <if test='workRemindFilter.enabled != null and workRemindFilter.enabled !=""'>
+            and m.enabled=#{workRemindFilter.enabled}
+        </if>
+        <if test='workRemindFilter.remindTypes != null and workRemindFilter.remindTypes != ""'>
+            and d.remind_type in
+            <foreach item="remindTypes" collection="workRemindFilter.remindTypes" open="(" separator="," close=")">
+                #{remindTypes}
+            </foreach>
+        </if>
+        <if test='workRemindFilter.customId != null and workRemindFilter.customId >0'>
+            and m.custom_id=#{workRemindFilter.customId}
+        </if>
+        <if test='workRemindFilter.smallClassId != null and workRemindFilter.smallClassId >0'>
+            and m.small_class_id=#{workRemindFilter.smallClassId}
+        </if>
+        <if test='workRemindFilter.deviceModel != null and workRemindFilter.deviceModel >0'>
+            and m.model_id=#{workRemindFilter.deviceModel}
+        </if>
+        <if test='workRemindFilter.deviceBrand != null and workRemindFilter.deviceBrand >0'>
+            and m.brand_id=#{workRemindFilter.deviceBrand}
+        </if>
+        <if test='workRemindFilter.district != null and workRemindFilter.district !=""'>
+            and m.district=#{workRemindFilter.district}
+        </if>
+        <if test='workRemindFilter.serviceBranches != null and workRemindFilter.serviceBranches !=""'>
+            and m.service_branch=#{workRemindFilter.serviceBranches}
+        </if>
+        order by corp_id,create_time,remind_type asc
+    </select>
+</mapper>

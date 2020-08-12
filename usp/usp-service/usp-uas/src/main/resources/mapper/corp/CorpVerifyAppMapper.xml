@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.corp.mapper.CorpVerifyAppMapper">
+  <resultMap id="BaseResultMap" type="com.zjft.usp.uas.corp.model.CorpVerifyApp">
+    <id column="corpid" jdbcType="BIGINT" property="corpId" />
+    <id column="txid" jdbcType="BIGINT" property="txId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="laridcard" jdbcType="VARCHAR" property="larIdCard" />
+    <result column="licensefileid" jdbcType="BIGINT" property="licenseFileId" />
+    <result column="applyidcardimg" jdbcType="BIGINT" property="applyIdCardImg" />
+    <result column="applyvideo" jdbcType="BIGINT" property="applyVideo" />
+    <result column="videocheckcode" jdbcType="VARCHAR" property="videoCheckCode" />
+    <result column="applyuserid" jdbcType="BIGINT" property="applyUserId" />
+    <result column="applytime" jdbcType="TIMESTAMP" property="applyTime" />
+    <result column="applyidcardnum" jdbcType="VARCHAR" property="applyIdCardNum" />
+    <result column="creditcode" jdbcType="VARCHAR" property="creditCode" />
+    <result column="larname" jdbcType="VARCHAR" property="larName" />
+    <result column="founddate" jdbcType="DATE" property="foundDate" />
+    <result column="expiredate" jdbcType="DATE" property="expireDate" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="checkuserid" jdbcType="BIGINT" property="checkUserId" />
+    <result column="checktime" jdbcType="TIMESTAMP" property="checkTime" />
+    <result column="checknote" jdbcType="VARCHAR" property="checkNote" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    corpid, txid, status, laridcard, licensefileid, applyidcardimg, applyvideo, videocheckcode, 
+    applyuserid, applytime, applyidcardnum, creditcode, larname, founddate, expiredate, 
+    province, city, address, checkuserid, checktime, checknote
+  </sql>
+</mapper>

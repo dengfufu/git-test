@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.user.mapper.UserInfoMapper">
+    <resultMap id="BaseResultMap" type="com.zjft.usp.common.model.UserInfo">
+        <id column="userid" jdbcType="BIGINT" property="userId"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="regtime" jdbcType="TIMESTAMP" property="regTime"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <result column="country" jdbcType="VARCHAR" property="country"/>
+        <result column="province" jdbcType="VARCHAR" property="province"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="district" jdbcType="VARCHAR" property="district"/>
+        <result column="faceimg" jdbcType="BIGINT" property="faceImg"/>
+        <result column="faceimgbig" jdbcType="BIGINT" property="faceImgBig"/>
+        <result column="verified" jdbcType="VARCHAR" property="verified"/>
+        <result column="signature" jdbcType="VARCHAR" property="signature"/>
+    </resultMap>
+
+    <!-- 模糊查询有效用户 -->
+    <select id="matchUser" resultType="com.zjft.usp.uas.user.dto.UserInfoDto">
+        select a.userid,a.mobile,b.username from uas_user_mobile a left join uas_user_real b on a.userid=b.userid
+        <where>
+            <if test='matchFilter != null and matchFilter != ""'>
+                and (a.mobile like concat('%',trim(#{matchFilter}),'%')
+                or b.username like concat('%',trim(#{matchFilter}),'%'))
+            </if>
+            <if test='mobile != null and mobile != ""'>
+                and a.mobile like concat('%',trim(#{mobile}),'%')
+            </if>
+        </where>
+        order by b.username asc, a.userid asc limit 0,50
+    </select>
+
+</mapper>

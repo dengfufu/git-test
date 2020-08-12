@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.work.auto.mapper.WorkDispatchServiceCorpMapper">
+
+    <resultMap type="com.zjft.usp.anyfix.work.auto.dto.WorkDispatchServiceCorpDto" id="workServiceCorpDto">
+        <id property="id" column="id"/>
+        <result property="serviceCorp" column="service_corp"/>
+        <result property="conditionId" column="condition_id"/>
+        <result property="customCorp" column="custom_corp"/>
+        <result property="demanderCorp" column="demander_corp"/>
+        <result property="largeClassId" column="large_class_id"/>
+        <result property="smallClassId" column="small_class_id"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="modelId" column="model_id"/>
+        <result property="district" column="district"/>
+        <result property="deviceBranch" column="device_branch"/>
+    </resultMap>
+
+    <!-- 分页查询自动分配服务商规则 -->
+    <select id="query" resultMap="workServiceCorpDto">
+        select
+        sc.id as id,
+        sc.service_corp as service_corp,
+        sc.condition_id as condition_id,
+        c.custom_corp as custom_corp,
+        c.demander_corp as demander_corp,
+        c.large_class_id as large_class_id,
+        c.small_class_id as small_class_id,
+        c.brand_id as brand_id,
+        c.model_id as model_id,
+        c.district as district,
+        c.device_branch as device_branch,
+        c.work_type as work_type
+        from
+        work_dispatch_service_corp sc
+        left join work_condition c
+        on sc.condition_id=c.id
+        where
+        1=1
+        and c.demander_corp=#{filter.demanderCorp}
+        <if test='filter.district != null and filter.district != ""'>
+            and (c.district like concat(#{filter.district}, '%') or (#{filter.district} = '5001' and c.district like '5002%'))
+        </if>
+        <if test='filter.customCorp != null and filter.customCorp > 0'>
+            and c.custom_corp=#{filter.customCorp}
+        </if>
+        <if test='filter.serviceCorp != null and filter.serviceCorp > 0'>
+            and sc.service_corp=#{filter.serviceCorp}
+        </if>
+    </select>
+
+    <!-- 根据条件匹配服务商 -->
+    <select id="matchServiceCorp" resultMap="workServiceCorpDto">
+        select
+        sc.id as id,
+        sc.service_corp as service_corp,
+        sc.condition_id as condition_id,
+        c.custom_corp as custom_corp,
+        c.demander_corp as demander_corp,
+        c.large_class_id as large_class_id,
+        c.small_class_id as small_class_id,
+        c.brand_id as brand_id,
+        c.model_id as model_id,
+        c.district as district,
+        c.device_branch as device_branch,
+        c.work_type as work_type
+        from
+        work_dispatch_service_corp sc
+        left join work_condition c
+        on sc.condition_id=c.id
+        where
+        1=1
+        and c.demander_corp=#{demanderCorp}
+        <if test='serviceCorp != null and serviceCorp > 0'>
+            and (c.service_corp=#{serviceCorp} or c.service_corp = 0)
+        </if>
+        <if test='customCorp != null and customCorp > 0'>
+            and (c.custom_corp=#{customCorp} or c.custom_corp = 0)
+        </if>
+        <if test='workType != null and workType != ""'>
+            and (c.work_type=#{workType} or c.work_type='')
+        </if>
+        <if test='largeClassId != null and largeClassId > 0'>
+            and (c.large_class_id=#{largeClassId} or c.large_class_id = '0')
+        </if>
+        <if test='smallClassId != null and smallClassId != ""'>
+            and (FIND_IN_SET(#{smallClassId}, c.small_class_id) > 0 or c.small_class_id = '0' or c.small_class_id = '')
+        </if>
+        <if test='brandId != null and brandId != ""'>
+            and (FIND_IN_SET(#{brandId}, c.brand_id) > 0 or c.brand_id = '0' or c.brand_id = '')
+        </if>
+        <if test='modelId != null and modelId != ""'>
+            and (FIND_IN_SET(#{modelId}, c.model_id) > 0 or c.model_id = '0' or c.model_id = '')
+        </if>
+        <if test='district != null and district != ""'>
+            and (#{district} like concat(c.district, '%') or (c.district = '5001' and #{district} like '5002%') or c.district = '')
+        </if>
+        <if test='deviceBranch != null and deviceBranch != ""'>
+            and (FIND_IN_SET(#{deviceBranch}, c.device_branch) > 0 or c.device_branch = '0' or c.device_branch = '')
+        </if>
+    </select>
+</mapper>

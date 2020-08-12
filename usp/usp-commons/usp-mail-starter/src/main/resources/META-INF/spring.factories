@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration = com.zjft.usp.mail.MailAutoConfigure,org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration,org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration

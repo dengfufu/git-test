@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.right.mapper.SysRightMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="SysRightResultMap" type="com.zjft.usp.uas.right.model.SysRight">
+        <id column="right_id" property="rightId"/>
+        <result column="right_name" property="rightName"/>
+        <result column="right_code" property="rightCode"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="has_scope" property="hasScope"/>
+        <result column="app_id" property="appId"/>
+        <result column="service_demander" property="serviceDemander"/>
+        <result column="service_demander_common" property="serviceDemanderCommon"/>
+        <result column="service_provider" property="serviceProvider"/>
+        <result column="service_provider_common" property="serviceProviderCommon"/>
+        <result column="device_user" property="deviceUser"/>
+        <result column="device_user_common" property="deviceUserCommon"/>
+        <result column="cloud_manager" property="cloudManager"/>
+        <result column="cloud_manager_common" property="cloudManagerCommon"/>
+        <result column="has_extra_corp" property="hasExtraCorp"/>
+    </resultMap>
+
+    <!-- dto查询映射结果 -->
+    <resultMap id="SysRightDtoResultMap" type="com.zjft.usp.uas.right.dto.SysRightDto">
+        <result column="right_id" property="rightId"/>
+        <result column="right_name" property="rightName"/>
+        <result column="right_code" property="rightCode"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="app_id" property="appId"/>
+        <result column="has_scope" property="hasScope"/>
+        <result column="service_demander" property="serviceDemander"/>
+        <result column="service_demander_common" property="serviceDemanderCommon"/>
+        <result column="service_provider" property="serviceProvider"/>
+        <result column="service_provider_common" property="serviceProviderCommon"/>
+        <result column="device_user" property="deviceUser"/>
+        <result column="device_user_common" property="deviceUserCommon"/>
+        <result column="cloud_manager" property="cloudManager"/>
+        <result column="cloud_manager_common" property="cloudManagerCommon"/>
+        <result column="has_extra_corp" property="hasExtraCorp"/>
+        <result column="common" property="extraCorpCommon"/>
+    </resultMap>
+
+    <!-- 模糊查询系统权限 -->
+    <select id="matchSysRight" resultMap="SysRightResultMap">
+        select * from sys_right where 1=1
+        <if test='rightName != null and rightName != ""'>
+            and right_name like concat('%',#{rightName},'%')
+        </if>
+        order by right_id asc limit 0,50
+    </select>
+
+    <!-- 获得最大的权限编号 -->
+    <select id="findMaxRightId" resultType="Long">
+        select max(right_id) as right_id from sys_right
+    </select>
+
+    <!-- 查询系统权限树 -->
+    <select id="listSysRightTree" resultMap="SysRightDtoResultMap">
+        select distinct
+        right_id,right_name,right_code,
+        parent_id,app_id,has_scope,
+        service_demander,service_demander_common,
+        service_provider,service_provider_common,
+        device_user,device_user_common,
+        cloud_manager,cloud_manager_common,
+        has_extra_corp
+        from sys_right where 1=1
+        <if test='rightId != null and rightId > 0'>
+            and right_id = #{rightId}
+        </if>
+        <if test='hasScope != null and hasScope != ""'>
+            and has_scope = #{hasScope}
+        </if>
+        <if test='scopeTypeList != null and scopeTypeList.size() > 0'>
+            and right_id in
+            (
+            select right_id from sys_right_scope_type where scope_type in
+            <foreach collection="scopeTypeList" index="index" item="scopeType" open="(" separator="," close=")">
+                #{scopeType}
+            </foreach>
+            )
+        </if>
+        <if test='serviceDemander != null and serviceDemander != ""'>
+            and service_demander = #{serviceDemander}
+        </if>
+        <if test='serviceProvider != null and serviceProvider != ""'>
+            and service_provider = #{serviceProvider}
+        </if>
+        <if test='deviceUser != null and deviceUser != ""'>
+            and device_user = #{deviceUser}
+        </if>
+        <if test='cloudManager != null and cloudManager != ""'>
+            and cloud_manager = #{cloudManager}
+        </if>
+        <if test='appId != null and appId != ""'>
+            and app_id = #{appId}
+        </if>
+        order by right_id asc
+    </select>
+
+    <!-- 查询系统权限树 -->
+    <select id="listSysAuthRightTree" resultMap="SysRightDtoResultMap">
+        select distinct
+        a.right_id,a.right_name,a.right_code,
+        a.parent_id,a.app_id,a.has_scope,
+        a.service_demander,a.service_demander_common,
+        a.service_provider,a.service_provider_common,
+        a.device_user,a.device_user_common,
+        a.cloud_manager,a.cloud_manager_common,
+        c.common
+        from sys_right a
+        left join sys_right_url b on a.right_id=b.right_id
+        left join sys_right_extra_corp c on a.right_id=c.right_id
+        where 1=1
+        <trim prefix="and (" suffix=")" prefixOverrides="AND |OR">
+            <if test='serviceDemander != null and serviceDemander == "Y"'>
+                or a.service_demander = #{serviceDemander}
+            </if>
+            <if test='serviceProvider != null and serviceProvider == "Y"'>
+                or a.service_provider = #{serviceProvider}
+            </if>
+            <if test='deviceUser != null and deviceUser == "Y"'>
+                or a.device_user = #{deviceUser}
+            </if>
+            <if test='cloudManager != null and cloudManager == "Y"'>
+                or a.cloud_manager = #{cloudManager}
+            </if>
+            <if test='corpId != null and corpId != ""'>
+                or c.corp_id = #{corpId}
+            </if>
+        </trim>
+        and (b.right_id is null or b.right_type != 1)
+        order by a.right_id asc
+    </select>
+
+    <!-- 查询用户权限点 -->
+    <select id="listUserRightByApp" resultMap="SysRightResultMap">
+        SELECT
+        a.right_id,a.right_name,a.right_code,
+        a.parent_id,a.app_id,a.has_scope,
+        a.service_demander,a.service_demander_common,
+        a.service_provider,a.service_provider_common,
+        a.device_user,a.device_user_common,
+        a.cloud_manager,a.cloud_manager_common
+        from sys_right a
+        where 1=1
+        and a.right_id IN (
+        SELECT DISTINCT b.right_id from sys_role_right b where b.role_id IN (
+        SELECT c.role_id from sys_role_user c join sys_role d on c.role_id = d.role_id
+        where c.user_id = #{userId}
+        <if test='corpId != null and corpId > 0'>
+            and d.corp_id = #{corpId}
+        </if>
+        )
+        )
+        <if test='rightCode != null and rightCode != ""'>
+            and a.right_code = #{rightCode}
+        </if>
+        <if test='rightId != null and rightId != ""'>
+            and a.right_id = #{rightId}
+        </if>
+        <if test='appId != null and appId != ""'>
+            and a.app_id = #{appId}
+        </if>
+    </select>
+</mapper>

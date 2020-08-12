@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.wms.business.outcome.mapper.OutcomeMainCommonSaveMapper">
+    <select id="listSaveByPage" resultType="com.zjft.usp.wms.business.outcome.dto.OutcomeMainCommonSaveDto">
+        select * from (
+        select * from outcome_m_common_save a where 1=1
+        <if test="outcomeFilter.corpId != null and outcomeFilter.corpId > 0L">
+            and a.corp_id = #{outcomeFilter.corpId}
+        </if>
+        <if test="outcomeFilter.largeClassId !=null and outcomeFilter.largeClassId >0L ">
+            and a.large_class_id = #{outcomeFilter.largeClassId}
+        </if>
+        <if test="outcomeFilter.smallClassId !=null and outcomeFilter.smallClassId >0L ">
+            and a.small_class_id = #{outcomeFilter.smallClassId}
+        </if>
+        <if test="outcomeFilter.depotId !=null and outcomeFilter.depotId >0L ">
+            and a.depot_id = #{outcomeFilter.depotId}
+        </if>
+        <if test="outcomeFilter.outcomeStatusList !=null and outcomeFilter.outcomeStatusList.size > 0 ">
+            and a.save_status in
+            <foreach item="outcomeStatus" collection="outcomeFilter.outcomeStatusList" open="(" close=")" separator=",">
+                #{outcomeStatus}
+            </foreach>
+        </if>
+        ) t
+    </select>
+
+    <select id="countSave" resultType="com.zjft.usp.wms.business.outcome.dto.OutcomeStatDto">
+        select save_status as outcome_status, count(id) as outcome_number from outcome_m_common_save
+        where save_status = 10
+        <if test="curUserId != null and curUserId > 0L">
+            and create_by = #{curUserId}
+        </if>
+        <if test="corpId != null and corpId > 0L">
+            and corp_id = #{corpId}
+        </if>
+        group by save_status
+    </select>
+
+    <select id="getDetailById" resultType="com.zjft.usp.wms.business.outcome.dto.OutcomeMainCommonSaveDto">
+        select * from (
+        select  a.*,b.supplier_id  from outcome_m_common_save a left join outcome_m_return_vendor_save b on a.id = b.id) c
+        left join outcome_m_sale_save d on d.id = c.id
+        where 1=1
+        <if test="outcomeId != null and outcomeId > 0L">
+            and c.id = #{outcomeId}
+        </if>
+    </select>
+</mapper>

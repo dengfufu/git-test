@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.uas.wallet.mapper.WalBalanceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BalanceResultMap" type="com.zjft.usp.uas.wallet.model.WalBalance">
+        <id column="userid" property="userId"/>
+        <result column="ccy" property="ccy"/>
+        <result column="balance" property="balance"/>
+    </resultMap>
+
+    <select id="walBalanceQuery" parameterType="long" resultType="BigDecimal">
+        select balance from uas_wal_balance where userid=#{userId}
+    </select>
+
+    <select id="walBalanceList" resultMap="BalanceResultMap">
+        select * from uas_wal_balance
+    </select>
+</mapper>

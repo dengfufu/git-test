@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjft.usp.anyfix.corp.manage.mapper.DemanderContMapper">
+
+    <select id="selectServiceCont" resultType="com.zjft.usp.anyfix.corp.manage.dto.DemanderContDto">
+        select * from
+        demander_cont
+        where ref_id = (
+            select id
+            from demander_service
+            where demander_corp = #{demanderCorp} and service_corp = #{serviceCorp}
+        )
+        <if test="dispatchTime != null ">
+            and start_date <![CDATA[ <= ]]> #{dispatchTime} and end_date <![CDATA[ >= ]]> #{dispatchTime}
+        </if>
+        <if test="startDate != null and endDate != null">
+            and start_date <![CDATA[ <= ]]> Date(#{startDate}) and end_date <![CDATA[ >= ]]> Date(#{endDate})
+        </if>
+    </select>
+
+<!--    根据条件查询-->
+    <select id="listByFilter" resultType="com.zjft.usp.anyfix.corp.manage.dto.DemanderContDto">
+        select c.*, s.demander_corp, s.service_corp from demander_cont c
+        left join demander_service s on c.ref_id = s.id where 1=1
+        <if test="filter.demanderCorp != null and filter.demanderCorp > 0">
+            and s.demander_corp = #{filter.demanderCorp}
+        </if>
+        <if test="filter.serviceCorp != null and filter.serviceCorp > 0">
+            and s.service_corp = #{filter.serviceCorp}
+        </if>
+        <if test="filter.dispatchTime != null">
+            and c.start_date <![CDATA[ <= ]]> #{filter.dispatchTime} and c.end_date <![CDATA[ >= ]]> #{filter.dispatchTime}
+        </if>
+        <if test="filter.startDate != null and filter.endDate != null">
+            and c.start_date <![CDATA[ <= ]]> Date(#{filter.startDate}) and c.end_date <![CDATA[ >= ]]> Date(#{filter.endDate})
+        </if>
+    </select>
+
+</mapper>
