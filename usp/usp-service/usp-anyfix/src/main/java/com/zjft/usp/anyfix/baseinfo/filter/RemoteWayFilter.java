@@ -24,4 +24,7 @@ public class RemoteWayFilter extends Page {
 
     @ApiModelProperty(value = "是否可用")
     private String enabled;
+
+//    @ApiModelProperty(value = "编号")
+//    private Integer id;
 }

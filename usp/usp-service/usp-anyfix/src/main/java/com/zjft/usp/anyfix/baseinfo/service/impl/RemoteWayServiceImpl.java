@@ -21,6 +21,7 @@ import com.zjft.usp.common.vo.ReqParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -50,7 +51,9 @@ public class RemoteWayServiceImpl extends ServiceImpl<RemoteWayMapper, RemoteWay
     @Override
     public ListWrapper<RemoteWay> query(RemoteWayFilter remoteWayFilter) {
         QueryWrapper<RemoteWay> queryWrapper = new QueryWrapper<>();
-        queryWrapper.and(wrapper -> wrapper.eq("service_corp", remoteWayFilter.getServiceCorp()));
+        BigInteger Zijin_ServiceCorp = new BigInteger("1229327791726825475");
+        //queryWrapper.and(wrapper -> wrapper.eq("service_corp", remoteWayFilter.getServiceCorp()));
+        queryWrapper.and(wrapper -> wrapper.eq("service_corp", Zijin_ServiceCorp));
         if(StrUtil.isNotBlank(remoteWayFilter.getName())) {
             queryWrapper.like("name", StrUtil.trimToEmpty(remoteWayFilter.getName()));
         }
